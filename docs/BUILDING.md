@@ -3,7 +3,9 @@
 > This is a **source** repository, not a mirror of third-party model files. Before downloading,
 > using, packaging or distributing weights/fonts, check the applicable rights and gated terms.
 > In particular the streaming model's redistribution license and `embed.onnx` provenance remain
-> unconfirmed. The existing private APK must not be reuploaded as an MIT GitHub Release.
+> unconfirmed. A local APK must not be labeled an MIT artifact. Publicly uploading it does not
+establish redistribution rights for any bundled asset; user acceptance and disclaimers do not
+replace upstream permission. See the release notes for the still-unresolved rights status.
 
 ## Environment
 
@@ -54,9 +56,10 @@ embed.onnx
 The list describes **build inputs**, not permission to redistribute them. Review the linked
 upstream sources in `THIRD_PARTY_NOTICES.md`; obtain gated access where required. The streaming
 conversion has no clear model license and the exact origin of this project's embedding file is
-unverified. If you cannot establish appropriate rights, **do not create or publish a binary
-containing those models**. Replacing them with properly licensed compatible models requires
-validation of tensor shapes and transcriber behavior, not just renaming files.
+unverified. If you cannot establish appropriate rights, **do not assume that building,
+publishing, user confirmation or a disclaimer grants them**. Public distribution carries
+unresolved upstream-rights risk. Replacing them with properly licensed compatible models
+requires validation of tensor shapes and transcriber behavior, not just renaming files.
 
 ## 3. Test and build
 
@@ -65,7 +68,7 @@ bash design-tools/check-all.sh
 bash build.sh
 ```
 
-Output: `dist/tingxiejian-v1.0-arm64-release.apk` (ARM64; target SDK 35). The build script
+Output: `dist/tingxiejian-v1.0.3-arm64-release.apk` (ARM64; target SDK 35). The build script
 creates a **local** signing identity under `build/` if absent. Keep it private. The APK is
 non-debuggable, but that alone does not constitute official Xiaomi/App Store signing.
 A newly generated identity cannot update a copy signed with a different key; uninstalling an
