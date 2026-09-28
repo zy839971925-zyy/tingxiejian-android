@@ -35,7 +35,7 @@ public class SettingsActivity extends Activity {
     private final Handler ui = new Handler(Looper.getMainLooper());
 
     private LinearLayout speakerSeg, appearanceSeg, providerSeg;
-    private Switch diarize, islandSwitch, shizukuIslandSwitch, cloudAsrSwitch;
+    private Switch diarize, islandSwitch, shizukuIslandSwitch, cloudAsrSwitch, reduceMotionSwitch;
     private View islandDot, islandTest;
     private TextView islandDetail, shizukuStatus, modelStatus, modelButton, cloudStatus, versionLine;
     private final rikka.shizuku.Shizuku.OnRequestPermissionResultListener shizukuPermissionListener =
@@ -70,7 +70,12 @@ public class SettingsActivity extends Activity {
             step("读取设置", this::loadState);
             step("绑定交互", this::wireActions);
             step("刷新模型状态", this::refreshModelStatus);
-            versionLine.setText("版本 1.0 · 本地模型约 503 MB · 云端 AI 默认关闭；Shizuku 仅用于可选超级岛");
+            String version = "当前版本";
+            try {
+                version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            } catch (android.content.pm.PackageManager.NameNotFoundException ignored) { }
+            versionLine.setText("版本 " + version
+                    + " · 本地模型约 503 MB · 云端 AI 默认关闭；Shizuku 仅用于可选超级岛");
             try { rikka.shizuku.Shizuku.addRequestPermissionResultListener(shizukuPermissionListener); }
             catch (Throwable error) { Report.problem("Shizuku 授权回调不可用", error); }
             Report.mark("settings.onCreate complete");
@@ -117,6 +122,7 @@ public class SettingsActivity extends Activity {
         appearanceSeg = need(R.id.appearance_seg);
         providerSeg = need(R.id.cloud_provider_seg);
         diarize = need(R.id.diarize);
+        reduceMotionSwitch = need(R.id.reduce_motion);
         cloudAsrSwitch = need(R.id.cloud_asr);
         islandSwitch = need(R.id.island_switch);
         shizukuIslandSwitch = need(R.id.shizuku_island_switch);
@@ -147,6 +153,7 @@ public class SettingsActivity extends Activity {
     private void loadState() {
         SharedPreferences prefs = prefs();
         diarize.setChecked(prefs.getBoolean("diarize", true));
+        reduceMotionSwitch.setChecked(Motion.reduced());
         speakerCount = prefs.getInt("speakerCount", 0);
         islandSwitch.setChecked(prefs.getBoolean("island", true));
         shizukuIslandSwitch.setChecked(prefs.getBoolean("island_shizuku", false));
@@ -168,6 +175,7 @@ public class SettingsActivity extends Activity {
         Motion.press(guide);
         guide.setOnClickListener(v -> step("打开首次使用指南", () -> WelcomeActivity.openGuide(this)));
         diarize.setOnCheckedChangeListener((button, checked) -> prefs().edit().putBoolean("diarize", checked).apply());
+        reduceMotionSwitch.setOnCheckedChangeListener((button, checked) -> Motion.setReduced(this, checked));
         cloudAsrSwitch.setOnCheckedChangeListener((button, checked) -> {
             prefs().edit().putBoolean("cloudAsr", checked).apply();
             cloudStatus.setText(checked

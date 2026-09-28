@@ -174,6 +174,38 @@
                 </HorizontalScrollView>
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_row"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="14dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/T.Label"
+                        android:text="减少动效" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/T.Caption"
+                        android:layout_marginTop="4dp"
+                        android:text="关闭页面转场与装饰动画；系统关闭动画时也会自动遵从。" />
+                </LinearLayout>
+                <Switch
+                    android:id="@+id/reduce_motion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="减少动效" />
+            </LinearLayout>
+
             <!-- 超级岛 -->
             <TextView
                 android:layout_width="match_parent"
@@ -312,6 +344,8 @@
                     android:id="@+id/model_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:gravity="center"
                     android:background="@drawable/bg_pill"
                     android:paddingLeft="16dp"
                     android:paddingTop="10dp"
@@ -368,6 +402,7 @@
                     android:id="@+id/cloud_key"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_input"
                     android:inputType="textPassword"
@@ -386,6 +421,7 @@
                     android:id="@+id/cloud_url"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_input"
                     android:inputType="textUri"
@@ -404,6 +440,7 @@
                     android:id="@+id/cloud_model"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_input"
                     android:inputType="text"
@@ -442,6 +479,7 @@
                     android:id="@+id/cloud_asr_model"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_input"
                     android:inputType="text"
@@ -513,7 +551,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 style="@style/T.Caption"
-                android:text="转写、分人、标点全部在这台手机上完成，音频不会离开设备。" />
+                android:text="默认转写、分人与标点在本机完成。启用并配置云端识别后，所选音频才会发送至配置的服务。" />
 
             <TextView
                 android:id="@+id/diagnostics_view"

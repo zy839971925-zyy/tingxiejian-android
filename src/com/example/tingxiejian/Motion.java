@@ -12,6 +12,23 @@ import android.view.View;
 
 /** Motion + touch feedback. Every curve comes from {@link SpringCurve}, never a hand-picked bezier. */
 final class Motion {
+    private static final String PREFS = "motion";
+    private static final String REDUCED = "reduced";
+    private static volatile boolean reduced;
+
+    static void init(Context context) {
+        reduced = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getBoolean(REDUCED, false);
+    }
+
+    static boolean reduced() { return reduced; }
+
+    static void setReduced(Context context, boolean value) {
+        reduced = value;
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .edit().putBoolean(REDUCED, value).apply();
+    }
+
     static final long PRESS_MS = 240;
     static final long GENTLE_MS = 500;
     static final long BOUNCE_MS = 420;
@@ -35,7 +52,7 @@ final class Motion {
     }
 
     static boolean animatorsEnabled() {
-        return Build.VERSION.SDK_INT < 26 || ValueAnimator.areAnimatorsEnabled();
+        return !reduced && (Build.VERSION.SDK_INT < 26 || ValueAnimator.areAnimatorsEnabled());
     }
 
     /** Scale-on-press driven by the critically damped curve. Returns false so clicks still fire. */

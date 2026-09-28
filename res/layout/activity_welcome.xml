@@ -1,250 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/guide_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
-    android:orientation="vertical">
-
-    <ScrollView
-        android:id="@+id/guide_scroll"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:fillViewport="false"
-        android:scrollbars="none">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="24dp"
-            android:paddingTop="32dp"
-            android:paddingRight="24dp"
-            android:paddingBottom="24dp">
-
-            <ImageView
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:padding="13dp"
-                android:background="@drawable/bg_circle_soft"
-                android:src="@drawable/ic_logo"
-                android:contentDescription="@null" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="听写间  /  使用准备"
-                android:textAllCaps="false"
-                android:textColor="@color/accent"
-                android:textSize="12sp"
-                android:letterSpacing="0.08" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="先准备好，\n再安心记录。"
-                android:textColor="@color/ink"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:lineSpacingExtra="4dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="28dp"
-                style="@style/T.Body"
-                android:text="转写默认在手机上完成。不必登录，也不必开启云端 AI。以下只需确认通知权限；其他能力由你决定。" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card"
-                android:padding="18dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="01  ·  本地音频"
-                    android:textColor="@color/accent"
-                    android:textSize="12sp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    style="@style/T.CardTitle"
-                    android:text="只选择要处理的文件" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    style="@style/T.Sub"
-                    android:text="点「选择音频」时，系统文件选择器只授予所选文件的访问权；无需麦克风或全部文件权限。" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card"
-                android:padding="18dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="02  ·  推荐授权"
-                    android:textColor="@color/accent"
-                    android:textSize="12sp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    style="@style/T.CardTitle"
-                    android:text="允许显示处理通知" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    style="@style/T.Sub"
-                    android:text="处理进度和超级岛需要通知权限。拒绝也能使用离线转写；你可以稍后在系统设置中开启。" />
-                <TextView
-                    android:id="@+id/notification_permission"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@drawable/bg_pill_on"
-                    android:gravity="center"
-                    android:paddingLeft="18dp"
-                    android:paddingRight="18dp"
-                    android:textColor="@color/accent"
-                    style="@style/T.Label"
-                    android:text="允许通知" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card"
-                android:padding="18dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="03  ·  可选能力"
-                    android:textColor="@color/accent"
-                    android:textSize="12sp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    style="@style/T.CardTitle"
-                    android:text="想用超级岛？" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    style="@style/T.Sub"
-                    android:text="Shizuku 仅用于可选的超级岛兼容方式。先在 Shizuku 中启动服务，再到设置页了解风险并主动授权；不影响本地识别。" />
-                <TextView
-                    android:id="@+id/shizuku_settings"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@drawable/bg_row"
-                    android:gravity="center"
-                    android:paddingLeft="18dp"
-                    android:paddingRight="18dp"
-                    android:textColor="@color/ink"
-                    style="@style/T.Label"
-                    android:text="前往超级岛设置" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card"
-                android:padding="18dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="04  ·  使用条款"
-                    android:textColor="@color/accent"
-                    android:textSize="12sp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    style="@style/T.CardTitle"
-                    android:text="第三方组件，阅读并确认" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    style="@style/T.Sub"
-                    android:text="模型与运行库保留各自许可。首次转写前会请你确认一次；也可以先在这里读完整条款。" />
-                <TextView
-                    android:id="@+id/terms_review"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@drawable/bg_row"
-                    android:gravity="center"
-                    android:paddingLeft="18dp"
-                    android:paddingRight="18dp"
-                    android:textColor="@color/ink"
-                    style="@style/T.Label"
-                    android:text="阅读条款" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                style="@style/T.Caption"
-                android:text="云端 AI 默认关闭。上述设置以后均可在「设置」中调整。" />
-        </LinearLayout>
-    </ScrollView>
+    android:background="@color/bg">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/bg"
-        android:paddingLeft="24dp"
-        android:paddingTop="12dp"
-        android:paddingRight="24dp"
-        android:paddingBottom="16dp">
-        <TextView
-            android:id="@+id/guide_start"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="56dp"
-            android:background="@drawable/bg_primary"
-            android:gravity="center"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:textColor="@color/on_accent"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:text="开始离线使用" />
-        <TextView
-            android:id="@+id/guide_skip"
+            android:layout_height="72dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp">
+
+            <ImageView
+                android:id="@+id/guide_mark"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_circle_soft"
+                android:padding="10dp"
+                android:src="@drawable/ic_logo"
+                android:contentDescription="播放标记动画" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="12dp"
+                android:text="听写间"
+                android:textColor="@color/ink"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/guide_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01 / 04"
+                android:textColor="@color/accent"
+                android:textSize="13sp"
+                android:fontFeatureSettings="tnum" />
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/guide_scroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:gravity="center"
-            android:textColor="@color/muted"
-            android:textSize="14sp"
-            android:text="暂时跳过" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:scrollbars="none">
+
+            <FrameLayout
+                android:id="@+id/guide_stage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/guide_page_0"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="24dp"
+                    android:paddingTop="36dp"
+                    android:paddingRight="24dp"
+                    android:paddingBottom="32dp">
+                    <ImageView android:layout_width="76dp" android:layout_height="76dp"
+                        android:background="@drawable/bg_circle_soft" android:padding="19dp"
+                        android:src="@drawable/ic_wave" android:tint="@color/accent"
+                        android:contentDescription="@null" />
+                    <!-- Two native text lines, one TalkBack heading. No WebView or text reflow. -->
+                    <LinearLayout android:id="@+id/guide_heading"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp" android:orientation="vertical"
+                        android:importantForAccessibility="yes"
+                        android:contentDescription="让声音，留在这里。">
+                        <TextView android:id="@+id/guide_title_first"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:text="让声音，" android:textSize="34sp" android:textStyle="bold"
+                            android:textColor="@color/ink" android:includeFontPadding="false"
+                            android:importantForAccessibility="no" />
+                        <TextView android:id="@+id/guide_title_second"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp" android:text="留在这里。"
+                            android:textSize="34sp" android:textStyle="bold" android:textColor="@color/ink"
+                            android:includeFontPadding="false" android:importantForAccessibility="no" />
+                    </LinearLayout>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp" style="@style/T.Body"
+                        android:text="选择录音，手机本地转写。不必登录，不必上传，也不必提前开启云端 AI。" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp" android:background="@drawable/bg_card"
+                        android:padding="20dp" style="@style/T.Sub"
+                        android:text="01  从本地文件开始\n\n系统文件选择器只开放你亲自选择的音频；不需要麦克风或全部文件权限。" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/guide_page_1"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:visibility="gone" android:orientation="vertical"
+                    android:paddingLeft="24dp" android:paddingTop="36dp"
+                    android:paddingRight="24dp" android:paddingBottom="32dp">
+                    <ImageView android:layout_width="76dp" android:layout_height="76dp"
+                        android:background="@drawable/bg_circle_soft" android:padding="20dp"
+                        android:src="@drawable/ic_notification" android:tint="@color/accent"
+                        android:contentDescription="@null" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp" android:text="需要的权限，\n由你决定。"
+                        android:textSize="34sp" android:textStyle="bold" android:textColor="@color/ink"
+                        android:includeFontPadding="false" android:lineSpacingExtra="4dp" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp" style="@style/T.Body"
+                        android:text="通知用于显示处理进度与超级岛。即使拒绝，离线转写依然可以使用。" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp" android:background="@drawable/bg_card"
+                        android:orientation="vertical" android:padding="20dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                            style="@style/T.CardTitle" android:text="处理通知" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp" style="@style/T.Sub"
+                            android:text="只在你主动点击后请求系统授权；以后也能在系统设置里更改。" />
+                        <TextView android:id="@+id/notification_permission"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp" android:minHeight="48dp"
+                            android:background="@drawable/bg_pill_on" android:gravity="center"
+                            android:paddingLeft="18dp" android:paddingRight="18dp"
+                            android:textColor="@color/accent" style="@style/T.Label"
+                            android:text="允许通知" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/guide_page_2"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:visibility="gone" android:orientation="vertical"
+                    android:paddingLeft="24dp" android:paddingTop="36dp"
+                    android:paddingRight="24dp" android:paddingBottom="32dp">
+                    <ImageView android:layout_width="76dp" android:layout_height="76dp"
+                        android:background="@drawable/bg_circle_soft" android:padding="20dp"
+                        android:src="@drawable/ic_island" android:tint="@color/accent"
+                        android:contentDescription="@null" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp" android:text="更多能力，\n不必现在开启。"
+                        android:textSize="34sp" android:textStyle="bold" android:textColor="@color/ink"
+                        android:includeFontPadding="false" android:lineSpacingExtra="4dp" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp" style="@style/T.Body"
+                        android:text="想用超级岛，可以去设置里了解并选择 Shizuku 兼容方式；不用也不会影响识别。" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="28dp" android:background="@drawable/bg_card"
+                        android:orientation="vertical" android:padding="20dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                            style="@style/T.CardTitle" android:text="超级岛 · 可选" />
+                        <TextView android:id="@+id/shizuku_settings"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:minHeight="48dp" android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_row" android:gravity="center"
+                            android:paddingLeft="18dp" android:paddingRight="18dp"
+                            android:textColor="@color/ink" style="@style/T.Label"
+                            android:text="前往超级岛设置" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:background="@drawable/bg_card"
+                        android:orientation="vertical" android:padding="20dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                            style="@style/T.CardTitle" android:text="第三方条款" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp" style="@style/T.Sub"
+                            android:text="模型与运行库保留各自许可。首次转写前须阅读并确认。" />
+                        <TextView android:id="@+id/terms_review"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:minHeight="48dp" android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_row" android:gravity="center"
+                            android:paddingLeft="18dp" android:paddingRight="18dp"
+                            android:textColor="@color/ink" style="@style/T.Label"
+                            android:text="阅读条款" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/guide_page_3"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:visibility="gone" android:orientation="vertical"
+                    android:paddingLeft="24dp" android:paddingTop="52dp"
+                    android:paddingRight="24dp" android:paddingBottom="32dp">
+                    <ImageView android:layout_width="104dp" android:layout_height="104dp"
+                        android:background="@drawable/bg_circle_soft" android:padding="25dp"
+                        android:src="@drawable/ic_logo" android:contentDescription="@null" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="48dp" android:text="欢迎使用。"
+                        android:textSize="38sp" android:textStyle="bold" android:textColor="@color/ink"
+                        android:includeFontPadding="false" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp" style="@style/T.Body"
+                        android:text="现在，把第一段声音交给听写间。\n从选择音频开始，一切都在你的手机上进行。" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="40dp" android:background="@drawable/bg_pill_on"
+                        android:paddingLeft="16dp" android:paddingTop="10dp"
+                        android:paddingRight="16dp" android:paddingBottom="10dp"
+                        android:textColor="@color/accent" android:textSize="12sp"
+                        android:text="离线运行  ·  无需登录" />
+                </LinearLayout>
+            </FrameLayout>
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:background="@color/bg"
+            android:paddingLeft="24dp" android:paddingTop="8dp"
+            android:paddingRight="24dp" android:paddingBottom="16dp">
+            <TextView
+                android:id="@+id/guide_start"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="56dp" android:background="@drawable/bg_primary"
+                android:gravity="center" android:paddingLeft="16dp" android:paddingRight="16dp"
+                android:textColor="@color/on_accent" android:textSize="16sp"
+                android:textStyle="bold" android:text="继续  →" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/guide_back"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:minHeight="48dp" android:gravity="center_vertical"
+                    android:textColor="@color/muted" android:textSize="14sp" android:text="返回" />
+                <TextView
+                    android:id="@+id/guide_skip"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:minHeight="48dp" android:gravity="center_vertical"
+                    android:textColor="@color/muted" android:textSize="14sp" android:text="暂时跳过" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

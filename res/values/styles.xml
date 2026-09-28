@@ -13,13 +13,13 @@
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowContentTransitions">true</item>
     </style>
-    <!-- Typography scale: 22 / 16 / 14 / 12 / 11. Numbers are tabular so tickers never jitter. -->
+    <!-- Typography scale: 24 / 17 / 15 / 13. Numbers are tabular so tickers never jitter. -->
     <style name="T.Title" parent=""><item name="android:textSize">24sp</item><item name="android:textStyle">bold</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
     <style name="T.Sub" parent=""><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item></style>
     <style name="T.CardTitle" parent=""><item name="android:textSize">17sp</item><item name="android:textStyle">bold</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
     <style name="T.Label" parent=""><item name="android:textSize">15sp</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
     <style name="T.Body" parent=""><item name="android:textSize">15sp</item><item name="android:textColor">@color/ink</item><item name="android:lineSpacingExtra">3dp</item></style>
-    <style name="T.Meta" parent=""><item name="android:textSize">12sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item></style>
+    <style name="T.Meta" parent=""><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item></style>
     <style name="T.Num" parent=""><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item><item name="android:fontFeatureSettings">tnum</item></style>
-    <style name="T.Caption" parent=""><item name="android:textSize">12sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item><item name="android:lineSpacingExtra">2dp</item></style>
+    <style name="T.Caption" parent=""><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item><item name="android:lineSpacingExtra">2dp</item></style>
 </resources>

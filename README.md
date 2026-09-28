@@ -5,7 +5,7 @@
   <br><br>
   <a href="LICENSE"><img alt="MIT original code" src="https://img.shields.io/badge/original%20code-MIT-16785C"></a>
   <img alt="Android ARM64" src="https://img.shields.io/badge/Android-ARM64-315A4C">
-  <img alt="Release v1.0.2" src="https://img.shields.io/badge/version-v1.0.2-E8BA73">
+  <img alt="Release v1.0.3" src="https://img.shields.io/badge/version-v1.0.3-E8BA73">
 </div>
 
 > **发布边界：**本仓库开放的是经过检查的**源码**；第三方模型与库各自保留原许可。
@@ -23,13 +23,13 @@
 ### 功能
 
 - **离线优先：**内置中文流式识别、Paraformer 复核、标点与匿名分人；进度由实际阶段驱动。
-- **原生界面：**浅色/深色、系统安全区、大字体和系统减少动画设置；历史、全文、播放器及
-  TXT / SRT / JSON 导出。
+- **原生界面：**浅色/深色、系统安全区、大字体、系统及应用内“减少动效”设置；历史、全文、播放器及
+  TXT / SRT / JSON 导出。页面动效边界见[界面与动效决策](docs/UI-MOTION.md)。
 - **明确选择的云端功能：**可在设置中另行填写服务地址与密钥，启用聊天或云端识别；
   相关网络请求集中在 `Cloud.java`，默认关闭。
 - **可选通知增强：**普通 Android 进度通知始终是回退路径；小米 HyperOS 超级岛为可选实验
   适配。Shizuku 需用户主动启动、授权并确认风险；若系统共享防火墙链未启用，安全起见直接回退普通通知，不影响离线核心。
-- **首次使用引导：**解释文件选择器、通知权限和可选 Shizuku；可跳过，升级已有安装不会强制弹出。
+- **首次使用引导：**四页介绍文件选择器、通知权限和可选 Shizuku，终页欢迎使用；可跳过，升级已有安装不会强制弹出。
 
 ## 工作方式
 
@@ -59,7 +59,7 @@ flowchart LR
 bash scripts/prepare-libraries.sh
 bash design-tools/check-all.sh
 bash build.sh
-# 输出：dist/tingxiejian-v1.0.2-arm64-release.apk（本机生成，非官方签名）
+# 输出：dist/tingxiejian-v1.0.3-arm64-release.apk（本机生成，非官方签名）
 ```
 
 **注意：**构建成功只表明程序和载荷通过静态校验，不替代实机权限、字体、离线模型与

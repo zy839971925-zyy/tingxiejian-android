@@ -17,6 +17,7 @@ public final class TingxiejianApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Motion.init(this);
         Report.mark("application.onCreate");
         // If a process died during the short XMSF window, attempt recovery immediately and again
         // whenever Shizuku reconnects. Never block application startup or the transcription UI.

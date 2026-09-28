@@ -42,6 +42,8 @@ if 'historyRowCache' not in main or 'historyList.removeAllViews()' in main:
     errors.append('main: history rows must survive onStart for reverse shared-element mapping')
 if 'setReturnTransition(new Fade(Fade.OUT).addTarget(content)' not in portal or '.setDuration(85)' in portal:
     errors.append('portal: return content must not vanish before the container shrinks')
+if 'activity.getIntent() != null && activity.getIntent().hasExtra(EXTRA_NAME)' not in portal:
+    errors.append('portal: disabling motion inside settings must still restore an active shared element')
 transcript = (src / 'TranscriptActivity.java').read_text()
 if 'PortalTransition.open(this, need(R.id.ask)' not in transcript:
     errors.append('transcript: chat must open from Ask button')

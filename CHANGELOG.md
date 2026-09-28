@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.3 — 首次引导、动效与界面易用性
+
+- 四页原生引导与欢迎页：两行标题依次出现，开始按钮展开至首页；返回路径和动画打断后复位。
+- 首页、设置、全文与对话的双向转场协调；设置新增“减少动效”，尊重系统动画开关。
+- 优化大字体下首页栏高度、正文与说明文字可读性、底部操作区分隔及设置/对话触控区域。
+- 云端识别启用时首页明确标明录音会发送至已配置的服务；从设置返回后即时同步偏好。
+- 清空问答记录前确认，设置页版本读取安装包信息。
+- 合入前期源码审查加固：结果持久化、并发导入隔离、导出恢复、聊天回调失效、云端 URL 校验、
+  私有诊断与 Shizuku 门禁安全回退，并补充打包及回归检查。
+- 本机构建 APK 可用于安装测试；二进制模型分发权尚未核实，不在 GitHub 发布安装包。
+
 ## 1.0.2 — 超级岛兼容恢复与条款面板
 
 - **修复超级岛不显示**：完全恢复 V1.0 的超级岛兼容路径（含按需启用 OEM 防火墙链的实验方式），
@@ -16,18 +27,6 @@
   声明模型权重仅供个人使用、不授予再分发权，权利人异议可移除。
 - 源码审查加固：结果先持久化再广播、原子历史写入、并发导入隔离、导出重建恢复、
   云端 URL 校验、诊断私有化、可选 Shizuku 防火墙链安全回退、Maven 依赖哈希校验。
-
-## Unreleased — source audit hardening (not a new tested APK)
-
-- Persist finished results in the service, use atomic unique history IDs and block overlapping
-  imports/services; retain progress metadata across Activity recreation.
-- Recover both document exports across picker recreation, invalidate chat replies after Clear,
-  validate cloud URL host/redirects, keep diagnostics private with an explicit view and audio
-  cache-clear control, and respect keyboard insets.
-- Skip the optional Shizuku firewall experiment when its shared chain is disabled; do not enable
-  global OEM rules affecting other apps. This may change island behavior on some devices.
-- Pin Maven dependency hashes, bundle full license notices, extend export/safety checks and record
-  review scope in [docs/REVIEW-2026-09-28.md](docs/REVIEW-2026-09-28.md).
 
 ## 1.0 — local release
 

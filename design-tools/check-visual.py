@@ -26,6 +26,11 @@ for folder in ('values', 'values-night'):
     contrast = (max(foreground, background)+.05)/(min(foreground, background)+.05)
     if contrast < 4.5:
         errors.append(f'{folder}: on_accent/primary_fill contrast {contrast:.2f} < 4.5')
+    for surface in ('bg', 'surface', 'sunken'):
+        muted, panel = lum(palette['muted']), lum(palette[surface])
+        ratio = (max(muted, panel) + .05) / (min(muted, panel) + .05)
+        if ratio < 4.5:
+            errors.append(f'{folder}: small muted text/{surface} contrast {ratio:.2f} < 4.5')
 
 for path in (root / 'res/layout').glob('*.xml'):
     txt = path.read_text()
@@ -57,4 +62,4 @@ if '<package android:name="com.xiaomi.xmsf"/>' not in manifest:
     errors.append('manifest: Android package visibility blocks XMSF UID probe')
 if errors:
     raise SystemExit('FAIL: ' + '; '.join(errors))
-print('visual invariants ok: shape corners and accessible primary button contrast in both themes')
+print('visual invariants ok: shape corners and small-text/primary contrast in both themes')

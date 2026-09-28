@@ -94,6 +94,7 @@ public class MainActivity extends Activity {
     private boolean phaseIndeterminate;
     private long phaseStartedAt;
     private int state = STATE_IDLE;
+    private int stateTransitionToken;
     private String engineUsed = "local";
     private Runnable ticker;
 
@@ -133,7 +134,9 @@ public class MainActivity extends Activity {
             if ((getIntent() == null || !getIntent().getBooleanExtra("skip_welcome_once", false))
                     && WelcomeActivity.shouldShow(this)) {
                 startActivity(new Intent(this, WelcomeActivity.class));
+                overridePendingTransition(0, 0);
                 finish();
+                overridePendingTransition(0, 0);
                 return;
             }
             setContentView(R.layout.activity_main);
@@ -168,6 +171,7 @@ public class MainActivity extends Activity {
                 syncBottomBar();
             }
             handleIntent(getIntent());
+            WelcomeHandoff.play(this, (android.widget.FrameLayout) root, savedInstanceState);
             Report.mark("activity.onCreate complete");
             Report.flush(this);
             root.postDelayed(this::afterFirstFrame, 450);
@@ -344,39 +348,62 @@ public class MainActivity extends Activity {
 
     private void showState(int next, boolean animate) {
         View[] panels = {stateIdle, statePrep, stateRun, stateDone};
-        for (int i = 0; i < panels.length; i++) {
-            final int index = i;
-            final View panel = panels[i];
-            if (panel == null || i == next) {
-                continue;
-            }
-            if (animate && panel.getVisibility() == View.VISIBLE && Motion.animatorsEnabled()) {
-                // exit is faster than the entrance that follows it
-                Motion.exit(panel, () -> {
-                    if (state != index) {
-                        panel.setVisibility(View.GONE);
-                    }
-                });
-            } else {
-                panel.animate().cancel();
-                panel.setVisibility(View.GONE);
+        boolean transition = animate && Motion.animatorsEnabled() && state != next;
+        View previous = transition ? panels[state] : null;
+        if (previous != null && previous.getVisibility() != View.VISIBLE) previous = null;
+        final View outgoing = previous;
+        final int token = ++stateTransitionToken;
+        if (state != next) {
+            for (View glyph : new View[]{need(R.id.prep_icon), need(R.id.done_icon)}) {
+                glyph.animate().cancel();
+                glyph.setRotation(0f);
+                glyph.setScaleX(1f);
+                glyph.setScaleY(1f);
             }
         }
+        for (int i = 0; i < panels.length; i++) {
+            View panel = panels[i];
+            panel.animate().cancel();
+            panel.setAlpha(1f);
+            panel.setTranslationY(0f);
+            panel.setImportantForAccessibility(i == next
+                    ? View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+                    : View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+            if (i != next && panel != outgoing) panel.setVisibility(View.GONE);
+        }
         View target = panels[next];
-        if (target != null) {
-            target.setVisibility(View.VISIBLE);
-            if (animate && Motion.animatorsEnabled()) {
-                // One beat per state: either the icon or the panel, never both at once.
-                if (next == STATE_PREP) Motion.turnOnce(need(R.id.prep_icon));
-                else if (next == STATE_DONE) Motion.pop(need(R.id.done_icon));
-                else Motion.enter(target);
+        target.setVisibility(View.VISIBLE);
+        if (transition) {
+            // Short outgoing state + delayed incoming state keep the hero continuous. A new
+            // state request cancels both and normalizes every panel before retargeting it.
+            if (outgoing != null) {
+                outgoing.animate().alpha(0f).translationY(-Motion.dp(this, 6))
+                        .setDuration(125).setInterpolator(Motion.FAST_OUT)
+                        .withEndAction(() -> {
+                            if (stateTransitionToken != token) return;
+                            outgoing.setVisibility(View.GONE);
+                            outgoing.setAlpha(1f);
+                            outgoing.setTranslationY(0f);
+                        }).start();
             }
+            target.setAlpha(0f);
+            target.setTranslationY(Motion.dp(this, 8));
+            target.animate().alpha(1f).translationY(0f)
+                    .setStartDelay(outgoing == null ? 0 : 35).setDuration(250)
+                    .setInterpolator(Motion.ENTER)
+                    .withEndAction(() -> {
+                        if (stateTransitionToken != token || isFinishing()) return;
+                        // Rare states earn one small icon beat, after (not on top of) the card.
+                        if (next == STATE_PREP) Motion.turnOnce(need(R.id.prep_icon));
+                        if (next == STATE_DONE) Motion.pop(need(R.id.done_icon));
+                    }).start();
         }
         state = next;
         syncBottomBar();
     }
 
     private void syncBottomBar() {
+        boolean cloudRecognition = cloudRecognitionActive();
         switch (state) {
             case STATE_PREP:
                 run.setText("准备模型");
@@ -393,8 +420,8 @@ public class MainActivity extends Activity {
             default:
                 run.setText(input == null ? "选择录音" : "开始转写");
                 actionNote.setText(input == null
-                        ? "本地转写 · 分人与标点在本机完成"
-                        : "已选好录音，点“开始转写”。");
+                        ? (cloudRecognition ? "云端识别已启用 · 录音将发送至已配置的服务" : "默认本地转写 · 云端功能按需开启")
+                        : (cloudRecognition ? "已选好录音 · 将使用云端识别" : "已选好录音，点“开始转写”。"));
         }
     }
 
@@ -708,6 +735,20 @@ public class MainActivity extends Activity {
 
     private boolean cloudAsrEnabled() {
         return getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean("cloudAsr", false);
+    }
+
+    private boolean cloudRecognitionActive() {
+        return cloudAsrEnabled() && Cloud.hasAsr(this);
+    }
+
+    private void updateRecognitionCopy() {
+        boolean cloud = cloudRecognitionActive();
+        ((TextView) need(R.id.recognition_mode)).setText(cloud
+                ? "云端识别已启用 · 录音将发送至已配置的服务"
+                : "默认离线 · 云端功能可选");
+        ((TextView) need(R.id.recognition_summary)).setText(cloud
+                ? "已启用云端识别；开始转写后音频将发送至已配置的服务"
+                : "中文转写 · 自动分人 · 自动标点\n默认在这台手机上完成");
     }
 
     private void sendService(String action, JSONObject extras) {
@@ -1060,6 +1101,9 @@ public class MainActivity extends Activity {
     protected void onStart() {
         super.onStart();
         if (historyList == null) return; // First launch handed over to the optional guide.
+        loadPreferences(); // Apply settings changed while this Activity was stopped.
+        updateRecognitionCopy();
+        syncBottomBar();
         Bus.register(busListener);
         guard("刷新历史", this::refreshHistory).run();
     }

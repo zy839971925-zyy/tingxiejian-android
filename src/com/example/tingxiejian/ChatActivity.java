@@ -1,6 +1,7 @@
 package com.example.tingxiejian;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -79,7 +80,7 @@ public class ChatActivity extends Activity {
             contextLine = need(R.id.context_line);
 
             need(R.id.back).setOnClickListener(v -> PortalTransition.close(this));
-            click(R.id.clear, "清空对话", this::clearMessages);
+            click(R.id.clear, "清空对话", this::confirmClearMessages);
             click(R.id.chat_send, "发送消息", this::sendFromField);
             buildQuickPrompts();
             loadMessages();
@@ -143,10 +144,13 @@ public class ChatActivity extends Activity {
             chip.setText(prompt);
             chip.setTextSize(12);
             chip.setBackgroundResource(R.drawable.bg_pill);
-            chip.setPadding(26, 16, 26, 16);
+            chip.setMinHeight((int) Motion.dp(this, 48));
+            chip.setGravity(Gravity.CENTER);
+            chip.setPadding((int) Motion.dp(this, 14), 0,
+                    (int) Motion.dp(this, 14), 0);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.rightMargin = 10;
+            params.rightMargin = (int) Motion.dp(this, 10);
             quick.addView(chip, params);
             chip.setOnClickListener(v -> {
                 input.setText(prompt);
@@ -337,6 +341,16 @@ public class ChatActivity extends Activity {
         } catch (Exception e) {
             Report.problem("保存对话记录失败", e);
         }
+    }
+
+    private void confirmClearMessages() {
+        if (messages.length() == 0) return;
+        new AlertDialog.Builder(this)
+                .setTitle("清空这段录音的对话？")
+                .setMessage("这会删除当前录音的问答记录，无法恢复；转写文本不会被删除。")
+                .setNegativeButton("保留", null)
+                .setPositiveButton("清空对话", (dialog, which) -> clearMessages())
+                .show();
     }
 
     private void clearMessages() {

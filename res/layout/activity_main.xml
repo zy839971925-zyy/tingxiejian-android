@@ -15,11 +15,14 @@
         <LinearLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="66dp"
+            android:layout_height="wrap_content"
+            android:minHeight="66dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="20dp"
-            android:paddingEnd="16dp">
+            android:paddingTop="9dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="9dp">
 
             <ImageView
                 android:layout_width="36dp"
@@ -42,8 +45,9 @@
                     style="@style/T.Title"
                     android:text="听写间"/>
 
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
-                    android:text="离线转写 · 不联网"/>
+                <TextView android:id="@+id/recognition_mode"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                    android:text="默认离线 · 云端功能可选"/>
             </LinearLayout>
 
             <ImageView
@@ -113,10 +117,11 @@
                             android:layout_marginTop="20dp"
                             android:text="选择一段录音"/>
 
-                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Body"
+                        <TextView android:id="@+id/recognition_summary"
+                            android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Body"
                             android:layout_marginTop="6dp"
                             android:gravity="center"
-                            android:text="中文转写 · 自动分人 · 自动标点\n全程在这台手机上完成"/>
+                            android:text="中文转写 · 自动分人 · 自动标点\n默认在这台手机上完成"/>
 
                         <TextView
                             android:id="@+id/drop"
@@ -482,11 +487,14 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- ───────── bottom action ───────── -->
+        <!-- The fixed action area has its own surface so scrolling content has a clear edge. -->
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="@color/line" />
         <LinearLayout
             android:id="@+id/bottombar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/surface"
             android:orientation="vertical"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"

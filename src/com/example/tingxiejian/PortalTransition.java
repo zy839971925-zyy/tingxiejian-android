@@ -154,7 +154,9 @@ final class PortalTransition {
         synchronized (closing) {
             if (!closing.add(activity)) return;
         }
-        if (Motion.animatorsEnabled() && activity.getIntent().hasExtra(EXTRA_NAME)) {
+        if (activity.getIntent() != null && activity.getIntent().hasExtra(EXTRA_NAME)) {
+            // Complete an already-started shared-element route even if the user disabled motion
+            // inside Settings; finish() would skip restoring the source on the parent window.
             activity.finishAfterTransition();
         } else {
             activity.finish();
