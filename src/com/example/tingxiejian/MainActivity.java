@@ -412,6 +412,11 @@ public class MainActivity extends Activity {
     }
 
     private void startModelPrep() {
+        if (!Consent.accepted(this)) { // bundled third-party models need explicit acceptance first
+            prepDetail.setText("请先阅读并确认第三方组件条款。");
+            Consent.show(this, this::startModelPrep);
+            return;
+        }
         prepDetail.setText("正在解压模型…");
         new Thread(() -> {
             try {
@@ -636,6 +641,11 @@ public class MainActivity extends Activity {
     // ---------------------------------------------------------------- running
 
     private void startRun() {
+        if (!Consent.accepted(this)) {
+            fileError.setText("请先阅读并确认第三方组件条款。");
+            Consent.show(this, this::startRun);
+            return;
+        }
         if (importing) {
             fileError.setText("正在读取录音，请稍候。");
             return;

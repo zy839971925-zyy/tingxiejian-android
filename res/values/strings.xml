@@ -1,1 +1,8 @@
-<resources><string name="app_name">听写间</string></resources>
+<resources>
+  <string name="app_name">听写间</string>
+  <string name="consent_title">第三方组件 · 阅读并确认</string>
+  <string name="consent_body">本应用的离线转写依赖下列第三方组件。它们保留各自版权与许可，不在本项目 MIT 许可范围内：\n\n· sherpa-onnx 运行库 · Apache-2.0\n· Kotlin 标准库 · Apache-2.0\n· AndroidHiddenApiBypass · Apache-2.0\n· Shizuku API · MIT · (c) 2021 RikkaW\n· Paraformer 中文模型 · Apache-2.0 (ModelScope)\n· CT-Transformer 标点模型 · Apache-2.0 (ModelScope)\n· pyannote segmentation 3.0 · MIT (CNRS)\n· 流式中文 Zipformer 模型 · 转换产物，再分发条款不明确\n· 说话人分离模型 embed.onnx · 来源与条款未核实\n\n模型权重仅供你在本机上个人使用与技术评估，本项目不授予任何再分发许可。若你是相关权利人并有异议，请在仓库 Issue 联系，我们会移除对应资产。\n\n软件按原样提供，不保证转写结果正确，也不保证在所有机型上不闪退。重要录音请自行备份。\n\n完整清单与许可文本见仓库 THIRD_PARTY_NOTICES.md 与 DISCLAIMER.md。</string>
+  <string name="consent_checkbox">我已阅读并同意上述条款，仅限个人使用</string>
+  <string name="consent_accept">同意并继续</string>
+  <string name="consent_decline">暂不使用</string>
+</resources>

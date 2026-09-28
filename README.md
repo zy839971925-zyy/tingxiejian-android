@@ -5,13 +5,14 @@
   <br><br>
   <a href="LICENSE"><img alt="MIT original code" src="https://img.shields.io/badge/original%20code-MIT-16785C"></a>
   <img alt="Android ARM64" src="https://img.shields.io/badge/Android-ARM64-315A4C">
-  <img alt="Release v1.0" src="https://img.shields.io/badge/version-v1.0-E8BA73">
+  <img alt="Release v1.0.1" src="https://img.shields.io/badge/version-v1.0.1-E8BA73">
 </div>
 
-> **发布边界：**本仓库开放的是经过检查的**源码**，不是模型、MiSans 字体或现有 APK。
-> 项目原创代码采用 MIT；第三方适配代码和运行资产遵循各自许可。
-> 流式中文模型的再分发许可尚不明确，因此**不要将现有完整 APK、模型权重或字体上传至公开仓库/Release**。
-> 详见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+> **发布边界：**本仓库开放的是经过检查的**源码**；第三方模型与库各自保留原许可。
+> 项目原创代码采用 MIT；**APK 不是 MIT 产物**。
+> Release APK **内含全部模型，无需联网下载**；首次转写前必须在应用内**阅读并确认**第三方
+> 条款，模型权重仅供个人使用，本项目不授予再分发许可；权利人异议将移除。
+> 详见 [免责声明](DISCLAIMER.md) 与 [第三方说明](THIRD_PARTY_NOTICES.md)。
 
 ## 为什么做这个项目
 
@@ -58,7 +59,7 @@ flowchart LR
 bash scripts/prepare-libraries.sh
 bash design-tools/check-all.sh
 bash build.sh
-# 输出：dist/tingxiejian-v1.0-arm64-release.apk（本机生成，非官方签名）
+# 输出：dist/tingxiejian-v1.0.1-arm64-release.apk（本机生成，非官方签名）
 ```
 
 **注意：**构建成功只表明程序和载荷通过静态校验，不替代实机权限、字体、离线模型与
@@ -85,7 +86,7 @@ res/                         Android 布局、主题和自有矢量图（不含�
 design-tools/                纯逻辑、布局、载荷及边界回归检查
 scripts/                     本地依赖准备（不下载受限模型）
 docs/                        构建指南、架构、更新记录与自绘图
-licenses/                    适配代码所需的 Apache-2.0 许可文本
+licenses/                    第三方许可文本与免责声明（随 APK 打包）
 ```
 
 `models/`、`vendor/`、`build/`、`dist/`、签名材料和用户数据均被 `.gitignore` 排除。
@@ -102,3 +103,9 @@ licenses/                    适配代码所需的 Apache-2.0 许可文本
 项目原创代码与文档：**[MIT](LICENSE)**，© 2026 Tingxiejian contributors。
 基于 Apache-2.0 项目改写的适配部分，以及第三方库、模型、字体，不因位于同一工程而
 变成 MIT；请参阅 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+## 免责声明
+
+使用前请阅读 **[DISCLAIMER.md](DISCLAIMER.md)**：软件按原样提供、不保证所有机型
+不闪退或结果正确；重要录音请自行备份。APK 与其中的模型权重不适用 MIT，也不授予
+任何再分发许可；权利人异议请开 Issue。

@@ -52,6 +52,7 @@ with zipfile.ZipFile(root/'build/unsigned.apk','a',allowZip64=True) as apk:
         ('THIRD_PARTY_NOTICES.md','assets/THIRD_PARTY_NOTICES.md'),
         ('licenses/Apache-2.0.txt','assets/licenses/Apache-2.0.txt'),
         ('licenses/Shizuku-API-MIT.txt','assets/licenses/Shizuku-API-MIT.txt'),
+        ('licenses/DISCLAIMER.txt','assets/licenses/DISCLAIMER.txt'),
     ):
         apk.write(root/source,target,compress_type=zipfile.ZIP_DEFLATED)
     for lib in (root/'build/lib/arm64-v8a').glob('*.so'):
@@ -74,7 +75,7 @@ fi
 cp build/debug-keystore.pass build/debug-key.pass
 chmod 600 build/debug-key.pass
 # Retain the v0.17 signing identity so V1.0 can upgrade without uninstalling or losing data.
-OUT=dist/tingxiejian-v1.0-arm64-release.apk
+OUT=dist/tingxiejian-v1.0.1-arm64-release.apk
 apksigner sign --ks build/debug-keystore.p12 --ks-key-alias tingxiejian \
   --ks-pass file:build/debug-keystore.pass --key-pass file:build/debug-key.pass \
   --out "$OUT" build/aligned.apk
@@ -96,7 +97,8 @@ with ZipFile(sys.argv[1]) as apk:
         raise SystemExit('AssetFileDescriptor needs STORED assets: ' + ', '.join(loose))
     for name in ('classes.dex', 'resources.arsc', 'res/layout/activity_main.xml',
                  'assets/THIRD_PARTY_NOTICES.md', 'assets/licenses/Tingxiejian-MIT.txt',
-                 'assets/licenses/Apache-2.0.txt', 'assets/licenses/Shizuku-API-MIT.txt'):
+                 'assets/licenses/Apache-2.0.txt', 'assets/licenses/Shizuku-API-MIT.txt',
+                 'assets/licenses/DISCLAIMER.txt'):
         if name not in apk.namelist():
             raise SystemExit('missing ' + name)
     if not any(n.startswith('lib/arm64-v8a/') for n in apk.namelist()):

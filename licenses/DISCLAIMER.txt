@@ -1,0 +1,40 @@
+听写间 / Tingxiejian — 免责声明 (Disclaimer)
+================================================
+
+1. 许可范围 / License scope
+   本仓库根目录 LICENSE (MIT) 仅覆盖本项目的原创源代码与文档。
+   The MIT license at the repository root covers ONLY this project's original
+   source code and documentation.
+
+2. 本 APK 是二进制打包物 / This APK is a binary bundle
+   APK 内包含第三方运行库与模型权重，它们不适用 MIT，各自保留原始许可与版权，
+   详见 assets/THIRD_PARTY_NOTICES.md。
+   The APK bundles third-party libraries and model weights that are NOT under
+   the MIT license. Each component keeps its original terms and copyright;
+   see assets/THIRD_PARTY_NOTICES.md.
+
+3. 模型权重 / Model weights
+   部分模型权重的再分发条款未经完整核实（详见 THIRD_PARTY_NOTICES.md 的
+   "Streaming Chinese Zipformer" 与 "Speaker embedding" 两行）。这些权重以
+   "原样"随本包提供，仅供原作者自用与技术评估；本声明不授予任何再分发许可。
+   权利人若有异议，可通过仓库 Issue 联系，将移除相关资产。
+   Redistribution terms for some bundled model weights have not been fully
+   verified. They are provided AS IS for the original author's own use and
+   technical evaluation only. This notice grants no redistribution rights.
+   Rights holders may open an issue to request removal.
+
+4. 无担保 / NO WARRANTY
+   软件按"原样"提供，不附带任何明示或默示担保，包括但不限于适销性、
+   特定用途适用性和非侵权性。在适用法律允许的最大范围内，作者不对任何
+   直接、间接、附带或后果性损失承担责任，包括但不限于数据丢失、录音
+   丢失、识别结果错误或设备异常。
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A
+   PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE SOFTWARE.
+
+5. 隐私 / Privacy
+   离线转写在本机完成，不上传音频。可选云端转写需用户自行配置服务地址，
+   一旦启用，相应数据将发送到用户指定的第三方服务，风险由用户自行承担。
+   Optional Shizuku "超级岛" enhancements may be limited or unavailable on
+   certain devices and are never required for the core offline transcription.

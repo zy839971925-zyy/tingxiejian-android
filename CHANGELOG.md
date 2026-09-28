@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.1 — 审查加固与第三方条款确认
+
+- 首次转写前增加**阅读并确认**门：列出全部第三方库与模型条款，勾选同意后才能开始；
+  全部模型预先打包在 APK 内，无需联网下载。
+- APK 内附 `assets/licenses/DISCLAIMER.txt`，仓库新增 [DISCLAIMER.md](DISCLAIMER.md)；
+  声明模型权重仅供个人使用、不授予再分发权，权利人异议可移除。
+- 源码审查加固：结果先持久化再广播、原子历史写入、并发导入隔离、导出重建恢复、
+  云端 URL 校验、诊断私有化、可选 Shizuku 防火墙链安全回退、Maven 依赖哈希校验。
+
 ## Unreleased — source audit hardening (not a new tested APK)
 
 - Persist finished results in the service, use atomic unique history IDs and block overlapping
