@@ -1,3 +1,5 @@
+<p align="center"><a href="THIRD_PARTY_NOTICES.zh-CN.md">简体中文</a> · <strong>English</strong></p>
+
 # Third-party components and licensing
 
 The root [`LICENSE`](LICENSE) covers this project's **original code and documentation**. It does
@@ -48,6 +50,10 @@ before transcription can start. The APK also carries
   technical evaluation;
 - grants **no redistribution rights** and offers removal on a rights holder's request;
 - disclaims warranties, including crash-free operation or correct transcripts.
+
+> [!CAUTION]
+> These notices and user acceptance **cannot substitute for the publisher obtaining lawful
+> redistribution permission**; public distribution still carries unresolved rights risk.
 
 Do not attach model weights or the font to the *source* repository, and do not label any APK or
 model bundle "MIT". Third-party components inside the APK keep their owners' copyrights as

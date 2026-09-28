@@ -1,12 +1,15 @@
-# 免责声明 / Disclaimer
+<p align="center"><strong>简体中文</strong> · <a href="DISCLAIMER.en.md">English</a></p>
 
-> 英文摘要见每节末尾。APK 内也随包附带 [`licenses/DISCLAIMER.txt`](licenses/DISCLAIMER.txt)。
+# 免责声明
+
+> 完整英文版见 [DISCLAIMER.en.md](DISCLAIMER.en.md)。APK 内也随包附带
+> [`licenses/DISCLAIMER.txt`](licenses/DISCLAIMER.txt)。以下英文斜体句是简要提示，不能代替各节正文。
 
 ## 1. 许可范围
 
 仓库根目录的 [`LICENSE`](LICENSE)（MIT）**只覆盖本项目的原创源代码与文档**。
 它不转授、不改变任何第三方库、Android SDK、模型权重或字体的许可。
-第三方清单与各自条款见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
+第三方清单与各自条款见 [第三方清单](THIRD_PARTY_NOTICES.zh-CN.md)。
 
 *The MIT license covers only original project source code and documentation. It
 does not relicense third-party libraries, SDKs, model weights or fonts.*
@@ -32,11 +35,12 @@ Kotlin、HiddenApiBypass、Shizuku API 等）与模型权重。APK 整体**不�
 上述"条款不明确/未核实"的权重以**原样**随 APK 提供，仅供个人使用与技术评估；本声明
 **不授予任何再分发许可**。Release APK 内含全部模型，**无需联网下载**；首次转写前，
 应用会弹出**阅读并确认**对话框列出上述组件与条款，勾选同意后才能开始。
-若你是相关权利人并有异议，请开 Issue 联系，将删除对应资产。
+用户确认及本免责声明**不能替代发布者取得模型再分发权利**。
+若你是相关权利人并有异议，请开 Issue 联系，我们将审查并移除有争议的资产。
 
-*Unverified weights are provided AS IS for the original author's own use and
-evaluation. No redistribution rights are granted. Rights holders may request
-removal via an issue.*
+*Unverified weights are provided AS IS for a recipient's personal use and technical evaluation.
+Neither user acceptance nor this disclaimer grants missing redistribution rights to the publisher
+or recipient. Rights holders may request removal via an issue.*
 
 ## 4. 无担保
 

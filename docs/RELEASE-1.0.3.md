@@ -1,7 +1,11 @@
+<p align="center"><strong>简体中文</strong> · <a href="RELEASE-1.0.3.en.md">English</a></p>
+
 # 听写间 v1.0.3 · 首次引导与界面动效更新
 
 > **下载前请阅读“第三方许可与免责声明”一节。** 本版 APK 包含离线模型，不是 MIT 许可的安装包；
 > 某些模型的再分发权仍未核实。应用内阅读、勾选条款是使用侧确认，**不能代替发布方取得权利人许可**。
+
+> 本页介绍已发布的 v1.0.3 安装包；之后对 `main` 的双语文档修订**没有更改 Release 标签或 APK**。
 
 ## 本版变化
 
@@ -9,9 +13,11 @@
 - 首页、设置、全文和对话的双向导航与动效协调；尊重系统动画设置，增加应用内“减少动效”。
 - 改进大字体下首页栏布局、说明文字对比度和多个触控目标；底部操作区与滚动内容分界更清楚。
 - 云端识别启用并配置后，首页明确提示音频将发送到用户配置的服务；返回设置页后即时刷新状态。
-- 清空对话增加确认；设置页版本号与实际安装包一致。详见 [更新记录](https://github.com/zy839971925-zyy/tingxiejian-android/blob/v1.0.3/CHANGELOG.md)。
+- 清空对话增加确认；设置页版本号与实际安装包一致。详见[更新记录](../CHANGELOG.md)（发布后翻译与文档修订不改变标签内容）。
 
 ## 安装包与校验
+
+请从 [GitHub v1.0.3 Release](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.3) 下载。
 
 | 项目 | 内容 |
 | :--- | :--- |
@@ -32,13 +38,13 @@ APK 内含离线识别、标点及匿名分人所需的模型，无需首次联�
 
 ## 第三方许可与免责声明
 
-原创源码受 [MIT](https://github.com/zy839971925-zyy/tingxiejian-android/blob/v1.0.3/LICENSE) 许可；
+原创源码受 [MIT](../LICENSE) 许可；
 **这个 APK 整体不以 MIT 发布**。内含 sherpa-onnx 等第三方库与模型权重，各组件遵循其自身的版权及许可。
 其中流式中文 Zipformer 转换模型的再分发条款仍不明确，`embed.onnx` 的准确来源与许可尚未核实；
 本项目不能替这些权利人授予再分发权。首次转写前，应用会展示第三方清单并要求用户勾选确认，
 但用户同意使用条款、附带免责声明，**均不等于发布者获得再分发授权**。
-请阅读[第三方组件与已知权利状态](https://github.com/zy839971925-zyy/tingxiejian-android/blob/v1.0.3/THIRD_PARTY_NOTICES.md)
-及[完整免责声明](https://github.com/zy839971925-zyy/tingxiejian-android/blob/v1.0.3/DISCLAIMER.md)。
+请阅读[第三方组件与已知权利状态](../THIRD_PARTY_NOTICES.zh-CN.md)
+及[完整免责声明](../DISCLAIMER.md)。
 
 软件按原样提供，不保证识别正确、数据不丢失或在所有机型正常运行；请备份重要录音。
 如你是组件权利人并对该资产的分发有异议，请[提交 Issue](https://github.com/zy839971925-zyy/tingxiejian-android/issues)；我们将审查并移除有争议的资产。

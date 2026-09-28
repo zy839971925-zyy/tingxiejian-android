@@ -13,6 +13,7 @@ run python design-tools/check-first-run.py
 run python design-tools/check-cloud.py
 run python design-tools/check-island-gate.py
 run python design-tools/check-audit-guards.py
+run python design-tools/check-docs.py
 run bash design-tools/island-payload-check.sh
 echo
 [ $status -eq 0 ] && echo "ALL CHECKS PASSED" || echo "SOMETHING FAILED"

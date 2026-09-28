@@ -1,3 +1,5 @@
+<p align="center"><a href="CONTRIBUTING.zh-CN.md">简体中文</a> · <strong>English</strong></p>
+
 # Contributing
 
 Thanks for improving 听写间. Small, focused changes are easiest to verify.
@@ -14,7 +16,8 @@ Thanks for improving 听写间. Small, focused changes are easiest to verify.
    optional-notification fallbacks. UI motion must respect disabled animations and large fonts.
 5. Submit only original work that you can license under MIT; adaptations of Apache-2.0 code
    must retain attribution/terms. Do not add model weights, MiSans, SDK binaries, release APKs,
-   signing files or vendor libraries to Git history. Review `THIRD_PARTY_NOTICES.md` first.
+   signing files or vendor libraries to Git history. Review [third-party notices](THIRD_PARTY_NOTICES.md) first.
 
 By submitting, you agree that your original contribution is available under this project's MIT
 license, excluding explicitly documented upstream portions.
+For bilingual docs, update both language versions or explicitly flag a pending translation in the PR.

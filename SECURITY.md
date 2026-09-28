@@ -1,3 +1,5 @@
+<p align="center"><a href="SECURITY.zh-CN.md">简体中文</a> · <strong>English</strong></p>
+
 # Security policy
 
 This is an independently signed, local-first Android project, not an official Xiaomi client.

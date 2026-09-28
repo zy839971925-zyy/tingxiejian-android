@@ -1,3 +1,5 @@
+<p align="center"><strong>简体中文</strong> · <a href="README.en.md">English</a></p>
+
 <div align="center">
   <img src="docs/images/wordmark.svg" alt="听写间 · 离线听见，清晰写下" width="560">
   <p><strong>把一段录音，整理成可以阅读、检索与带走的文字。</strong></p>
@@ -13,7 +15,8 @@
     <a href="#技术架构">技术架构</a> ·
     <a href="#获取与构建">获取与构建</a> ·
     <a href="#数据权限与隐私">数据与隐私</a> ·
-    <a href="#许可与发布边界">许可边界</a>
+    <a href="#许可与发布边界">许可边界</a> ·
+    <a href="#开发与致谢">开发与致谢</a>
   </p>
 </div>
 
@@ -21,7 +24,7 @@
 > 仓库的 [MIT 许可](LICENSE) **仅覆盖原创源码和文档，不覆盖安装包**。公开 APK 内含第三方
 > 库和模型：流式 Zipformer 的再分发条款、`embed.onnx` 的来源与条款仍未核实。
 > 应用首次转写前会要求阅读并勾选第三方条款，但**用户的使用确认不能替代发布者需要取得的再分发许可**。
-> 下载、使用或再次分发前请阅读[第三方清单](THIRD_PARTY_NOTICES.md)和[免责声明](DISCLAIMER.md)；
+> 下载、使用或再次分发前请阅读[第三方清单](THIRD_PARTY_NOTICES.zh-CN.md)和[免责声明](DISCLAIMER.md)；
 > 本项目不授予这些资产的权利。权利人若有异议，请通过 Issue 联系移除。
 
 ## 一眼了解
@@ -206,7 +209,7 @@ bash build.sh
 | **Shizuku** | 仅可选的超级岛实验路径使用；不授权也可以使用核心转写，系统限制下会回退普通通知。 |
 | **音频与诊断** | 导入音频缓存在应用私有目录以供试听，可在设置中清除；诊断默认仅保存在应用私有目录。 |
 
-请勿将未脱敏的录音、转写、日志、API Key 或设备标识贴入公开 Issue。
+请勿将未脱敏的录音、转写、日志、API Key 或设备标识贴入公开 Issue；安全问题请按[安全说明](SECURITY.zh-CN.md)处理。
 更多实现边界见[架构说明](docs/ARCHITECTURE.md)和[免责声明](DISCLAIMER.md)。
 
 ## 工程导览
@@ -214,22 +217,31 @@ bash build.sh
 ```text
 src/com/example/tingxiejian/  Android Views、前台服务、识别流程、导出及可选岛适配
 res/                         布局、主题、动画与自绘资源
-design-tools/                逻辑、XML、打包与功能边界回归检查
+design-tools/                逻辑、XML、双语文档与功能边界回归检查
 scripts/                     构建依赖准备及哈希校验
 docs/                        架构、构建、审查与 UI 动效文档
 licenses/                    随本地构建打包的第三方许可文本
 ```
 
-从[架构](docs/ARCHITECTURE.md)了解数据流，从[更新记录](CHANGELOG.md)看版本变化；
-希望参与开发，可阅读[贡献指南](CONTRIBUTING.md)并先运行 `bash design-tools/check-all.sh`。
+从[双语文档索引](docs/README.md)按主题查阅，从[架构](docs/ARCHITECTURE.md)了解数据流，
+从[更新记录](CHANGELOG.md)看版本变化；希望参与开发，可阅读[贡献指南](CONTRIBUTING.zh-CN.md)
+并先运行 `bash design-tools/check-all.sh`。
 报告问题时请注明系统版本、机型、操作路径及是否启用云端或 Shizuku，勿附带敏感数据。
 
 ## 许可与发布边界
 
 - 本项目**原创代码与文档**：[MIT](LICENSE)，© 2026 Tingxiejian contributors。
 - sherpa-onnx、Shizuku、适配来源、模型、字体等有各自权利人和条款：见
-  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。源码仓库不提供第三方模型权重。
+  [第三方清单](THIRD_PARTY_NOTICES.zh-CN.md)。源码仓库不提供第三方模型权重。
 - APK 是第三方组件的组合物，**不能以 MIT 整体授权**。部分模型权利状态未核实；
   首次使用时的条款确认不意味着项目获得了模型再分发权。权利人可通过 [Issues](https://github.com/zy839971925-zyy/tingxiejian-android/issues) 联系。
 - 软件按原样提供。重要录音请先备份；识别结果、性能和 OEM 通知表现不作保证。
   完整说明见 [DISCLAIMER.md](DISCLAIMER.md)。
+
+## 开发与致谢
+
+开发过程中使用 [**GPT-6 Sol**](https://developers.openai.com/api/docs/models/gpt-6-sol) 辅助；本项目的开发、构建与文档整理均在 Android 手机上，
+借助 [Aether 扶摇](https://github.com/Zhou-Shilin/Aether) 的本地工具环境完成。
+特别感谢 Aether 作者 [@Zhou-Shilin](https://github.com/Zhou-Shilin)：让手机成为真正可用的开发环境，非常了不起！
+
+> Aether 是**开发工具**，不是听写间 APK 的运行依赖；模型参与开发也不改变项目及第三方资产各自的许可边界。

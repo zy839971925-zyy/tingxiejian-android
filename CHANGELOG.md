@@ -1,4 +1,13 @@
-# Changelog
+<p align="center"><strong>简体中文</strong> · <a href="CHANGELOG.en.md">English</a></p>
+
+# 更新记录
+
+> 以下是版本历史；**v1.0.3 标签及 APK 不因后续文档提交而改变**。
+
+## 发布后的文档更新（仅 main 分支）
+
+- README 与架构、构建、许可及安全等仓库文档加入可互相点击的中英文版本，补全操作路径与隐私边界。
+- 添加开发致谢：GPT-6 Sol 辅助开发，在 Android 手机上借助 Aether 完成开发与构建。
 
 ## 1.0.3 — 首次引导、动效与界面易用性
 
@@ -15,7 +24,7 @@
 ## 1.0.2 — 超级岛兼容恢复与条款面板
 
 - **修复超级岛不显示**：完全恢复 V1.0 的超级岛兼容路径（含按需启用 OEM 防火墙链的实验方式），
-  修正 1.0.1 中授权成功后超级岛完全不再显示的回归。
+  修正 1.0.1 中授权成功后超级岛完全不再显示的回归。**这是历史行为；1.0.3 对关闭的共享链优先安全回退。**
 - **条款面板改为卡片式**：「阅读并确认」使用与应用一致的视觉（眉题、阅读区、勾选解锁主按钮）与弹性入场；
   勾选确认后才能开始转写，其余功能不受影响。
 - **引导页更新**：增加品牌波形标记与「04 · 使用条款」卡片，可随时阅读完整条款；卡片依次入场。
@@ -29,23 +38,21 @@
 - 源码审查加固：结果先持久化再广播、原子历史写入、并发导入隔离、导出重建恢复、
   云端 URL 校验、诊断私有化、可选 Shizuku 防火墙链安全回退、Maven 依赖哈希校验。
 
-## 1.0 — local release
+## 1.0 — 本地发布
 
-- Native first-use permission guide (skippable; available again in Settings).
-- More spacious transcript action grid, with centered icon/label groups and larger targets.
-- ARM64 offline ASR, punctuation and anonymous speaker separation; optional cloud AI and
-  optional HyperOS island path.
-- This open-source snapshot replaces the proprietary MiSans source font with the Android system
-  font, documents binary licensing limitations and separates private build inputs from source.
+- 增加可跳过、可从设置重新进入的原生首次使用权限指南。
+- 全文页的操作区增加留白、居中的图标／文字组及更大的触控区域。
+- ARM64 离线语音识别、标点与匿名分人；可选云端 AI 和 HyperOS 超级岛路径。
+- 此开源快照将专有 MiSans 源码字体替换为 Android 系统字体，记录二进制许可边界，
+  并将私有构建输入与公开源码隔离。
 
 ## 0.17
 
-- Fixed missing Shizuku `aidl` and `shared` transitive classes in APK; added a DEX definition test.
+- 修复 APK 缺少 Shizuku `aidl`、`shared` 传递依赖类的问题，增加 DEX 定义检查。
 
 ## 0.16
 
-- Added opt-in Shizuku island bridge with restore guard; repaired shared-element return mapping,
-  history View stability and small interaction animations.
+- 添加可选 Shizuku 超级岛桥接及恢复保护，修复共享元素回程映射、历史视图稳定性和轻量动效。
 
-Earlier experiments are not preserved as separate public releases. See project history in private
-backups if you own them; do not republish APKs or bundled model weights without rights review.
+更早的实验版本未作为独立公开 Release 保存。若自行持有私有备份，可查看其历史；
+未核实权利前，不要再次发布 APK 或其内的模型权重。

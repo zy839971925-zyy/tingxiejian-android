@@ -1,3 +1,5 @@
+<p align="center"><strong>简体中文</strong> · <a href="ARCHITECTURE.en.md">English</a></p>
+
 # 技术架构｜从选文件到保存结果
 
 > [!NOTE]
@@ -142,7 +144,7 @@ Shizuku 实验路径可能**短暂更改 XMSF 网络规则，影响其他应用�
 读回并尝试恢复，进程中断时留待下次启动修复。Shizuku 不可用时**无法保证立即恢复**；
 当前实现不会为了开启岛而激活原本关闭的共享防火墙链。细节见
 [ShizukuIslandBridge.java](../src/com/example/tingxiejian/ShizukuIslandBridge.java) 与
-[第三方说明](../THIRD_PARTY_NOTICES.md)。
+[第三方说明](../THIRD_PARTY_NOTICES.zh-CN.md)。
 
 ## 六、存储、生命周期与权限边界
 
@@ -160,7 +162,7 @@ Shizuku 实验路径可能**短暂更改 XMSF 网络规则，影响其他应用�
 <summary><strong>展开看一条历史记录的字段形状</strong></summary>
 
 以下是结构示例，**不是**对真实录音的转写；仅展示主要字段。`speaker` 是匿名数字标签，
-云端识别的分段可能没有该标签：
+云端识别的分段以 `speaker: -1` 表示未知，而不是匿名分人结果：
 
 ```json
 {
@@ -189,7 +191,7 @@ UI 以 `segments` 生成可读全文；`text` 是服务事件保存的原始字�
 > [!CAUTION]
 > 所有 APK 内模型及依赖仍遵循各自的许可；特别是流式 Zipformer 的再分发条款、
 > `embed.onnx` 的来源尚未核实。应用内同意使用条款**不能补足发布方的再分发权**。
-> 见[第三方清单](../THIRD_PARTY_NOTICES.md)和[免责声明](../DISCLAIMER.md)。
+> 见[第三方清单](../THIRD_PARTY_NOTICES.zh-CN.md)和[免责声明](../DISCLAIMER.md)。
 
 ## 七、构建与验证边界
 

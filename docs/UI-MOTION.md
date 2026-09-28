@@ -1,3 +1,5 @@
+<p align="center"><strong>简体中文</strong> · <a href="UI-MOTION.en.md">English</a></p>
+
 # 界面与动效决策（源码审查，非实机验收）
 
 ## 目标与边界
