@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg">
+
+    <LinearLayout
+        android:id="@+id/column"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- ───────── app bar ───────── -->
+        <LinearLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="66dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_circle_soft"
+                android:padding="7dp"
+                android:src="@drawable/ic_logo"
+                android:importantForAccessibility="no" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/drop_title"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    style="@style/T.Title"
+                    android:text="听写间"/>
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                    android:text="离线转写 · 不联网"/>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/settings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_icon_circle"
+                android:padding="12dp"
+                android:src="@drawable/ic_settings"
+                android:tint="@color/ink"
+                android:contentDescription="设置" />
+        </LinearLayout>
+
+        <!-- ───────── scroll body ───────── -->
+        <ScrollView
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:scrollbars="none"
+            android:overScrollMode="never">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="16dp">
+
+                <!-- hero card: one state visible at a time -->
+                <FrameLayout
+                    android:id="@+id/hero"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="392dp"
+                    android:background="@drawable/bg_hero"
+                    android:padding="24dp">
+
+                    <!-- ================= idle ================= -->
+                    <LinearLayout
+                        android:id="@+id/state_idle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="96dp"
+                            android:layout_height="96dp"
+                            android:background="@drawable/bg_circle_soft">
+
+                            <ImageView
+                                android:layout_width="46dp"
+                                android:layout_height="46dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_wave"
+                                android:tint="@color/accent"
+                                android:importantForAccessibility="no" />
+                        </FrameLayout>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/drop_hint"
+                            style="@style/T.CardTitle"
+                            android:gravity="center"
+                            android:layout_marginTop="20dp"
+                            android:text="选择一段录音"/>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Body"
+                            android:layout_marginTop="6dp"
+                            android:gravity="center"
+                            android:text="中文转写 · 自动分人 · 自动标点\n全程在这台手机上完成"/>
+
+                        <TextView
+                            android:id="@+id/drop"
+                            android:layout_width="wrap_content"
+                            android:layout_height="52dp"
+                            android:layout_marginTop="22dp"
+                            android:background="@drawable/bg_primary"
+                            android:gravity="center"
+                            android:paddingStart="26dp"
+                            android:paddingEnd="26dp"
+                            android:text="选择录音文件"
+                            android:textColor="@color/on_accent"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/file_meta"
+                            style="@style/T.Num"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center"/>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/file_error"
+                            style="@style/T.Caption"
+                            android:layout_marginTop="8dp"
+                            android:gravity="center"
+                            android:textColor="@color/danger"/>
+                    </LinearLayout>
+
+                    <!-- ================= model prep ================= -->
+                    <LinearLayout
+                        android:id="@+id/state_prep"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="84dp"
+                            android:layout_height="84dp"
+                            android:background="@drawable/bg_circle_soft">
+
+                            <ImageView
+                                android:id="@+id/prep_icon"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_refresh"
+                                android:tint="@color/accent"
+                                android:importantForAccessibility="no" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/prep_percent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/ink"
+                            android:textSize="46sp"
+                            android:textStyle="bold" />
+
+                        <ProgressBar
+                            android:id="@+id/prep_bar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="212dp"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="18dp"
+                            android:max="1000"
+                            android:progressDrawable="@drawable/seek_track" />
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/prep_detail"
+                            style="@style/T.Body"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center"/>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                            android:layout_marginTop="10dp"
+                            android:text="只在这台手机上解压，不需要联网"/>
+                    </LinearLayout>
+
+                    <!-- ================= running ================= -->
+                    <LinearLayout
+                        android:id="@+id/state_run"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="196dp"
+                            android:layout_height="196dp">
+
+                            <com.example.tingxiejian.RingView
+                                android:id="@+id/ring"
+                                android:layout_width="196dp"
+                                android:layout_height="196dp"
+                                android:importantForAccessibility="no" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/ring_label"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif"
+                                    android:textColor="@color/ink"
+                                    android:textSize="42sp"
+                                    android:textStyle="bold" />
+
+                                <ProgressBar
+                                    android:id="@+id/phase_spinner"
+                                    style="?android:attr/progressBarStyleSmall"
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_marginTop="8dp"
+                                    android:indeterminateTint="@color/accent"
+                                    android:contentDescription="正在处理，当前阶段无法估算进度"
+                                    android:visibility="gone" />
+
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/stage"
+                                    style="@style/T.Caption"
+                                    android:gravity="center"
+                                    android:layout_marginTop="2dp"
+                                    android:textColor="@color/muted"/>
+                            </LinearLayout>
+                        </FrameLayout>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/eta"
+                            android:gravity="center"
+                            style="@style/T.Body"
+                            android:layout_marginTop="10dp"/>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/detail"
+                            android:gravity="center"
+                            style="@style/T.Num"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/muted"/>
+
+                        <com.example.tingxiejian.WaveView
+                            android:id="@+id/wave"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:layout_marginTop="14dp" />
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/wave_done"
+                            android:gravity="center"
+                            style="@style/T.Num"
+                            android:layout_marginTop="8dp"/>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/live"
+                            style="@style/T.Body"
+                            android:layout_marginTop="8dp"
+                            android:maxLines="3"
+                            android:ellipsize="end"/>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/elapsed"
+                            style="@style/T.Num"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/muted"/>
+                    </LinearLayout>
+
+                    <!-- ================= done ================= -->
+                    <LinearLayout
+                        android:id="@+id/state_done"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/bg_circle_soft">
+
+                            <ImageView
+                                android:id="@+id/done_icon"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_check"
+                                android:tint="@color/accent"
+                                android:importantForAccessibility="no" />
+                        </FrameLayout>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/result_summary"
+                            style="@style/T.CardTitle"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center"/>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/result_warning"
+                            style="@style/T.Caption"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_soft_warn"
+                            android:padding="10dp"
+                            android:textColor="@color/warn"
+                            android:visibility="gone"/>
+
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/result_preview"
+                            style="@style/T.Body"
+                            android:layout_marginTop="12dp"
+                            android:maxLines="5"
+                            android:ellipsize="end"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/play"
+                                android:layout_width="52dp"
+                                android:layout_height="52dp"
+                                android:background="@drawable/bg_primary"
+                                android:padding="15dp"
+                                android:src="@drawable/ic_play"
+                                android:tint="@color/on_accent"
+                                android:contentDescription="播放" />
+
+                            <SeekBar
+                                android:id="@+id/seek"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="12dp"
+                                android:layout_marginEnd="12dp"
+                                android:thumb="@drawable/seek_thumb"
+                                android:progressDrawable="@drawable/seek_track" />
+
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/player_time"
+                                style="@style/T.Num"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:id="@+id/copy"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <ImageView
+                                    android:layout_width="46dp"
+                                    android:layout_height="46dp"
+                                    android:background="@drawable/bg_icon_circle"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_copy"
+                                    android:tint="@color/ink"
+                                    android:importantForAccessibility="no" />
+
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                                    android:layout_marginTop="6dp"
+                                    android:text="复制"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/share"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <ImageView
+                                    android:layout_width="46dp"
+                                    android:layout_height="46dp"
+                                    android:background="@drawable/bg_icon_circle"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_share"
+                                    android:tint="@color/ink"
+                                    android:importantForAccessibility="no" />
+
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                                    android:layout_marginTop="6dp"
+                                    android:text="分享"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/save"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <ImageView
+                                    android:layout_width="46dp"
+                                    android:layout_height="46dp"
+                                    android:background="@drawable/bg_icon_circle"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_export"
+                                    android:tint="@color/ink"
+                                    android:importantForAccessibility="no" />
+
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                                    android:layout_marginTop="6dp"
+                                    android:text="导出"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/open_full"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <ImageView
+                                    android:layout_width="46dp"
+                                    android:layout_height="46dp"
+                                    android:id="@+id/open_full_icon"
+                                    android:background="@drawable/bg_icon_circle"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_file"
+                                    android:tint="@color/ink"
+                                    android:importantForAccessibility="no" />
+
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                                    android:layout_marginTop="6dp"
+                                    android:text="全文"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </FrameLayout>
+
+                <!-- recent list -->
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginStart="4dp"
+                    android:letterSpacing="0.08"
+                    android:text="最近"
+                    android:textColor="@color/muted"/>
+
+                <LinearLayout
+                    android:id="@+id/history_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical" />
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/history_empty"
+                    style="@style/T.Caption"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginStart="4dp"
+                    android:text="转写完成的结果会出现在这里"/>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ───────── bottom action ───────── -->
+        <LinearLayout
+            android:id="@+id/bottombar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="12dp">
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/action_note"
+                style="@style/T.Caption"
+                android:gravity="center"
+                android:textColor="@color/muted"/>
+
+            <TextView
+                android:id="@+id/run"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_primary"
+                android:gravity="center"
+                android:text="选择录音"
+                android:textColor="@color/on_accent"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

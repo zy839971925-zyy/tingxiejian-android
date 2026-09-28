@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Only this empty surface morphs from the opening control; content fades in later. -->
+    <View
+        android:id="@+id/portal_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_portal"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:id="@+id/portal_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:transitionGroup="true">
+
+    <LinearLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingTop="10dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_back"
+            android:tint="@color/ink"
+            android:contentDescription="返回" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/T.Title"
+            android:text="设置" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/line" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none"
+        android:clipToPadding="false"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/guide_entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_row"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:paddingTop="12dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="12dp"
+                android:drawableEnd="@drawable/ic_chevron"
+                android:drawableTint="@color/accent"
+                style="@style/T.Label"
+                android:text="首次使用与权限指南" />
+
+            <!-- 识别 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="6dp"
+                style="@style/T.CardTitle"
+                android:drawableStart="@drawable/ic_person"
+                android:drawableTint="@color/accent"
+                android:drawablePadding="8dp"
+                android:text="识别" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_row"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/T.Label"
+                    android:text="区分发言人" />
+
+                <Switch
+                    android:id="@+id/diarize"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_row"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/T.Label"
+                    android:text="说话人数" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/speaker_seg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <!-- 外观 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="6dp"
+                style="@style/T.CardTitle"
+                android:drawableStart="@drawable/ic_sun"
+                android:drawableTint="@color/accent"
+                android:text="外观" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_row"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none">
+                    <LinearLayout
+                        android:id="@+id/appearance_seg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <!-- 超级岛 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="6dp"
+                style="@style/T.CardTitle"
+                android:drawableStart="@drawable/ic_wave"
+                android:drawableTint="@color/accent"
+                android:text="超级岛" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_row"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="14dp">
+
+                <View
+                    android:id="@+id/island_dot"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/bg_dot" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    style="@style/T.Label"
+                    android:text="转写时尝试在超级岛显示进度" />
+
+                <Switch
+                    android:id="@+id/island_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_row"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="14dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/T.Label"
+                    android:text="可选 · 用 Shizuku 尝试小米门禁" />
+                <Switch
+                    android:id="@+id/shizuku_island_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="允许短时限制 XMSF 网络以尝试显示超级岛" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/shizuku_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                style="@style/T.Caption"
+                android:text="不影响离线转写；启用后会短暂更改系统网络规则，可能影响同期推送或网络连接。重启后需重新启动 Shizuku。" />
+
+            <TextView
+                android:id="@+id/shizuku_authorize"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_seg_off"
+                android:gravity="center"
+                android:text="启动／授权 Shizuku"
+                android:textColor="@color/accent" />
+
+            <TextView
+                android:id="@+id/island_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                style="@style/T.Caption"
+                android:text="" />
+
+            <TextView
+                android:id="@+id/island_test"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_seg_off"
+                android:gravity="center"
+                android:text="测试系统超级岛 · 12 秒"
+                android:textColor="@color/ink"
+                android:contentDescription="发布 12 秒超级岛测试通知，不上传录音" />
+
+            <TextView
+                android:id="@+id/island_permission_settings"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_row"
+                android:gravity="center"
+                android:text="检查系统通知与焦点权限"
+                android:textColor="@color/accent" />
+
+            <!-- 模型 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="6dp"
+                style="@style/T.CardTitle"
+                android:drawableStart="@drawable/ic_refresh"
+                android:drawableTint="@color/accent"
+                android:text="离线模型" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_row"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="14dp">
+
+                <TextView
+                    android:id="@+id/model_status"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/T.Meta"
+                    android:text="" />
+
+                <TextView
+                    android:id="@+id/model_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pill"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="10dp"
+                    android:paddingRight="16dp"
+                    android:paddingBottom="10dp"
+                    style="@style/T.Meta"
+                    android:text="重新准备" />
+            </LinearLayout>
+
+            <!-- 云端 AI（可选） -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="2dp"
+                style="@style/T.CardTitle"
+                android:drawableStart="@drawable/ic_cloud"
+                android:drawableTint="@color/accent"
+                android:text="云端 AI（可选）" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                style="@style/T.Caption"
+                android:text="不填 Key 就不会联网。只有你点“AI 整理 / 云端识别 / 提问”时，对应内容才会发到你配置的接口。" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_row"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none">
+                    <LinearLayout
+                        android:id="@+id/cloud_provider_seg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    style="@style/T.Caption"
+                    android:text="API Key" />
+
+                <EditText
+                    android:id="@+id/cloud_key"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_input"
+                    android:inputType="textPassword"
+                    android:padding="12dp"
+                    style="@style/T.Label"
+                    android:hint="sk-…" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    style="@style/T.Caption"
+                    android:text="接口地址（OpenAI 兼容 base URL）" />
+
+                <EditText
+                    android:id="@+id/cloud_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_input"
+                    android:inputType="textUri"
+                    android:padding="12dp"
+                    style="@style/T.Label"
+                    android:hint="https://api.xiaomimimo.com/v1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    style="@style/T.Caption"
+                    android:text="对话模型（总结 / 提问 / 整理）" />
+
+                <EditText
+                    android:id="@+id/cloud_model"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_input"
+                    android:inputType="text"
+                    android:padding="12dp"
+                    style="@style/T.Label"
+                    android:hint="mimo-v2.5" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        style="@style/T.Label"
+                        android:text="转写时用云端识别" />
+
+                    <Switch
+                        android:id="@+id/cloud_asr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    style="@style/T.Caption"
+                    android:text="云端识别模型（可留空 = 只用本地）" />
+
+                <EditText
+                    android:id="@+id/cloud_asr_model"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_input"
+                    android:inputType="text"
+                    android:padding="12dp"
+                    style="@style/T.Label"
+                    android:hint="mimo-v2.5-asr" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/cloud_test"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginRight="8dp"
+                        android:background="@drawable/bg_row"
+                        android:gravity="center"
+                        android:paddingTop="13dp"
+                        android:paddingBottom="13dp"
+                        style="@style/T.Label"
+                        android:text="测试连接" />
+
+                    <TextView
+                        android:id="@+id/cloud_clear"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_row"
+                        android:gravity="center"
+                        android:paddingTop="13dp"
+                        android:paddingBottom="13dp"
+                        style="@style/T.Label"
+                        android:text="清空配置" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/cloud_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    style="@style/T.Caption"
+                    android:text="" />
+            </LinearLayout>
+
+            <!-- 关于 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="6dp"
+                style="@style/T.CardTitle"
+                android:drawableStart="@drawable/ic_shield"
+                android:drawableTint="@color/accent"
+                android:text="关于" />
+
+            <TextView
+                android:id="@+id/version_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/T.Caption"
+                android:text="" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                style="@style/T.Caption"
+                android:text="转写、分人、标点全部在这台手机上完成，音频不会离开设备。" />
+        </LinearLayout>
+    </ScrollView>
+    </LinearLayout>
+</FrameLayout>

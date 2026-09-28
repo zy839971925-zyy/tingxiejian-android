@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="24dp">
+
+    <TextView
+        style="@style/T.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="录音、文字和模型都留在这台手机里，飞行模式也能用。说话人只按声音差异区分同一段录音，不代表真实身份。长录音会跳过分人并在结果里说明。" />
+</LinearLayout>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/portal_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_portal"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:id="@+id/portal_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:transitionGroup="true">
+
+        <LinearLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingTop="10dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="10dp">
+
+            <ImageView
+                android:id="@+id/back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:src="@drawable/ic_back"
+                android:tint="@color/ink"
+                android:contentDescription="返回" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                style="@style/T.CardTitle"
+                android:text="转写结果" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/line" />
+
+        <TextView
+            android:id="@+id/meta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingTop="16dp"
+            android:paddingRight="20dp"
+            style="@style/T.Num"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/legend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingTop="8dp"
+            android:paddingRight="20dp"
+            style="@style/T.Caption"
+            android:text="" />
+
+        <!-- Each icon and label is one centered group, never a drawable pinned to the edge. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingTop="20dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:id="@+id/ask"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginRight="12dp"
+                    android:background="@drawable/bg_primary"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="14dp"
+                    android:paddingRight="14dp"
+                    android:contentDescription="问 AI">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_sparkle"
+                        android:tint="@color/on_accent"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:maxLines="2"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        style="@style/T.Label"
+                        android:textColor="@color/on_accent"
+                        android:text="问 AI" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/copy"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_row"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="14dp"
+                    android:paddingRight="14dp"
+                    android:contentDescription="复制全文">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_copy"
+                        android:tint="@color/ink"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:maxLines="2"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        style="@style/T.Label"
+                        android:text="复制" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/share"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_weight="1"
+                    android:layout_marginRight="12dp"
+                    android:background="@drawable/bg_row"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="14dp"
+                    android:paddingRight="14dp"
+                    android:contentDescription="分享全文">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_share"
+                        android:tint="@color/ink"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:maxLines="2"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        style="@style/T.Label"
+                        android:text="分享" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/save"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_row"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="14dp"
+                    android:paddingRight="14dp"
+                    android:contentDescription="导出全文">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_export"
+                        android:tint="@color/ink"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:maxLines="2"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        style="@style/T.Label"
+                        android:text="导出" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/segments"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="12dp"
+            android:clipToPadding="false"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="16dp"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="8dp"
+            android:scrollbars="none" />
+    </LinearLayout>
+</FrameLayout>

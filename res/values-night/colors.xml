@@ -1,0 +1,20 @@
+<resources>
+  <color name="bg">#121211</color>
+  <color name="surface">#1C1C1A</color>
+  <color name="sunken">#242422</color>
+  <color name="ink">#F2F0EC</color>
+  <color name="muted">#96928B</color>
+  <color name="line">#2E2E2B</color>
+  <color name="primary_fill">#176A50</color>
+  <color name="on_accent">#FFFFFF</color>
+  <color name="accent">#3DBE92</color>
+  <color name="accent_soft">#1A332B</color>
+  <color name="warm">#E0A96D</color>
+  <color name="warn">#E0A96D</color>
+  <color name="warn_bg">#2A2320</color>
+  <color name="danger">#E5766F</color>
+  <color name="white">#FFFFFF</color>
+  <color name="dot_ready">#3DBE92</color>
+  <color name="dot_waiting">#55524C</color>
+  <color name="dot_unsupported">#B4834B</color>
+</resources>

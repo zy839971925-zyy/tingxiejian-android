@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon foreground: a spoken waveform kept inside the 66dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:strokeColor="#E8BA73" android:strokeWidth="5.4" android:strokeLineCap="round"
+        android:pathData="M36,49.5V58.5"/>
+    <path android:strokeColor="#E8BA73" android:strokeWidth="5.4" android:strokeLineCap="round"
+        android:pathData="M45,40V68"/>
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="5.4" android:strokeLineCap="round"
+        android:pathData="M54,32.5V75.5"/>
+    <path android:strokeColor="#E8BA73" android:strokeWidth="5.4" android:strokeLineCap="round"
+        android:pathData="M63,43.5V64.5"/>
+    <path android:strokeColor="#E8BA73" android:strokeWidth="5.4" android:strokeLineCap="round"
+        android:pathData="M72,50.5V57.5"/>
+</vector>

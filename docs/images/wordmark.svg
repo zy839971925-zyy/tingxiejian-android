@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 210" role="img" aria-labelledby="title desc">
+  <title id="title">听写间</title>
+  <desc id="desc">绿色圆角方块内有金白色声音波形，旁边写有听写间</desc>
+  <rect width="920" height="210" rx="28" fill="#f5f4f1"/>
+  <rect x="40" y="34" width="142" height="142" rx="36" fill="#16785c"/>
+  <g fill="none" stroke-width="9" stroke-linecap="round">
+    <path d="M72 91v28M91 72v66" stroke="#e8ba73"/>
+    <path d="M111 60v90" stroke="#fff"/>
+    <path d="M131 79v52M150 95v24" stroke="#e8ba73"/>
+  </g>
+  <text x="218" y="121" fill="#1b1b19" font-size="72" font-family="sans-serif" font-weight="700">听写间</text>
+  <text x="220" y="165" fill="#16785c" font-size="22" font-family="sans-serif">离线听见，清晰写下。</text>
+</svg>

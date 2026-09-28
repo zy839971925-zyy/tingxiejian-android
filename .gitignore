@@ -1,0 +1,38 @@
+# Reproducible build outputs, signed APKs and signing identity
+/build/
+/dist/
+*.apk
+*.apk.idsig
+*.p12
+*.keystore
+*.jks
+*.pass
+*.pem
+*.key
+*.asc
+
+# Acquired third-party assets and model weights (not covered by project MIT license)
+/vendor/
+/models/
+/res/font/*.ttf
+/res/font/*.otf
+
+# Private local records and transient diagnostics
+/archive/
+/backups/
+*.log
+*.status
+*.exit
+*.tmp
+*.swp
+.DS_Store
+__pycache__/
+*.py[cod]
+.env
+.env.*
+*.tar
+*.tar.gz
+*.tar.zst
+*.zip
+.have_drawables
+.used_drawables
