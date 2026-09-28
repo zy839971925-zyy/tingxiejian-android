@@ -9,7 +9,8 @@
   </p>
   <p>
     <a href="#能做什么">能做什么</a> ·
-    <a href="#如何使用">如何使用</a> ·
+    <a href="#从安装到导出">使用指南</a> ·
+    <a href="#技术架构">技术架构</a> ·
     <a href="#获取与构建">获取与构建</a> ·
     <a href="#数据权限与隐私">数据与隐私</a> ·
     <a href="#许可与发布边界">许可边界</a>
@@ -43,28 +44,130 @@
 - **原生、可控制的界面：**浅色／深色主题、系统安全区、四页可跳过的首次引导、双向页面转场；
   尊重系统动画设置，也提供应用内“减少动效”。设计取舍见[界面与动效决策](docs/UI-MOTION.md)。
 
-## 如何使用
+## 从安装到导出
 
-1. 首次打开时阅读四页引导，按需授予**通知**权限；也可跳过，日后从设置重看。
-2. 点“选择录音”，用系统文件选择器挑选已有音频。无需授予录音或整个存储空间权限。
-3. 开始转写并等待各阶段结束；第一次转写前，应用会展示第三方组件条款，要求阅读并勾选确认。
-4. 从历史进入转写结果，阅读、试听或导出。若选择配置云端功能，请先了解相应服务的数据政策。
+> **适用范围：**Android 8.0+、ARM64。APK 约 516 MiB；首次模型准备还会在应用私有目录
+> 复制约 500 MiB，请预留额外空间。文件导入上限 **200 MiB**、解码后音频时长上限 **1 小时**；
+> 本地匿名分人对超过 **40 分钟**的录音会跳过并提示，其余转写仍可进行。
+
+### 01 · 安装与首次打开
+
+1. 从 [v1.0.3 Release](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.3)
+   下载 `tingxiejian-v1.0.3-arm64-release.apk`，对照发布页的许可说明和 SHA-256；
+   安装前先导出旧版中的重要结果，**不要为了升级直接卸载旧版**。
+2. 在 Android 的安装界面按系统提示确认安装来源。首次启动可阅读四页引导：
+   文件选择 → 通知权限 → 可选能力 → 欢迎使用。引导能跳过，之后可从**设置 → 首次使用与权限指南**重新打开。
+3. 按需允许通知，以便在后台看到普通进度通知；**不授权也能使用本地转写**。
+   应用不要求麦克风或全盘文件权限。
+
+<details>
+<summary><strong>想校验安装包？展开查看命令</strong></summary>
+
+在保存 APK 的目录运行（Linux / Termux / macOS）：
+
+```bash
+sha256sum tingxiejian-v1.0.3-arm64-release.apk
+# 预期：7ad11ac88b27f3017dd5bf0a362aea3df4b031674bd10c2d630b9c73f9f3dad1
+```
+
+macOS 若没有 `sha256sum`，可用 `shasum -a 256 文件名`；Windows PowerShell 可用
+`Get-FileHash .\tingxiejian-v1.0.3-arm64-release.apk -Algorithm SHA256`。
+[校验文件](https://github.com/zy839971925-zyy/tingxiejian-android/releases/download/v1.0.3/SHA256SUMS-v1.0.3.txt)
+也随 Release 提供。
+
+</details>
+
+### 02 · 选择录音与准备模型
+
+1. 首页点**选择录音**；在 Android 系统文件选择器中选已有的音频，或选有音轨且设备能解码的视频。
+   应用只读取你选中的文件，复制到私有缓存；页面会显示文件名、大小和时长。
+2. 首页第一次准备离线模型前，会要求阅读第三方组件条款并**主动勾选确认**；模型从 APK
+   复制到本机，不从网络下载。也可到**设置 → 离线模型**手动准备；无论如何，首次转写前仍需确认条款。
+3. 点**开始转写**。默认在本机识别；页面显示正在处理的阶段、可用的进度及已识别文本。
+   转写中可点**取消转写**，但某些原生模型运算无法立即中断，请给它一点时间。
+
+> [!TIP]
+> 文件选择器支持的扩展名不等于设备一定能解码。无法读取时，先检查文件能否在本机播放，
+> 再尝试换一段较短、未损坏的录音。匿名说话人标签只是机器分组，**不是身份认证**。
+
+### 03 · 阅读、试听、导出
+
+完成后首页展示摘要和预览。点**查看全文**阅读分段；首页的**最近**只显示最后 5 条。
+如仍保有导入时的临时音频，可使用播放和进度拖动；清除缓存后文字保留，试听可能不可用。
+
+| 你想做什么 | 在哪里操作 | 得到什么 |
+| :--- | :--- | :--- |
+| 复制纯文字 | 结果页或首页 → **复制** | 无时间戳的可粘贴全文 |
+| 发给其他应用 | **分享** | Android 分享面板中的带时间转写文本；请自行检查接收应用的隐私条款 |
+| 导出文件 | **导出** → TXT / SRT / JSON → 选保存位置 | 带时间文本／字幕／结构化记录；位置由系统文档选择器决定 |
+| 针对录音提问 | 全文 → **问 AI** | 需要先在设置中配置云端服务；转写内容和对话会作为请求上下文发送给所选服务 |
+
+> [!IMPORTANT]
+> 转写完成会在应用内保存历史，但不是云备份。`allowBackup=false`，卸载或更换签名安装
+> 可能丢失私有历史；重要结果请及时导出到自己选择的位置。
+
+### 04 · 按需调整（默认不必设置）
+
+| 设置位置 | 适合何时开启 | 注意 |
+| :--- | :--- | :--- |
+| 设置 → 识别 → 区分发言人／说话人数 | 多人录音，或已知说话人数 | 可关闭分人；超过 40 分钟自动跳过该阶段 |
+| 设置 → 外观／减少动效 | 需要深色、跟随系统或希望少些转场 | 也尊重系统关闭动画的设置 |
+| 设置 → 云端 AI | 确定要使用自选服务的问答或语音识别 | 填地址、Key、模型；**只填写 Key 不会自动启用云端识别**，还要打开云端识别开关；“测试连接”会发起实际请求 |
+| 设置 → 超级岛／Shizuku | 了解实验性 OEM 兼容路径的用户 | 非转写必需，可能影响其他应用的连接或推送；失败回退普通通知，授权不保证显示岛 |
+| 设置 → 清除临时音频 | 转写完成且不再需要本机试听 | **不删除已保存的文字**；清除云端配置是另一项独立操作 |
+
+<details>
+<summary><strong>常见情况：进度、通知与云端模式</strong></summary>
+
+- **第一次一直显示“准备模型”**：APK 中的模型需要复制到应用私有目录；检查剩余空间，
+  保持应用运行并观察阶段信息。模型已准备好后通常不再重复完整复制。
+- **进度暂时不变**：分人等阶段没有可测的内部百分比，界面会显示已用时间而非虚构倒计时；
+  大音频或设备内存压力可能使这一阶段更久。
+- **没有超级岛**：先看普通通知是否允许，再检查设置页的能力状态；非小米设备及部分 ROM
+  只会显示普通通知，模型识别不依赖岛。
+- **显示云端识别，但不想上传**：回到设置关闭“云端识别”；回到首页确认已显示“默认离线”后再开始。
+  “问 AI”仍是独立的用户发起操作，若不需要可清空云端配置。
+
+</details>
+
+## 技术架构
+
+> **给开发者的阅读路线：**下面是实现地图；模型准备、服务与回调、数据格式、OEM 门禁、
+> 构建校验的逐层分析和源码链接，见独立的[技术架构详解](docs/ARCHITECTURE.md)。
 
 ```mermaid
 flowchart LR
-    A[选择已有音频] --> B[解码与准备]
-    B --> C{识别模式}
-    C -->|默认| D[本地识别]
-    C -->|用户启用并配置| E[云端识别服务]
-    D --> F[本机标点与匿名分人]
-    F --> G[历史 · 全文 · 导出]
-    E --> G
-    B --> N[普通进度通知]
-    N -.主动授权且设备支持.-> I[尝试超级岛]
+    Picker[系统文件选择器] --> Main[MainActivity · 私有导入]
+    Main --> Service[LocalService · 前台任务]
+    Service --> Decoder[PcmDecoder · 16 kHz 单声道]
+    Decoder --> Branch{已配置并启用云端识别？}
+    Branch -->|否| Local[Transcriber · Zipformer → Paraformer → 标点 → 可选分人]
+    Branch -->|是| Remote[CloudChunker → 用户配置的识别服务]
+    Local --> Saved[History · 原子写入 JSON]
+    Remote --> Saved
+    Service --> Job[Job · 阶段与进度]
+    Job --> Bus[Bus · 进程内快照]
+    Job --> Notice[普通通知 · 可选岛适配]
+    Saved --> Result[全文 · TXT / SRT / JSON]
+    Bus --> Main
+    Result -.用户主动提问.-> Chat[ChatActivity → Cloud.chat]
 ```
 
-> 云端识别分支不是默认行为。文件选择器、通知授权界面和系统分享面板由 Android 提供；
-> 超级岛是否出现由设备的 SystemUI 决定。
+| 层次 | 关键模块 | 实际职责 |
+| :--- | :--- | :--- |
+| **原生界面** | [`MainActivity`](src/com/example/tingxiejian/MainActivity.java)、[`WelcomeActivity`](src/com/example/tingxiejian/WelcomeActivity.java)、[`TranscriptActivity`](src/com/example/tingxiejian/TranscriptActivity.java) | 首次引导、导入、进度、结果；`UiTheme` 处理日夜主题和系统安全区，`Motion` / `PortalTransition` 处理可降低的双向动效 |
+| **任务与解码** | [`LocalService`](src/com/example/tingxiejian/LocalService.java)、[`PcmDecoder`](src/com/example/tingxiejian/PcmDecoder.java)、[`Job`](src/com/example/tingxiejian/Job.java) | 服务工作线程处理任务，`MediaExtractor` / `MediaCodec` 解码到 16 kHz；同一进度映射用于 UI 和通知 |
+| **识别与可选联网** | [`ModelPrep`](src/com/example/tingxiejian/ModelPrep.java)、[`Transcriber`](src/com/example/tingxiejian/Transcriber.java)、[`Cloud`](src/com/example/tingxiejian/Cloud.java) | APK 内九个模型复制至私有目录；默认 sherpa-onnx 本地链路；云端分支上传分段 WAV，聊天单独触发 |
+| **数据与导出** | [`History`](src/com/example/tingxiejian/History.java)、[`Exporter`](src/com/example/tingxiejian/Exporter.java)、[`Bus`](src/com/example/tingxiejian/Bus.java) | 完成结果先原子保存再发事件；Bus 只是同进程快照，不是持久数据库；导出由系统文件选择器决定目的地 |
+| **通知与 OEM** | [`XiaomiIslandCapability`](src/com/example/tingxiejian/XiaomiIslandCapability.java)、[`XiaomiIslandPublisher`](src/com/example/tingxiejian/XiaomiIslandPublisher.java) | 普通通知始终是回退；Shizuku 门禁是明确授权的实验性路径，提交焦点通知不等于 SystemUI 已展示 |
+
+**关键取舍。**这是 Java + Android Views 的离线优先应用，运行时没有 WebView、Termux 或本地 HTTP 端口。
+模型在 APK 中以未压缩资源打包，首次复制到私有文件目录；它们仍不是 MIT 资产。
+转写结果由 `LocalService` **先写 `History` 再发 `Bus` 事件**，所以 Activity 重建不必依赖瞬时回调；
+但进程被系统终止时，运行中的原生模型计算不保证自动恢复。云端识别返回块级段落，
+**不经过本地复核、标点与匿名分人**，不要把两条路径误当成完全同质的输出。[^paths]
+
+[^paths]: 识别模式要求设置开关、有效服务地址与 Key、非空语音识别模型同时成立；聊天则只在用户进入全文并主动发送消息时调用云端。
 
 ## 获取与构建
 
