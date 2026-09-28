@@ -490,7 +490,8 @@ public class MainActivity extends Activity {
                 sendService(LocalService.ACTION_CANCEL, null);
                 break;
             case STATE_DONE:
-                Bus.reset(); // The cached result is already durable; don't replay it as a new job.
+                // Keep the terminal Bus snapshot until the next file is actually selected:
+                // service.busy may still be true for a moment after publishing the result.
                 showState(STATE_IDLE, true);
                 refreshHistory();
                 break;
