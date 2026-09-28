@@ -8,9 +8,12 @@ read = lambda name: (src / name).read_text(encoding='utf-8')
 main, service, chat = read('MainActivity.java'), read('LocalService.java'), read('ChatActivity.java')
 transcript, history, cloud = read('TranscriptActivity.java'), read('History.java'), read('Cloud.java')
 bridge, report = read('ShizukuIslandBridge.java'), read('Diagnostics.java')
+settings = read('SettingsActivity.java')
 checks = {
     'imports use distinct cache paths': 'File.createTempFile("input-"' in main and 'new File(getCacheDir(), "input")' not in main,
     'busy service cannot accept another run': 'if (path != null && busy) return' in service and 'LocalService.isBusy()' in main,
+    'new selection clears cached result': 'Bus.reset(); // Reopening the app' in main and 'if (savedId.equals(resultId)) return' in main,
+    'cache deletion rechecks busy at confirmation': settings.count('if (LocalService.isBusy())') >= 2,
     'service saves completed history before publishing': service.index('History.save(this, savedResult(event))') < service.index('Bus.post(event);'),
     'history writes atomically with collision-resistant ids': 'UUID.randomUUID()' in history and 'atomic.finishWrite(out)' in history,
     'history read is size-bounded': 'length > MAX_RESULT_BYTES' in history,

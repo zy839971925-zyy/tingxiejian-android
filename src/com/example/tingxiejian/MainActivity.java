@@ -490,6 +490,7 @@ public class MainActivity extends Activity {
                 sendService(LocalService.ACTION_CANCEL, null);
                 break;
             case STATE_DONE:
+                Bus.reset(); // The cached result is already durable; don't replay it as a new job.
                 showState(STATE_IDLE, true);
                 refreshHistory();
                 break;
@@ -543,6 +544,7 @@ public class MainActivity extends Activity {
             fileError.setText("已有转写任务，不能替换正在读取的录音。");
             return;
         }
+        Bus.reset(); // Reopening the app must not replace this new selection with an old result.
         final int generation = ++importGeneration;
         importing = true;
         fileError.setText("");
@@ -586,6 +588,7 @@ public class MainActivity extends Activity {
                     if (previous != null && !previous.equals(imported)) previous.delete();
                     inputName = name;
                     durationSeconds = seconds;
+                    if (state == STATE_DONE) showState(STATE_IDLE, false);
                     dropHint.setText(name);
                     fileMeta.setText(String.format(Locale.US, "%.1f MB · %s · 已就绪",
                             copiedBytes / 1048576.0, Job.clock(seconds)));
@@ -790,7 +793,7 @@ public class MainActivity extends Activity {
         try {
             String savedId = result.optString("saved_id", "");
             if (savedId.isEmpty()) throw new java.io.IOException("服务未提供已保存的转写结果");
-            if (savedId.equals(resultId) && state == STATE_DONE) return; // cached Bus event
+            if (savedId.equals(resultId)) return; // cached Bus event is not a new result
             JSONObject saved = History.load(this, savedId);
             resultId = savedId;
             resultJson = saved;

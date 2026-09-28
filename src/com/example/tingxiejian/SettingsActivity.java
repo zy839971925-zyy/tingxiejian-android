@@ -255,6 +255,12 @@ public class SettingsActivity extends Activity {
                 .setMessage("试听将不再可用；已保存的文字记录不会删除。")
                 .setNegativeButton("取消", null)
                 .setPositiveButton("清除", (dialog, which) -> {
+                    // The job may have started while the confirmation dialog was open.
+                    if (LocalService.isBusy()) {
+                        android.widget.Toast.makeText(this, "转写已开始，未清除音频",
+                                android.widget.Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     int removed = 0;
                     File[] files = getCacheDir().listFiles();
                     if (files != null) for (File file : files) {

@@ -41,7 +41,9 @@ final class History {
         }
     }
 
-    private static final long MAX_RESULT_BYTES = 16L * 1024 * 1024;
+    // Preserve large valid entries written by older versions; avoid allocating an int-sized
+    // array from corrupt/hostile file metadata. Very large histories need a streaming parser.
+    private static final long MAX_RESULT_BYTES = 128L * 1024 * 1024;
 
     static File dir(Context context) {
         return new File(context.getFilesDir(), "history");
@@ -55,7 +57,7 @@ final class History {
         String id = System.currentTimeMillis() + "-" + UUID.randomUUID();
         result.put("id", id);
         byte[] data = result.toString().getBytes(StandardCharsets.UTF_8);
-        if (data.length > MAX_RESULT_BYTES) throw new IOException("转写记录超过 16 MB");
+        if (data.length > MAX_RESULT_BYTES) throw new IOException("转写记录超过 128 MB");
         AtomicFile atomic = new AtomicFile(new File(dir(context), id + ".json"));
         FileOutputStream out = null;
         try {
