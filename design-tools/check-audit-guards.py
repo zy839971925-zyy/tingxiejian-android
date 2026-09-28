@@ -24,7 +24,7 @@ checks = {
     'both exports restore picker state': 'state.putInt(STATE_EXPORT_KIND, exportKind)' in main and 'state.putInt(STATE_EXPORT_FORMAT, pendingFormat)' in transcript and 'pendingExport' not in transcript,
     'chat clear invalidates pending replies': 'conversationGeneration++' in chat and 'generation != conversationGeneration' in chat,
     'cloud validates actual URL host and blocks redirects': 'parsed.getHost()' in cloud and 'setInstanceFollowRedirects(false)' in cloud,
-    'global firewall chain not enabled in new arm path': 'if (!oldChain)' in bridge and 'setFirewallChainEnabled", OEM_DENY_3, true' not in bridge,
+    'island arm snapshot precedes system mutation': bridge.index('putBoolean(PENDING, true).commit()') < bridge.index('setFirewallChainEnabled", OEM_DENY_3, true') and 'setFirewallChainEnabled", OEM_DENY_3, oldChain' in bridge,
     'private diagnostics do not auto-publish': 'MediaStore' not in report and 'writeShared' not in report,
 }
 for name, ok in checks.items():

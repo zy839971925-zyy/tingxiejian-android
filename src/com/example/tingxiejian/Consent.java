@@ -3,10 +3,8 @@ package com.example.tingxiejian;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.text.method.ScrollingMovementMethod;
-import android.widget.Button;
+import android.view.View;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -16,7 +14,8 @@ import android.widget.TextView;
  * network is required. What the project MIT license does not cover (runtime libraries, model
  * weights) is therefore bundled as-is: the owner must read and accept those terms once before the
  * first transcription. Declining leaves the app usable for reading/exporting, but transcription
- * stays blocked until the terms are accepted.
+ * stays blocked until the terms are accepted. The panel follows the app's card language: paper
+ * backdrop, numbered editorial eyebrow, sunken reading area, gated primary action.
  */
 final class Consent {
     private static final String PREFS = "third_party_consent";
@@ -33,40 +32,34 @@ final class Consent {
 
     /**
      * Blocking modal. {@code onAccepted} runs only after the user ticks the checkbox and taps the
-     * positive button; dismissing or declining runs nothing.
+     * positive action; dismissing or declining runs nothing. A {@code null} callback makes this a
+     * plain "read the terms" preview from the guide.
      */
     static void show(final Activity activity, final Runnable onAccepted) {
-        float density = activity.getResources().getDisplayMetrics().density;
-        int pad = (int) (16 * density);
-        TextView body = new TextView(activity);
+        View root = activity.getLayoutInflater().inflate(R.layout.dialog_consent, null);
+        TextView body = root.findViewById(R.id.consent_body);
         body.setText(R.string.consent_body);
-        body.setTextSize(14);
-        body.setMovementMethod(new ScrollingMovementMethod());
-        body.setPadding(pad, pad / 2, pad, pad / 2);
-        CheckBox agree = new CheckBox(activity);
-        agree.setText(R.string.consent_checkbox);
-        agree.setPadding(pad, pad / 2, pad, 0);
-        LinearLayout content = new LinearLayout(activity);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.addView(body);
-        content.addView(agree);
-        AlertDialog dialog = new AlertDialog.Builder(activity)
-                .setTitle(R.string.consent_title)
-                .setView(content)
+        final CheckBox agree = root.findViewById(R.id.consent_check);
+        final TextView accept = root.findViewById(R.id.consent_accept);
+        final TextView decline = root.findViewById(R.id.consent_decline);
+        final AlertDialog dialog = new AlertDialog.Builder(activity)
+                .setView(root)
                 .setCancelable(true)
-                .setPositiveButton(R.string.consent_accept, null)
-                .setNegativeButton(R.string.consent_decline, null)
                 .create();
-        dialog.setOnShowListener(ignored -> {
-            Button proceed = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            proceed.setEnabled(false); // accepting requires reading: the checkbox gates the button
-            agree.setOnCheckedChangeListener((button, checked) -> proceed.setEnabled(checked));
-            proceed.setOnClickListener(v -> {
-                accept(activity);
-                dialog.dismiss();
-                if (onAccepted != null) onAccepted.run();
-            });
+        accept.setEnabled(false); // accepting requires reading: the checkbox gates the button
+        agree.setOnCheckedChangeListener((button, checked) -> accept.setEnabled(checked));
+        accept.setOnClickListener(v -> {
+            accept(activity);
+            dialog.dismiss();
+            if (onAccepted != null) onAccepted.run();
         });
+        decline.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        Motion.enter(root);
+        Motion.press(accept);
+        Motion.press(decline);
     }
 }

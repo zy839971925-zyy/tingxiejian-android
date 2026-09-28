@@ -47,7 +47,7 @@ def classes(dex):
     return definitions
 
 
-apk = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else pathlib.Path("dist/tingxiejian-v1.0.1-arm64-release.apk")
+apk = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else pathlib.Path("dist/tingxiejian-v1.0.2-arm64-release.apk")
 with zipfile.ZipFile(apk) as package:
     all_classes = set()
     for name in package.namelist():

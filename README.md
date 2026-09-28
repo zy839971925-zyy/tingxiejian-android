@@ -5,7 +5,7 @@
   <br><br>
   <a href="LICENSE"><img alt="MIT original code" src="https://img.shields.io/badge/original%20code-MIT-16785C"></a>
   <img alt="Android ARM64" src="https://img.shields.io/badge/Android-ARM64-315A4C">
-  <img alt="Release v1.0.1" src="https://img.shields.io/badge/version-v1.0.1-E8BA73">
+  <img alt="Release v1.0.2" src="https://img.shields.io/badge/version-v1.0.2-E8BA73">
 </div>
 
 > **发布边界：**本仓库开放的是经过检查的**源码**；第三方模型与库各自保留原许可。
@@ -59,7 +59,7 @@ flowchart LR
 bash scripts/prepare-libraries.sh
 bash design-tools/check-all.sh
 bash build.sh
-# 输出：dist/tingxiejian-v1.0.1-arm64-release.apk（本机生成，非官方签名）
+# 输出：dist/tingxiejian-v1.0.2-arm64-release.apk（本机生成，非官方签名）
 ```
 
 **注意：**构建成功只表明程序和载荷通过静态校验，不替代实机权限、字体、离线模型与

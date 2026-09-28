@@ -56,8 +56,16 @@ public class WelcomeActivity extends Activity {
                 try { startActivity(new Intent(this, SettingsActivity.class)); }
                 catch (Throwable error) { Report.problem("打开超级岛设置失败", error); }
             });
+            need(R.id.terms_review).setOnClickListener(v -> Consent.show(this, null));
             need(R.id.guide_start).setOnClickListener(v -> finishSetup());
             need(R.id.guide_skip).setOnClickListener(v -> finishSetup());
+            // One calm entrance for the numbered cards, then the page stays still.
+            View scroll = need(R.id.guide_scroll);
+            if (scroll instanceof android.view.ViewGroup
+                    && ((android.view.ViewGroup) scroll).getChildCount() > 0
+                    && ((android.view.ViewGroup) scroll).getChildAt(0) instanceof android.view.ViewGroup) {
+                Motion.stagger((android.view.ViewGroup) ((android.view.ViewGroup) scroll).getChildAt(0), 55);
+            }
             Report.mark("first-run guide ready");
             Report.flush(this);
         } catch (Throwable error) {

@@ -75,7 +75,7 @@ fi
 cp build/debug-keystore.pass build/debug-key.pass
 chmod 600 build/debug-key.pass
 # Retain the v0.17 signing identity so V1.0 can upgrade without uninstalling or losing data.
-OUT=dist/tingxiejian-v1.0.1-arm64-release.apk
+OUT=dist/tingxiejian-v1.0.2-arm64-release.apk
 apksigner sign --ks build/debug-keystore.p12 --ks-key-alias tingxiejian \
   --ks-pass file:build/debug-keystore.pass --key-pass file:build/debug-key.pass \
   --out "$OUT" build/aligned.apk
