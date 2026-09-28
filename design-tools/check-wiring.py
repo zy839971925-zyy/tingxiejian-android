@@ -94,7 +94,7 @@ def check_activity(java_path):
             fail("%s: findViewById(R.id.%s) 在 %s 里不存在" % (java_path.name, ident, layout.name))
         checks += 1
 
-    for ident in re.findall(r'R\.id\.(\w+)', text):
+    for ident in re.findall(r'(?<!android\.)R\.id\.(\w+)', text):
         if ident not in ids:
             fail("%s: R.id.%s 在 %s 里不存在" % (java_path.name, ident, layout.name))
         checks += 1
