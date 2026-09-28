@@ -51,6 +51,13 @@ public final class LocalService extends Service {
 
     private static volatile boolean running;
     private static volatile boolean busy;
+    private static volatile String activeName = "";
+    private static volatile String activePath = "";
+    private static volatile String activeEngine = "local";
+
+    static String activeName() { return activeName; }
+    static String activePath() { return activePath; }
+    static String activeEngine() { return activeEngine; }
 
     /** Set once the platform refuses a foreground service, so the UI stops asking for one. */
     private static volatile boolean foregroundRefused;
@@ -126,6 +133,7 @@ public final class LocalService extends Service {
             return START_NOT_STICKY;
         }
         String path = intent == null ? null : intent.getStringExtra(EXTRA_PATH);
+        if (path != null && busy) return START_NOT_STICKY; // Don't reset an active foreground notice.
         // FGS must start promptly: never query Xiaomi ContentProviders on the service main thread.
         // Manufacturer is only a cheap *channel* hint; real capability is checked on the worker
         // before attaching any private island payload.
@@ -271,6 +279,9 @@ public final class LocalService extends Service {
     }
 
     private void startRun(File input, String name, boolean wantSpeakers, int count, boolean island, String engine) {
+        activePath = input.getAbsolutePath();
+        activeName = name == null ? "录音" : name;
+        activeEngine = "cloud".equals(engine) ? "cloud" : "local";
         if ("cloud".equals(engine)) {
             startCloudRun(input);
             return;
@@ -435,7 +446,7 @@ public final class LocalService extends Service {
     }
 
     /** Cancellation travels back through the transcriber's own event callback. */
-    private static final class CancelledException extends IOException {
+    static final class CancelledException extends IOException {
         CancelledException() {
             super("cancelled");
         }
@@ -443,6 +454,17 @@ public final class LocalService extends Service {
 
     private void handle(JSONObject event) {
         String type = event.optString("type");
+        if ("result".equals(type)) {
+            try {
+                // Persist before broadcasting. If the Activity was stopped or killed during the
+                // job, a completed transcript must still be in History when it returns.
+                event.put("saved_id", History.save(this, savedResult(event)));
+            } catch (Exception error) {
+                Report.problem("保存转写结果失败", error);
+                postError("转写完成，但保存结果失败：" + error.getMessage());
+                return;
+            }
+        }
         Job job = Job.of(type, event.optString("message"), event.optDouble("processed", 0),
                 event.optDouble("total", 0), event.optInt("completed"), startedAt, System.currentTimeMillis());
         if (job != null) {
@@ -460,6 +482,27 @@ public final class LocalService extends Service {
             updateNotice(job);
         }
         Bus.post(event);
+    }
+
+    private JSONObject savedResult(JSONObject event) throws Exception {
+        JSONArray segments = event.optJSONArray("segments");
+        if (segments == null) segments = new JSONArray();
+        java.util.Set<Integer> speakers = new java.util.HashSet<>();
+        for (int i = 0; i < segments.length(); i++) {
+            JSONObject segment = segments.optJSONObject(i);
+            if (segment != null && segment.optInt("speaker", -1) >= 0)
+                speakers.add(segment.optInt("speaker"));
+        }
+        JSONObject saved = new JSONObject();
+        saved.put("name", activeName);
+        saved.put("createdAt", System.currentTimeMillis());
+        saved.put("durationSeconds", event.optDouble("duration", 0));
+        saved.put("engine", activeEngine);
+        saved.put("speakers", speakers.size());
+        saved.put("warning", event.isNull("warning") ? "" : event.optString("warning", ""));
+        saved.put("segments", segments);
+        saved.put("text", event.optString("text", ""));
+        return saved;
     }
 
     private void postError(String message) {

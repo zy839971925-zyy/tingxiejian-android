@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased — source audit hardening (not a new tested APK)
+
+- Persist finished results in the service, use atomic unique history IDs and block overlapping
+  imports/services; retain progress metadata across Activity recreation.
+- Recover both document exports across picker recreation, invalidate chat replies after Clear,
+  validate cloud URL host/redirects, keep diagnostics private with an explicit view and audio
+  cache-clear control, and respect keyboard insets.
+- Skip the optional Shizuku firewall experiment when its shared chain is disabled; do not enable
+  global OEM rules affecting other apps. This may change island behavior on some devices.
+- Pin Maven dependency hashes, bundle full license notices, extend export/safety checks and record
+  review scope in [docs/REVIEW-2026-09-28.md](docs/REVIEW-2026-09-28.md).
+
 ## 1.0 — local release
 
 - Native first-use permission guide (skippable; available again in Settings).

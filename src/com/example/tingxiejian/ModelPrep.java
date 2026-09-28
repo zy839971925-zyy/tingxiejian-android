@@ -64,7 +64,9 @@ final class ModelPrep {
         File dir = dir(context);
         for (String name : FILES) {
             File file = new File(dir, name);
-            if (!file.isFile() || file.length() == 0) {
+            try (AssetFileDescriptor afd = context.getAssets().openFd("model/" + name)) {
+                if (!file.isFile() || file.length() != afd.getLength()) return false;
+            } catch (IOException error) {
                 return false;
             }
         }
@@ -72,7 +74,7 @@ final class ModelPrep {
     }
 
     /** Copies anything that is missing. Safe to call repeatedly; already-good files are skipped. */
-    static void prepare(Context context, Progress progress) throws IOException {
+    static synchronized void prepare(Context context, Progress progress) throws IOException {
         if (!dir(context).isDirectory() && !dir(context).mkdirs()) {
             throw new IOException("无法创建私有模型目录");
         }

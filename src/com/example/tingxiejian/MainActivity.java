@@ -55,6 +55,12 @@ public class MainActivity extends Activity {
     private static final int REQ_PICK = 81;
     private static final int REQ_SAVE = 82;
     private static final String PREFS = "ui";
+    private static final String STATE_EXPORT_KIND = "export_kind";
+    private static final String STATE_EXPORT_ID = "export_id";
+    private static final String STATE_INPUT_PATH = "input_path";
+    private static final String STATE_INPUT_NAME = "input_name";
+    private static final String STATE_ENGINE = "engine";
+    private static final String STATE_DURATION = "duration";
 
     private final Handler ui = new Handler(Looper.getMainLooper());
 
@@ -79,6 +85,8 @@ public class MainActivity extends Activity {
 
     // run state
     private File input;
+    private int importGeneration;
+    private boolean importing;
     private String inputName = "";
     private double durationSeconds;
     private long startedAt;
@@ -103,9 +111,9 @@ public class MainActivity extends Activity {
     // result
     private JSONObject resultJson;
     private String resultId = "";
-    private String exportBody = "";
-    private String exportName = "transcript.txt";
-    private int exportKind = 1;
+    // Persist the chosen record/format rather than an in-memory export payload across the picker.
+    private String exportResultId = "";
+    private int exportKind = -1;
 
     // Keep source Views alive across onStart so the shared element has somewhere to shrink to.
     private final java.util.Map<String, TextView> historyRowCache = new java.util.HashMap<>();
@@ -137,6 +145,28 @@ public class MainActivity extends Activity {
             loadPreferences();
             wireActions();
             showState(STATE_IDLE, false);
+            if (savedInstanceState != null) {
+                exportKind = savedInstanceState.getInt(STATE_EXPORT_KIND, -1);
+                exportResultId = savedInstanceState.getString(STATE_EXPORT_ID, "");
+                String path = savedInstanceState.getString(STATE_INPUT_PATH, "");
+                if (!path.isEmpty() && new File(path).isFile()) input = new File(path);
+                inputName = savedInstanceState.getString(STATE_INPUT_NAME, "");
+                engineUsed = savedInstanceState.getString(STATE_ENGINE, "local");
+                durationSeconds = savedInstanceState.getDouble(STATE_DURATION, 0);
+            }
+            if (LocalService.isBusy()) {
+                String activePath = LocalService.activePath();
+                if (!activePath.isEmpty()) input = new File(activePath);
+                inputName = LocalService.activeName();
+                engineUsed = LocalService.activeEngine();
+                running = true; // Bus.register in onStart will now accept the cached progress.
+                showState(STATE_RUN, false);
+                stage.setText("正在转写…");
+            } else if (input != null) {
+                dropHint.setText(inputName);
+                fileMeta.setText("已选好录音 · " + Job.clock(durationSeconds));
+                syncBottomBar();
+            }
             handleIntent(getIntent());
             Report.mark("activity.onCreate complete");
             Report.flush(this);
@@ -145,6 +175,17 @@ public class MainActivity extends Activity {
             Report.problem("界面初始化失败", error);
             showFallback(error);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        state.putInt(STATE_EXPORT_KIND, exportKind);
+        state.putString(STATE_EXPORT_ID, exportResultId);
+        state.putString(STATE_INPUT_PATH, input == null ? "" : input.getAbsolutePath());
+        state.putString(STATE_INPUT_NAME, inputName);
+        state.putString(STATE_ENGINE, engineUsed);
+        state.putDouble(STATE_DURATION, durationSeconds);
+        super.onSaveInstanceState(state);
     }
 
     // ---------------------------------------------------------------- plumbing
@@ -242,7 +283,8 @@ public class MainActivity extends Activity {
             UiTheme.applyBarAppearance(this);
             root.setOnApplyWindowInsetsListener((view, insets) -> {
                 int top = insets.getInsets(WindowInsets.Type.statusBars()).top;
-                int bottom = insets.getInsets(WindowInsets.Type.navigationBars()).bottom;
+                int bottom = Math.max(insets.getInsets(WindowInsets.Type.navigationBars()).bottom,
+                        insets.getInsets(WindowInsets.Type.ime()).bottom);
                 statusInset = top;
                 column.setPadding(column.getPaddingLeft(), top,
                         column.getPaddingRight(), bottom);
@@ -362,7 +404,7 @@ public class MainActivity extends Activity {
     }
 
     private void checkModel() {
-        if (ModelPrep.ready(this)) {
+        if (LocalService.isBusy() || ModelPrep.ready(this)) {
             return;
         }
         showState(STATE_PREP, true);
@@ -470,6 +512,10 @@ public class MainActivity extends Activity {
     // ---------------------------------------------------------------- import
 
     private void pickAudio() {
+        if (running || LocalService.isBusy()) {
+            fileError.setText("已有转写任务，请等待完成或先取消。");
+            return;
+        }
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("audio/*");
@@ -493,12 +539,21 @@ public class MainActivity extends Activity {
     }
 
     private void importAudio(Uri uri) {
+        if (running || LocalService.isBusy()) {
+            fileError.setText("已有转写任务，不能替换正在读取的录音。");
+            return;
+        }
+        final int generation = ++importGeneration;
+        importing = true;
         fileError.setText("");
         fileMeta.setText("正在读取录音…");
         new Thread(() -> {
+            File cache = null;
             try {
                 String name = queryName(uri);
-                File cache = new File(getCacheDir(), "input");
+                // Every import gets a distinct immutable path: a new selection cannot truncate
+                // the file that the service is currently reading, even after UI recreation.
+                cache = File.createTempFile("input-", ".audio", getCacheDir());
                 long copied = 0;
                 try (InputStream in = getContentResolver().openInputStream(uri);
                      OutputStream out = new FileOutputStream(cache)) {
@@ -517,8 +572,18 @@ public class MainActivity extends Activity {
                 }
                 double seconds = probeDuration(cache);
                 final long copiedBytes = copied;
+                final File imported = cache;
                 ui.post(() -> {
-                    input = cache;
+                    if (generation != importGeneration || isDestroyed() || LocalService.isBusy()) {
+                        imported.delete();
+                        if (generation == importGeneration) importing = false;
+                        return;
+                    }
+                    importing = false;
+                    File previous = input;
+                    releasePlayer();
+                    input = imported;
+                    if (previous != null && !previous.equals(imported)) previous.delete();
                     inputName = name;
                     durationSeconds = seconds;
                     dropHint.setText(name);
@@ -528,8 +593,11 @@ public class MainActivity extends Activity {
                     syncBottomBar();
                 });
             } catch (Throwable error) {
+                if (cache != null) cache.delete();
                 Report.problem("读取录音失败", error);
                 ui.post(() -> {
+                    if (generation != importGeneration || isDestroyed()) return;
+                    importing = false;
                     fileError.setText("读取录音失败：" + error.getMessage());
                     fileMeta.setText("");
                 });
@@ -564,6 +632,14 @@ public class MainActivity extends Activity {
     // ---------------------------------------------------------------- running
 
     private void startRun() {
+        if (importing) {
+            fileError.setText("正在读取录音，请稍候。");
+            return;
+        }
+        if (running || LocalService.isBusy()) {
+            fileError.setText("已有转写任务，请等待完成或先取消。");
+            return;
+        }
         if (input == null || !input.isFile()) {
             fileError.setText("请先选择一段录音。");
             return;
@@ -712,42 +788,25 @@ public class MainActivity extends Activity {
     private void render(JSONObject result) {
         finishRun();
         try {
-            JSONArray segments = result.optJSONArray("segments");
-            int speakers = 0;
-            boolean[] seen = new boolean[64];
-            if (segments != null) {
-                for (int i = 0; i < segments.length(); i++) {
-                    JSONObject segment = segments.optJSONObject(i);
-                    if (segment == null) {
-                        continue;
-                    }
-                    int id = segment.optInt("speaker", -1);
-                    if (id >= 0 && id < seen.length && !seen[id]) {
-                        seen[id] = true;
-                        speakers++;
-                    }
-                }
-            }
-            double duration = result.optDouble("duration", durationSeconds);
-            if (duration > 0) {
-                durationSeconds = duration;
-            }
-            String warning = result.isNull("warning") ? "" : result.optString("warning", "");
-
-            JSONObject saved = new JSONObject();
-            saved.put("name", inputName);
-            saved.put("createdAt", System.currentTimeMillis());
-            saved.put("durationSeconds", durationSeconds);
-            saved.put("engine", engineUsed);
-            saved.put("speakers", speakers);
-            saved.put("warning", warning);
-            saved.put("segments", segments == null ? new JSONArray() : segments);
-            saved.put("text", result.optString("text", ""));
+            String savedId = result.optString("saved_id", "");
+            if (savedId.isEmpty()) throw new java.io.IOException("服务未提供已保存的转写结果");
+            if (savedId.equals(resultId) && state == STATE_DONE) return; // cached Bus event
+            JSONObject saved = History.load(this, savedId);
+            resultId = savedId;
             resultJson = saved;
-            resultId = History.save(this, saved);
+            inputName = saved.optString("name", inputName);
+            engineUsed = saved.optString("engine", engineUsed);
+            durationSeconds = saved.optDouble("durationSeconds", durationSeconds);
+            if (input == null) {
+                String path = LocalService.activePath();
+                if (!path.isEmpty() && new File(path).isFile()) input = new File(path);
+            }
+            JSONArray segments = History.segments(saved);
+            int speakers = saved.optInt("speakers", 0);
+            String warning = saved.optString("warning", "");
 
             StringBuilder summary = new StringBuilder();
-            summary.append(segments == null ? 0 : segments.length()).append(" 段");
+            summary.append(segments.length()).append(" 段");
             if (speakers > 0) {
                 summary.append(" · ").append(speakers).append(" 位发言人");
             }
@@ -866,43 +925,48 @@ public class MainActivity extends Activity {
             return;
         }
         exportKind = kind;
-        if (kind == 1) {
-            exportBody = Exporter.txt(resultJson);
-            exportName = safeName(".txt");
-        } else if (kind == 2) {
-            exportBody = Exporter.json(resultJson);
-            exportName = safeName(".json");
-        } else {
-            exportBody = Exporter.srt(resultJson);
-            exportName = safeName(".srt");
-        }
+        exportResultId = resultId;
+        String name = safeName(kind == 1 ? ".txt" : kind == 2 ? ".json" : ".srt");
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(kind == 2 ? "application/json" : "text/plain");
-        intent.putExtra(Intent.EXTRA_TITLE, exportName);
+        intent.putExtra(Intent.EXTRA_TITLE, name);
         startActivityForResult(intent, REQ_SAVE);
     }
 
     private String safeName(String suffix) {
         String name = (resultJson == null ? "transcript" : resultJson.optString("name", "transcript"))
-                .replaceAll("[\\\\/:*?\"<>|]", "_");
+                .replaceAll("[\\\\/:*?\"<>|\\p{Cntrl}]", "_");
         int dot = name.lastIndexOf('.');
         if (dot > 0) {
             name = name.substring(0, dot);
         }
+        if (name.length() > 100) name = name.substring(0, 100);
+        if (name.trim().isEmpty()) name = "transcript";
         return name + suffix;
     }
 
     private void writeExport(Uri uri) {
+        final int kind = exportKind;
+        final String recordId = exportResultId;
+        exportKind = -1;
+        exportResultId = "";
         new Thread(() -> {
-            try (OutputStream out = getContentResolver().openOutputStream(uri)) {
-                if (out != null) {
-                    out.write(exportBody.getBytes(StandardCharsets.UTF_8));
+            try {
+                if (kind < 1 || kind > 3 || recordId == null || recordId.isEmpty())
+                    throw new IllegalStateException("导出状态已丢失，请重新选择导出格式");
+                JSONObject record = History.load(this, recordId);
+                String name = record.optString("name", "transcript");
+                String body = kind == 1 ? Exporter.txt(record)
+                        : kind == 2 ? Exporter.json(record) : Exporter.srt(record);
+                try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+                    if (out == null) throw new java.io.IOException("文档提供方未返回输出流");
+                    out.write(body.getBytes(StandardCharsets.UTF_8));
                 }
-                ui.post(() -> fileMeta.setText("已导出 " + exportName));
+                ui.post(() -> { if (!isDestroyed()) fileMeta.setText("已导出 " + name); });
             } catch (Throwable error) {
                 Report.problem("导出失败", error);
-                ui.post(() -> fileError.setText("导出失败：" + error.getMessage()));
+                ui.post(() -> { if (!isDestroyed()) fileError.setText("导出失败：" + error.getMessage()); });
             }
         }, "export").start();
     }

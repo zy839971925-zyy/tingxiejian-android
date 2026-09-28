@@ -7,14 +7,23 @@ mkdir -p vendor
 maven=https://repo.maven.apache.org/maven2
 get() {
   local path="$1" dest="$2"
-  if test -s "vendor/$dest"; then return; fi
+  local expected actual
+  expected=$(awk -v file="vendor/$dest" '$2 == file {print $1}' scripts/maven-sha256.txt)
+  test -n "$expected" || { echo "No approved SHA-256 for $dest" >&2; exit 1; }
+  if test -s "vendor/$dest"; then
+    actual=$(sha256sum "vendor/$dest" | cut -d' ' -f1)
+    test "$actual" = "$expected" || { echo "Cached $dest has unexpected SHA-256; inspect/remove it" >&2; exit 1; }
+    return
+  fi
   echo "Fetching $dest"
   curl -fL --retry 3 --connect-timeout 15 "$maven/$path" -o "vendor/$dest.tmp"
+  actual=$(sha256sum "vendor/$dest.tmp" | cut -d' ' -f1)
+  test "$actual" = "$expected" || { rm -f "vendor/$dest.tmp"; echo "Downloaded $dest SHA-256 mismatch" >&2; exit 1; }
   mv "vendor/$dest.tmp" "vendor/$dest"
 }
 extract_classes() {
   local aar="$1" output="$2"
-  if test -s "vendor/$output"; then return; fi
+  if test -s "vendor/$output" && cmp -s <(unzip -p "vendor/$aar" classes.jar) "vendor/$output"; then return; fi
   unzip -p "vendor/$aar" classes.jar > "vendor/$output.tmp"
   test -s "vendor/$output.tmp"
   mv "vendor/$output.tmp" "vendor/$output"
@@ -39,4 +48,5 @@ for f in vendor/android.jar vendor/sherpa-onnx-1.13.8.aar vendor/classes.jar; do
     exit 1
   fi
 done
+bash scripts/verify-libraries.sh
 echo "Libraries ready; model files are a separate licensed prerequisite."

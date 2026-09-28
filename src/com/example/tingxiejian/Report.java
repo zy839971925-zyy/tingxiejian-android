@@ -10,8 +10,8 @@ import android.util.Log;
  *
  * <p>The app cannot read another app's logcat, and on this device the DropBox and dumpsys crash
  * channels are closed to it, so the only way a failure can be seen at all is if the app writes it out
- * itself. Every report lands in Downloads (MediaStore, no permission needed) where a plain file
- * manager or Termux can read it.
+ * itself. Raw reports stay inside app-private files; a crash must not silently expose user
+ * filenames, endpoints or device details through shared Downloads.
  *
  * <p>{@link #mark} records a startup milestone in memory; the trail is flushed with any crash, so a
  * failure halfway through {@code onCreate} still shows exactly how far the app got.

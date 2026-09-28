@@ -26,8 +26,8 @@ Termux nor a resident ADB connection at runtime. The release is arm64-v8a only.
   shared-element path. `Motion` honors the platform animator scale.
 - `Cloud.java` is the only module allowed to perform application-level HTTP requests. Do not add
   network calls to other classes or auto-enable cloud mode on first launch.
-- Diagnostics may contain file names/device properties. Never paste raw reports, recordings,
-  keys or private history into public issues.
+- Diagnostics may contain file names/device properties and are kept in app-private files. Never
+  paste raw reports, recordings, keys or private history into public issues.
 
 ## Test layers
 

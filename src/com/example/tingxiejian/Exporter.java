@@ -25,7 +25,8 @@ final class Exporter {
         if (speakers > 1) {
             out.append(" · ").append(speakers).append(" 位发言人");
         }
-        out.append("\n由听写间离线转写\n\n");
+        out.append(result.optString("engine", "local").equals("cloud")
+                ? "\n由听写间云端转写\n\n" : "\n由听写间离线转写\n\n");
         JSONArray segments = History.segments(result);
         for (int i = 0; i < segments.length(); i++) {
             JSONObject segment = segments.optJSONObject(i);
@@ -49,9 +50,11 @@ final class Exporter {
             if (segment == null) {
                 continue;
             }
+            double start = Math.max(0, segment.optDouble("start", 0));
+            double end = Math.max(start + .001, segment.optDouble("end", 0));
             out.append(i + 1).append('\n')
-                    .append(stamp(segment.optDouble("start", 0))).append(" --> ")
-                    .append(stamp(Math.max(segment.optDouble("start", 0), segment.optDouble("end", 0))))
+                    .append(stamp(start)).append(" --> ")
+                    .append(stamp(end))
                     .append('\n');
             if (segment.optInt("speaker", -1) >= 0) {
                 out.append(speakerName(segment.optInt("speaker", -1))).append('：');
@@ -87,7 +90,7 @@ final class Exporter {
     }
 
     private static String stamp(double seconds) {
-        long ms = Math.max(0, (long) (seconds * 1000));
+        long ms = Math.max(0, Math.round(seconds * 1000));
         long hour = ms / 3600000;
         long minute = (ms % 3600000) / 60000;
         long second = (ms % 60000) / 1000;

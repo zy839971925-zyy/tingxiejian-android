@@ -178,7 +178,10 @@ final class Transcriber {
                         try{e.put("processed",index);e.put("total",pieces.size());}catch(Exception ignored){}out.emit(e);
                     }
                 }finally{offline.release();}
-            }catch(Throwable ex){note("高精度校正未完成，保留流式结果："+describe(ex));}
+            }catch(Throwable ex){
+                if(ex instanceof LocalService.CancelledException)throw (LocalService.CancelledException)ex;
+                note("高精度校正未完成，保留流式结果："+describe(ex));
+            }
             phase(out,"正在恢复标点");
             try{
                 OfflinePunctuationModelConfig pModel=new OfflinePunctuationModelConfig();
@@ -187,7 +190,10 @@ final class Transcriber {
                 phase(out,"正在恢复标点"); // model() may have emitted a preparation phase
                 try{for(Piece piece:pieces)piece.text=clean(punct.addPunctuation(piece.text));}
                 finally{punct.release();}
-            }catch(Throwable ex){note("标点恢复未完成");}
+            }catch(Throwable ex){
+                if(ex instanceof LocalService.CancelledException)throw (LocalService.CancelledException)ex;
+                note("标点恢复未完成");
+            }
             if(wantSpeakers && !pieces.isEmpty() && duration>MAX_DIARIZE_SECONDS){
                 note("录音超过 "+(int)(MAX_DIARIZE_SECONDS/60)+" 分钟，未做发言人区分");
             } else if(wantSpeakers && !pieces.isEmpty()){
@@ -211,7 +217,10 @@ final class Transcriber {
                             if(overlap>best){best=overlap;piece.speaker=s.getSpeaker();}
                         }}
                     }finally{diar.release();}
-                }catch(Throwable ex){note("发言人区分未完成："+describe(ex));}
+                }catch(Throwable ex){
+                    if(ex instanceof LocalService.CancelledException)throw (LocalService.CancelledException)ex;
+                    note("发言人区分未完成："+describe(ex));
+                }
             }
             JSONArray arr=new JSONArray();
             for(Piece piece:pieces){JSONObject o=new JSONObject();o.put("start",Math.round(piece.start*100)/100.0);

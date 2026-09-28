@@ -22,7 +22,10 @@ Obtain the Android AAR for sherpa-onnx **1.13.8** from the
 `vendor/sherpa-onnx-1.13.8.aar`. Check the AAR version and its own license.
 The script fetches the Shizuku 13.1.5 modules (including mandatory `aidl` and `shared`),
 HiddenApiBypass 6.1, Kotlin 1.7.20 and the **desktop-test-only** JSON 20240303 JAR from Maven
-Central; it extracts `vendor/classes.jar` from the AAR you supplied.
+Central, checks each downloaded/cached file against the pinned `scripts/maven-sha256.txt`, and
+extracts `vendor/classes.jar` from the AAR you supplied. `build.sh` rechecks hashes and verifies
+that every extracted compile JAR matches its AAR. Manually supplied SDK, sherpa AAR and models
+are **not** authenticated by those Maven checks; confirm their provenance separately.
 
 ```bash
 bash scripts/prepare-libraries.sh
@@ -68,13 +71,15 @@ non-debuggable, but that alone does not constitute official Xiaomi/App Store sig
 A newly generated identity cannot update a copy signed with a different key; uninstalling an
 existing app can erase its local history. Back up your data before changing signatures.
 
-The checks cover native pure-Java logic, View wiring, visual/portal structure, cloud isolation,
+The checks cover native pure-Java logic, export formatting, View wiring, visual/portal structure, cloud isolation,
 Shizuku fallbacks, six payload cases, APK classes/signature/ZIP and the nine stored model
 entries. They do **not** confirm OEM island rendering or on-device recognition accuracy.
 
 ## Source portability
 
-`scripts/prepare-libraries.sh` and the checks are self-contained. No sibling
+`scripts/prepare-libraries.sh` and the checks are self-contained. A clean checkout is **not a
+self-contained APK build** until its SDK, sherpa AAR and rights-cleared model files are supplied.
+No sibling
 `~/offline-transcriber` directory is needed. All downloaded libraries, model weights,
 MiSans, APKs, private backups and signing secrets are ignored by Git. For a reproducible
 upstream CI pipeline, substitute models with verified redistributable assets before enabling

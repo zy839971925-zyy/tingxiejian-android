@@ -15,7 +15,9 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +28,14 @@ import java.util.List;
 public class TranscriptActivity extends Activity {
     private static final String EXTRA_ID = "id";
     private static final int REQ_SAVE = 91;
+    private static final String STATE_EXPORT_FORMAT = "pending_export_format";
 
     private String id = "";
     private JSONObject result;
     private final List<JSONObject> items = new ArrayList<>();
-    private String pendingExport = "";
-    private String pendingName = "transcript.txt";
+    // Persist only the format. Rebuild output from History after the document picker returns:
+    // Android may destroy and recreate this Activity while the picker is in front.
+    private int pendingFormat = -1;
 
     static void open(Context context, String id) {
         Intent intent = new Intent(context, TranscriptActivity.class);
@@ -59,6 +63,9 @@ public class TranscriptActivity extends Activity {
             UiTheme.padForSystemBars(this, findViewById(R.id.portal_content));
             Report.mark("transcript.onCreate");
             id = getIntent() == null ? "" : getIntent().getStringExtra(EXTRA_ID);
+            if (savedInstanceState != null) {
+                pendingFormat = savedInstanceState.getInt(STATE_EXPORT_FORMAT, -1);
+            }
             result = History.load(this, id);
             items.clear();
             JSONArray segments = History.segments(result);
@@ -105,6 +112,12 @@ public class TranscriptActivity extends Activity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle state) {
+        state.putInt(STATE_EXPORT_FORMAT, pendingFormat);
+        super.onSaveInstanceState(state);
+    }
+
+    @Override
     public void onBackPressed() {
         PortalTransition.close(this);
     }
@@ -147,31 +160,25 @@ public class TranscriptActivity extends Activity {
         new AlertDialog.Builder(this)
                 .setTitle("导出格式")
                 .setItems(formats, (dialog, which) -> {
-                    if (which == 0) {
-                        pendingExport = Exporter.txt(result);
-                        pendingName = safeName(".txt");
-                    } else if (which == 1) {
-                        pendingExport = Exporter.srt(result);
-                        pendingName = safeName(".srt");
-                    } else {
-                        pendingExport = Exporter.json(result);
-                        pendingName = safeName(".json");
-                    }
+                    pendingFormat = which;
+                    String name = safeName(which == 0 ? ".txt" : which == 1 ? ".srt" : ".json");
                     Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     intent.setType(which == 1 ? "text/plain" : which == 2 ? "application/json" : "text/plain");
-                    intent.putExtra(Intent.EXTRA_TITLE, pendingName);
+                    intent.putExtra(Intent.EXTRA_TITLE, name);
                     startActivityForResult(intent, REQ_SAVE);
                 })
                 .show();
     }
 
     private String safeName(String suffix) {
-        String name = result.optString("name", "transcript").replaceAll("[\\\\/:*?\"<>|]", "_");
+        String name = result.optString("name", "transcript").replaceAll("[\\\\/:*?\"<>|\\p{Cntrl}]", "_");
         int dot = name.lastIndexOf('.');
         if (dot > 0) {
             name = name.substring(0, dot);
         }
+        if (name.length() > 100) name = name.substring(0, 100);
+        if (name.trim().isEmpty()) name = "transcript";
         return name + suffix;
     }
 
@@ -179,17 +186,22 @@ public class TranscriptActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
             super.onActivityResult(requestCode, resultCode, data);
-            if (requestCode != REQ_SAVE || resultCode != RESULT_OK || data == null || data.getData() == null) {
-                return;
+            if (requestCode != REQ_SAVE) return;
+            if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
+            if (pendingFormat < 0 || pendingFormat > 2) {
+                throw new IllegalStateException("导出格式已丢失，请重新选择导出格式");
             }
             Uri uri = data.getData();
+            String body = pendingFormat == 0 ? Exporter.txt(result)
+                    : pendingFormat == 1 ? Exporter.srt(result) : Exporter.json(result);
             try (OutputStream out = getContentResolver().openOutputStream(uri)) {
-                if (out != null) {
-                    out.write(pendingExport.getBytes("UTF-8"));
-                }
+                if (out == null) throw new IOException("文档提供方未返回输出流");
+                out.write(body.getBytes(StandardCharsets.UTF_8));
             }
         } catch (Throwable error) {
             Report.problem("导出失败", error);
+        } finally {
+            if (requestCode == REQ_SAVE) pendingFormat = -1;
         }
     }
 }

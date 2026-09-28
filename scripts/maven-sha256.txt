@@ -1,0 +1,7 @@
+7779ec96b9acbf92ca023858ac04543f9d2c3bdf1722425fff42f25ff3acfc9b  vendor/kotlin-stdlib.jar
+3cf6cd6892e32e2b4c1c39e0f52f5248a2f5b37646fdfbb79a66b46b618414ed  vendor/json-desktop.jar
+e3161dd21c97a4540b1698a33f7062aeaa1450008e1e2176070e5380f7a6324c  vendor/hiddenapibypass-6.1.aar
+4def9bde498ef8626614c2fc5db9af4749c86f16f6c33e3f5658d35e70bab59b  vendor/shizuku-api-13.1.5.aar
+b0f18cd9812464ec171c53cac93a819fe411718a3965c311f01eb4de265381b3  vendor/shizuku-provider-13.1.5.aar
+33fe7191cdd69fcb66d649264f3b0c47acb2f3d6343afc05b98dbbff6f221963  vendor/shizuku-aidl-13.1.5.aar
+4659642c9339be0a26e9c65bb8648f7ad6d8f4a465f557993ccbc78802381635  vendor/shizuku-shared-13.1.5.aar

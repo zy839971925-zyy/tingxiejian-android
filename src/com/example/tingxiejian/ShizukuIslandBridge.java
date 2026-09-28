@@ -139,7 +139,13 @@ final class ShizukuIslandBridge {
             final int uid = xmsfUid();
             final int oldRule = readRule(remote, uid);
             final boolean oldChain = readChain(remote);
-            if (oldChain && oldRule == RULE_DENY) {
+            if (!oldChain) {
+                // Enabling a shared OEM chain could instantly activate preexisting DENY rules
+                // for *other* apps. Never change the chain's global enabled state for an island.
+                failure = "系统防火墙链未启用；为保护其他应用，回落普通通知";
+                return false;
+            }
+            if (oldRule == RULE_DENY) {
                 failure = "XMSF 已被其他规则阻断；不会覆盖现有状态";
                 return false;
             }
@@ -151,8 +157,7 @@ final class ShizukuIslandBridge {
             }
             armed = true;
             activeWindow = true;
-            // The system can disable an OEM chain by default. Preserve its prior state.
-            call(remote, "setFirewallChainEnabled", OEM_DENY_3, true);
+            // Only write the XMSF UID rule. The shared chain was already enabled on entry.
             call(remote, "setUidFirewallRule", OEM_DENY_3, uid, RULE_DENY);
             if (!readChain(remote) || readRule(remote, uid) != RULE_DENY) {
                 failure = "XMSF 阻断未通过系统读回验证";
@@ -194,8 +199,12 @@ final class ShizukuIslandBridge {
             // Clear our deny first; only then restore the chain's previous state.
             call(remote, "setUidFirewallRule", OEM_DENY_3, uid, oldRule);
             if (readRule(remote, uid) != oldRule) return false;
-            call(remote, "setFirewallChainEnabled", OEM_DENY_3, oldChain);
-            if (readChain(remote) != oldChain) return false;
+            if (!oldChain) {
+                // Recovery from an older app build that may have enabled the chain. New runs
+                // never enter with a disabled chain; do not touch global state in that case.
+                call(remote, "setFirewallChainEnabled", OEM_DENY_3, false);
+                if (readChain(remote)) return false;
+            }
             if (!recovery.edit().clear().commit()) return false;
             armed = false;
             activeWindow = false;

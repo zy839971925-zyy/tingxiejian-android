@@ -1,23 +1,20 @@
 #!/usr/bin/env python
-"""Reads the layout measurement the app writes on its first frame and asserts the safe-area invariants.
+"""Check a manually supplied, CURRENT on-device layout capture against safe-area invariants.
 
-The app writes Downloads/tingxiejian-layout.json (MediaStore, no permission needed), so this runs
-from Termux against the real device instead of a guess about what the screen looks like.
+For privacy the app keeps measurements private. On the tested device open Settings → View local
+diagnostics and copy the layout JSON into a local file, then pass that path explicitly. No stale
+Downloads file is auto-selected: it could come from an entirely different build or UI state.
 """
 import json
 import pathlib
 import sys
 
-PATHS = [
-    pathlib.Path('/sdcard/Download/tingxiejian-layout.json'),
-    pathlib.Path('/storage/emulated/0/Download/tingxiejian-layout.json'),
-    pathlib.Path.home() / 'tingxiejian-layout.json',
-]
-
-path = next((p for p in PATHS if p.is_file()), None)
-if path is None:
-    sys.exit('layout dump not found; open the app once, then re-run (looked in %s)'
-             % ', '.join(str(p) for p in PATHS))
+if len(sys.argv) != 2:
+    sys.exit('usage: python design-tools/check-layout.py path/to/current-layout.json '
+             '(copy from Settings → 本机诊断; never use a stale Downloads file)')
+path = pathlib.Path(sys.argv[1])
+if not path.is_file():
+    sys.exit('layout capture not found: %s' % path)
 
 data = json.loads(path.read_text())
 failures = []

@@ -12,6 +12,7 @@ SHIZUKU_PROVIDER="$V/shizuku-provider.jar"
 SHIZUKU_AIDL="$V/shizuku-aidl.jar"
 SHIZUKU_SHARED="$V/shizuku-shared.jar"
 for f in "$JAR" "$AAR" "$KOTLIN" "$HIDDEN" "$SHIZUKU_API" "$SHIZUKU_PROVIDER" "$SHIZUKU_AIDL" "$SHIZUKU_SHARED"; do test -s "$f" || { echo "Missing $f" >&2;exit 1; };done
+bash scripts/verify-libraries.sh
 rm -rf build/obj build/gen build/dex build/lib build/app.jar build/res.zip build/base.apk build/unsigned.apk build/aligned.apk
 mkdir -p build/obj build/gen build/dex build/lib/arm64-v8a dist
 
@@ -46,7 +47,13 @@ files={
 }
 with zipfile.ZipFile(root/'build/unsigned.apk','a',allowZip64=True) as apk:
     apk.write(root/'build/dex/classes.dex','classes.dex',compress_type=zipfile.ZIP_DEFLATED)
-    apk.write(root/'THIRD_PARTY_NOTICES.md','assets/THIRD_PARTY_NOTICES.md',compress_type=zipfile.ZIP_DEFLATED)
+    for source,target in (
+        ('LICENSE','assets/licenses/Tingxiejian-MIT.txt'),
+        ('THIRD_PARTY_NOTICES.md','assets/THIRD_PARTY_NOTICES.md'),
+        ('licenses/Apache-2.0.txt','assets/licenses/Apache-2.0.txt'),
+        ('licenses/Shizuku-API-MIT.txt','assets/licenses/Shizuku-API-MIT.txt'),
+    ):
+        apk.write(root/source,target,compress_type=zipfile.ZIP_DEFLATED)
     for lib in (root/'build/lib/arm64-v8a').glob('*.so'):
         apk.write(lib,'lib/arm64-v8a/'+lib.name,compress_type=zipfile.ZIP_DEFLATED)
     for name,path in files.items():
@@ -88,7 +95,8 @@ with ZipFile(sys.argv[1]) as apk:
     if loose:
         raise SystemExit('AssetFileDescriptor needs STORED assets: ' + ', '.join(loose))
     for name in ('classes.dex', 'resources.arsc', 'res/layout/activity_main.xml',
-                 'assets/THIRD_PARTY_NOTICES.md'):
+                 'assets/THIRD_PARTY_NOTICES.md', 'assets/licenses/Tingxiejian-MIT.txt',
+                 'assets/licenses/Apache-2.0.txt', 'assets/licenses/Shizuku-API-MIT.txt'):
         if name not in apk.namelist():
             raise SystemExit('missing ' + name)
     if not any(n.startswith('lib/arm64-v8a/') for n in apk.namelist()):

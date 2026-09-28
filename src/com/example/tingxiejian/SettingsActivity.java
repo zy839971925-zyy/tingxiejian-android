@@ -20,6 +20,9 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Locale;
 
 /**
@@ -239,6 +242,52 @@ public class SettingsActivity extends Activity {
             cloudStatus.setText("配置已清空，本应用不会联网。");
         });
         click(modelButton, "准备模型", this::prepareModels);
+        click(need(R.id.diagnostics_view), "查看本机诊断", this::showDiagnostics);
+        click(need(R.id.clear_audio_cache), "清除临时音频", this::clearAudioCache);
+    }
+
+    private void clearAudioCache() {
+        if (LocalService.isBusy()) {
+            android.widget.Toast.makeText(this, "请等待转写结束再清理临时音频", android.widget.Toast.LENGTH_LONG).show();
+            return;
+        }
+        new android.app.AlertDialog.Builder(this).setTitle("清除临时音频？")
+                .setMessage("试听将不再可用；已保存的文字记录不会删除。")
+                .setNegativeButton("取消", null)
+                .setPositiveButton("清除", (dialog, which) -> {
+                    int removed = 0;
+                    File[] files = getCacheDir().listFiles();
+                    if (files != null) for (File file : files) {
+                        if ((file.getName().startsWith("input-") && file.getName().endsWith(".audio"))
+                                || file.getName().equals("input")) {
+                            if (file.delete()) removed++;
+                        }
+                    }
+                    android.widget.Toast.makeText(this, "已清除 " + removed + " 个临时音频文件",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                }).show();
+    }
+
+    private void showDiagnostics() {
+        StringBuilder body = new StringBuilder("仅显示在本机。日志可能含文件名、设备信息或服务端错误；分享前请脱敏。\n");
+        for (String name : new String[]{"tingxiejian-problem.txt", "tingxiejian-last-crash.txt",
+                "tingxiejian-island-status.txt", "tingxiejian-layout.json", "tingxiejian-boot.txt"}) {
+            File file = new File(getFilesDir(), name);
+            if (!file.isFile()) continue;
+            body.append("\n--- ").append(name).append(" ---\n");
+            try {
+                if (file.length() > 64 * 1024) body.append("日志过大，暂不显示");
+                else body.append(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8));
+            } catch (Exception error) {
+                body.append("读取失败：").append(error.getClass().getSimpleName());
+            }
+        }
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setTitle("本机诊断 · 请勿直接分享")
+                .setMessage(body.toString()).setPositiveButton("关闭", null).create();
+        dialog.show();
+        TextView message = dialog.findViewById(android.R.id.message);
+        if (message != null) message.setTextIsSelectable(true);
     }
 
     private void setShizukuIslandEnabled(boolean checked) {

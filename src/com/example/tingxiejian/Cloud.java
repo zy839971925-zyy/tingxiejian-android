@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -268,8 +269,18 @@ final class Cloud {
         if (apiKey(context).trim().isEmpty()) {
             throw new ApiException("还没有填 API Key（设置 → 云端 AI）");
         }
-        if (baseUrl.startsWith("http://") && !baseUrl.contains("127.0.0.1") && !baseUrl.contains("localhost")) {
-            throw new ApiException("接口地址必须是 https（明文 http 只允许本机调试）");
+        try {
+            URL parsed = new URL(baseUrl);
+            String protocol = parsed.getProtocol();
+            String host = parsed.getHost();
+            boolean isLoopback = "localhost".equalsIgnoreCase(host)
+                    || "127.0.0.1".equals(host) || "[::1]".equals(host);
+            if ((!"https".equalsIgnoreCase(protocol) && !("http".equalsIgnoreCase(protocol) && isLoopback))
+                    || host.isEmpty() || parsed.getUserInfo() != null || parsed.getRef() != null) {
+                throw new ApiException("接口地址必须是 https（明文 http 只允许本机调试）");
+            }
+        } catch (MalformedURLException error) {
+            throw new ApiException("接口地址不是有效的 URL", error);
         }
         return baseUrl;
     }
@@ -281,6 +292,8 @@ final class Cloud {
         try {
             connection.setConnectTimeout(10_000);
             connection.setReadTimeout(readTimeout);
+            // Do not forward a bearer token to an untrusted redirect destination.
+            connection.setInstanceFollowRedirects(false);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Authorization", "Bearer " + apiKey(context).trim());
             connection.setRequestProperty("Content-Type", "application/json");
@@ -364,6 +377,8 @@ final class Cloud {
         byte[] buffer = new byte[8192];
         int n;
         while ((n = in.read(buffer)) != -1) {
+            if (out.size() + n > 2 * 1024 * 1024)
+                throw new IOException("云端返回内容超过 2 MB，已停止读取");
             out.write(buffer, 0, n);
         }
         return new String(out.toByteArray(), StandardCharsets.UTF_8);

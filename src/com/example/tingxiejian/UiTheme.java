@@ -32,7 +32,11 @@ final class UiTheme {
             applyBarAppearance(activity);
             content.setOnApplyWindowInsetsListener((view, insets) -> {
                 int top = insets.getInsets(android.view.WindowInsets.Type.statusBars()).top;
-                int bottom = insets.getInsets(android.view.WindowInsets.Type.navigationBars()).bottom;
+                int bottom = Math.max(
+                        insets.getInsets(android.view.WindowInsets.Type.navigationBars()).bottom,
+                        insets.getInsets(android.view.WindowInsets.Type.ime()).bottom);
+                // Edge-to-edge content otherwise leaves the chat composer and settings fields
+                // underneath the keyboard on devices that don't resize decor automatically.
                 content.setPadding(content.getPaddingLeft(), top, content.getPaddingRight(), bottom);
                 return insets;
             });

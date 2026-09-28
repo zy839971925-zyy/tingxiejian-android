@@ -20,8 +20,9 @@ redistribution. The source repository deliberately omits the binaries listed bel
 | pyannote segmentation 3.0 | [model page](https://huggingface.co/pyannote/segmentation-3.0), MIT as declared upstream | Gated/download conditions may apply; verify permissions for your account and retain notices. |
 | Speaker embedding (`embed.onnx`) | Exact origin/terms **not verified** | Excluded from public source and releases until provenance and redistribution terms are established. |
 
-Shizuku's API is MIT licensed (© 2021 RikkaW), and includes the standard MIT permission and
-warranty text in its [upstream license](https://github.com/RikkaApps/Shizuku-API/blob/master/LICENSE).
+Shizuku's API is MIT licensed (© 2021 RikkaW). Its full copyright, permission and warranty
+text is included in [`licenses/Shizuku-API-MIT.txt`](licenses/Shizuku-API-MIT.txt) and bundled
+in locally built APKs, as is [`licenses/Apache-2.0.txt`](licenses/Apache-2.0.txt).
 The `IslandRecorder` GPL project was consulted during research but **no GPL code was included**.
 
 ## Xiaomi-specific caveat

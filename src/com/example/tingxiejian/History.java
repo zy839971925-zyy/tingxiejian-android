@@ -1,6 +1,7 @@
 package com.example.tingxiejian;
 
 import android.content.Context;
+import android.util.AtomicFile;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -8,10 +9,13 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Saved transcripts, one JSON file per result in app-private storage.
@@ -37,6 +41,8 @@ final class History {
         }
     }
 
+    private static final long MAX_RESULT_BYTES = 16L * 1024 * 1024;
+
     static File dir(Context context) {
         return new File(context.getFilesDir(), "history");
     }
@@ -46,11 +52,19 @@ final class History {
         if (!dir(context).isDirectory() && !dir(context).mkdirs()) {
             throw new java.io.IOException("无法创建历史记录目录");
         }
-        String id = result.optString("id", String.valueOf(System.currentTimeMillis()));
+        String id = System.currentTimeMillis() + "-" + UUID.randomUUID();
         result.put("id", id);
-        File file = new File(dir(context), id + ".json");
-        try (FileOutputStream out = new FileOutputStream(file)) {
-            out.write(result.toString().getBytes(StandardCharsets.UTF_8));
+        byte[] data = result.toString().getBytes(StandardCharsets.UTF_8);
+        if (data.length > MAX_RESULT_BYTES) throw new IOException("转写记录超过 16 MB");
+        AtomicFile atomic = new AtomicFile(new File(dir(context), id + ".json"));
+        FileOutputStream out = null;
+        try {
+            out = atomic.startWrite();
+            out.write(data);
+            atomic.finishWrite(out);
+        } catch (Exception error) {
+            if (out != null) atomic.failWrite(out);
+            throw error;
         }
         return id;
     }
@@ -102,14 +116,15 @@ final class History {
     }
 
     private static JSONObject loadFile(File file) throws Exception {
-        byte[] data = new byte[(int) file.length()];
+        long length = file.length();
+        if (length < 1 || length > MAX_RESULT_BYTES)
+            throw new IOException("历史记录大小异常");
+        byte[] data = new byte[(int) length];
         try (FileInputStream in = new FileInputStream(file)) {
             int off = 0;
             while (off < data.length) {
                 int n = in.read(data, off, data.length - off);
-                if (n == -1) {
-                    break;
-                }
+                if (n == -1) throw new EOFException("历史记录不完整");
                 off += n;
             }
         }

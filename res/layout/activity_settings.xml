@@ -514,6 +514,30 @@
                 android:layout_marginTop="8dp"
                 style="@style/T.Caption"
                 android:text="转写、分人、标点全部在这台手机上完成，音频不会离开设备。" />
+
+            <TextView
+                android:id="@+id/diagnostics_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_row"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:text="查看本机诊断（不自动分享）"
+                style="@style/T.Label" />
+
+            <TextView
+                android:id="@+id/clear_audio_cache"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_row"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:text="清除临时音频（会停止结果试听）"
+                style="@style/T.Label" />
         </LinearLayout>
     </ScrollView>
     </LinearLayout>

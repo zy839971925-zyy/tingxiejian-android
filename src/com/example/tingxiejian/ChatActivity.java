@@ -47,6 +47,8 @@ public class ChatActivity extends Activity {
     private int renderedMessages;
     private boolean animateNextMessage;
     private boolean busy;
+    // Invalidates a pending network reply after Clear or Activity recreation.
+    private int conversationGeneration;
 
     static void open(Context context, String id) {
         Intent intent = new Intent(context, ChatActivity.class);
@@ -98,6 +100,12 @@ public class ChatActivity extends Activity {
             fallback.setTextSize(11);
             setContentView(fallback);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        conversationGeneration++;
+        super.onDestroy();
     }
 
     @Override
@@ -174,10 +182,12 @@ public class ChatActivity extends Activity {
         saveMessages();
         status.setText("正在思考…");
         final JSONArray wire = buildWireMessages();
+        final int generation = conversationGeneration;
         new Thread(() -> {
             try {
                 String reply = Cloud.chat(this, wire);
                 ui.post(() -> {
+                    if (generation != conversationGeneration || isFinishing() || isDestroyed()) return;
                     try {
                         messages.put(new JSONObject().put("role", "assistant").put("content", reply));
                         animateNextMessage = true;
@@ -193,6 +203,7 @@ public class ChatActivity extends Activity {
                 String hint = error instanceof Cloud.ApiException ? ((Cloud.ApiException) error).hint
                         : String.valueOf(error.getMessage());
                 ui.post(() -> {
+                    if (generation != conversationGeneration || isFinishing() || isDestroyed()) return;
                     status.setText("失败 · " + hint);
                     busy = false;
                 });
@@ -329,6 +340,8 @@ public class ChatActivity extends Activity {
     }
 
     private void clearMessages() {
+        conversationGeneration++;
+        busy = false;
         while (messages.length() > 0) {
             messages.remove(messages.length() - 1);
         }
