@@ -1,8 +1,8 @@
 <p align="center"><a href="RELEASE-1.0.4.md">简体中文</a> · <strong>English</strong></p>
 
-# v1.0.4 · Local high-accuracy transcription and live progress preview
+# v1.0.4 · Local high-accuracy transcription and live progress (stable release)
 
-APK version **1.0.4-dev**, versionCode **104**, ARM64, Android 8.0+, compileSdk 36 / minSdk 26 / targetSdk 35. The GitHub release is a **pre-release**, with development signing and device-validation limits described below.
+APK version **1.0.4-dev**, versionCode **104**, ARM64, Android 8.0+, compileSdk 36 / minSdk 26 / targetSdk 35. The GitHub release is published as a **stable release** and is no longer marked pre-release; development signing and acceptance limits are described below.
 
 ## Download and verification
 
@@ -13,7 +13,7 @@ APK version **1.0.4-dev**, versionCode **104**, ARM64, Android 8.0+, compileSdk 
 - Signing certificate SHA-256: `d27080e3be22f33461a69ce777dbb871436f4a6997ae9162dc8f81c72e4c3839`
 - Matching `.sha256` file is attached; run `sha256sum -c tingxiejian-v1.0.4-arm64-dev.apk.sha256`.
 
-The certificate matches the previously delivered 1.0.3-dev APK and can update that development signing series. It differs from the historical production identity; **export history before changing signing identities and do not simply uninstall the old app**. Default builds do not use production signing. This preview does not claim to satisfy long-term production signing and complete model-redistribution verification gates.
+The certificate matches the previously delivered 1.0.3-dev APK and can update that development signing series. It differs from the historical production identity; **export history before changing signing identities and do not simply uninstall the old app**. Default builds do not use production signing. This build ships with development signing and does not claim to satisfy long-term production signing and complete model-redistribution verification gates.
 
 ## Changes
 
@@ -35,6 +35,6 @@ The diarization pack is not included; missing speaker models are reported and sk
 
 Resources/Java/DEX compilation, v2/v3 signing, zipalign, packaging/startup dependency checks, and host checks for model installation, notification fallback, Xiaomi preservation, layouts, guide, visuals, motion, search/export were run. See the [implementation record](upgrade/IMPLEMENTATION.md), [UI record](upgrade/ui/README.md) and [feedback fixes](upgrade/feedback/README.md).
 
-**No HyperOS / ColorOS device acceptance was performed for this build.** Constructing/submitting a notification is not claimed as visible Super Island or Fluid Cloud. Qwen accuracy, device memory/performance and complete dictation usability still need real devices and audio.
+Before release the maintainer exercised the main features of this build on physical devices and found no problems. OEM-specific surfaces still depend on the device and OS version: constructing or submitting a notification is **not** evidence that Super Island or Fluid Cloud was shown. No Android model accuracy benchmark was run in this round; Qwen accuracy, device memory and speed remain device- and audio-dependent.
 
 Short checklist: select/prepare models and confirm actual refinement; grant/deny onboarding permissions and handle an unavailable Shizuku while remaining in the guide; check HyperOS Super Island plus stop/repeated-task cleanup; check ColorOS 16 standard live-update permission and ordinary-notification fallback, and ordinary notifications only on 14/15.

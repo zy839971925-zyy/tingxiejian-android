@@ -7,7 +7,7 @@
   <p>
     <a href="LICENSE"><img alt="Original source MIT" src="https://img.shields.io/badge/Source-MIT-16785C"></a>
     <img alt="Android 8+ ARM64" src="https://img.shields.io/badge/Android-8%2B%20ARM64-315A4C">
-    <a href="https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4"><img alt="v1.0.4 Preview" src="https://img.shields.io/badge/v1.0.4-Preview-E8BA73"></a>
+    <a href="https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4"><img alt="v1.0.4 Stable" src="https://img.shields.io/badge/v1.0.4-Stable-78C58B"></a>
   </p>
   <p><a href="#features">Features</a> · <a href="#from-installation-to-export">Getting started</a> · <a href="#live-progress-and-system-notifications">Notifications</a> · <a href="#architecture">Architecture</a> · <a href="#download-and-build">Build</a> · <a href="#data-permissions-and-privacy">Privacy</a></p>
 </div>
@@ -16,10 +16,10 @@
 
 Tingxiejian supports **recording import** and **foreground live dictation**. Without cloud configuration, recognition runs locally. Once a valid API key, endpoint and text model are saved, lightweight text correction runs **during transcription**, segment by segment, while preserving the faithful transcript. This is separate from the later “Ask AI” feature.
 
-Current version: **1.0.4-dev**, a complete APK of about **1.49 GB** with Qwen3-ASR 0.6B int8 bundled. No separate model download or import is required. [Download the preview](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4) · [Release notes](docs/RELEASE-1.0.4.en.md).
+Current version: **1.0.4-dev**, a complete APK of about **1.49 GB** with Qwen3-ASR 0.6B int8 bundled. No separate model download or import is required. [Download](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4) · [Release notes](docs/RELEASE-1.0.4.en.md).
 
 > [!IMPORTANT]
-> This APK is a **development-signed preview**. It can update this development signing series, but cannot replace an installation signed with a different historical release certificate. Export important results before changing installations; do not simply uninstall the old app. The source MIT license does not cover the whole APK. Streaming Zipformer redistribution terms remain unresolved. See [third-party notices](THIRD_PARTY_NOTICES.md) and [model provenance](docs/upgrade/MODELS.md).
+> This APK is **development-signed** (build identity `1.0.4-dev`, versionCode 104) and ships with the stable v1.0.4 release. It can update this development signing series, but cannot replace an installation signed with a different historical release certificate. Export important results before changing installations; do not simply uninstall the old app. The source MIT license does not cover the whole APK. Streaming Zipformer redistribution terms remain unresolved. See [third-party notices](THIRD_PARTY_NOTICES.md) and [model provenance](docs/upgrade/MODELS.md).
 
 ### Features
 
@@ -138,7 +138,7 @@ See [architecture](docs/ARCHITECTURE.en.md) and the [implementation record](docs
 
 ### Versions
 
-[v1.0.4 preview APK](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4) · [All releases](https://github.com/zy839971925-zyy/tingxiejian-android/releases) · [Changelog](CHANGELOG.en.md). Historical `v1.0.3` tags and binaries remain unchanged; main contains the newer recognition, data, notification and UI work.
+[v1.0.4 APK](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4) · [All releases](https://github.com/zy839971925-zyy/tingxiejian-android/releases) · [Changelog](CHANGELOG.en.md). Historical `v1.0.3` tags and binaries remain unchanged; main contains the newer recognition, data, notification and UI work.
 
 ### Build locally
 
@@ -152,7 +152,7 @@ bash build.sh                        # Full development-signed APK when models a
 # dist/tingxiejian-v1.0.4-arm64-dev.apk
 ```
 
-Default builds do not impersonate historical release signing. Production signing requires explicit external long-term credentials via `--release` and verified provenance for included models; missing inputs fail closed. The preview retains an unresolved streaming-model redistribution item and does not claim to pass production release gates.
+Default builds do not impersonate historical release signing. Production signing requires explicit external long-term credentials via `--release` and verified provenance for included models; missing inputs fail closed. v1.0.4 is published with development signing; the streaming-model redistribution item remains unresolved and no production release gate is claimed.
 
 CI runs host checks without real model inference. Local verification covers resources/Java/DEX, signing, zipalign, 13 model assets, regression behavior and Xiaomi preservation. **This is not HyperOS / ColorOS device acceptance.** A short device checklist is in the [feedback record](docs/upgrade/feedback/README.md).
 

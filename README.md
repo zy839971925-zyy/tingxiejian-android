@@ -7,7 +7,7 @@
   <p>
     <a href="LICENSE"><img alt="原创源码 MIT" src="https://img.shields.io/badge/Source-MIT-16785C"></a>
     <img alt="Android 8+ ARM64" src="https://img.shields.io/badge/Android-8%2B%20ARM64-315A4C">
-    <a href="https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4"><img alt="v1.0.4 测试版" src="https://img.shields.io/badge/v1.0.4-Preview-E8BA73"></a>
+    <a href="https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4"><img alt="v1.0.4 正式版" src="https://img.shields.io/badge/v1.0.4-Stable-78C58B"></a>
   </p>
   <p><a href="#能做什么">功能</a> · <a href="#从安装到导出">使用指南</a> · <a href="#实时进度与系统通知">系统通知</a> · <a href="#技术架构">架构</a> · <a href="#获取与构建">构建</a> · <a href="#数据权限与隐私">隐私</a></p>
 </div>
@@ -16,10 +16,10 @@
 
 听写间支持**导入录音**和**前台实时听写**。没有云端配置时，识别在本机完成；保存有效的 API Key、接口与文本模型后，会在**转写过程中**逐段进行轻度文本校正，保留忠实稿。这与完成后的“问 AI”是两个独立功能。
 
-当前版本 **1.0.4-dev**：完整 APK 约 **1.49 GB**，内置 Qwen3-ASR 0.6B int8，无需另行下载或导入模型。[下载测试版](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4) · [本次发布说明](docs/RELEASE-1.0.4.md)。
+当前版本 **1.0.4-dev**：完整 APK 约 **1.49 GB**，内置 Qwen3-ASR 0.6B int8，无需另行下载或导入模型。[下载正式版](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4) · [本次发布说明](docs/RELEASE-1.0.4.md)。
 
 > [!IMPORTANT]
-> 当前 APK 使用**开发签名**，是测试版。可覆盖更新本次开发签名系列，不能直接覆盖不同签名的历史正式版；不要直接卸载旧版，先导出重要结果。源码与文档的 MIT 许可不覆盖整个 APK。流式 Zipformer 的再分发条款仍未核实；模型权重保留各自条款，详见[第三方清单](THIRD_PARTY_NOTICES.zh-CN.md)和[模型来源记录](docs/upgrade/MODELS.md)。
+> 当前 APK 使用**开发签名**（构建标识 `1.0.4-dev` / versionCode 104），随 v1.0.4 正式版发布。可覆盖更新本次开发签名系列，不能直接覆盖不同签名的历史正式版；不要直接卸载旧版，先导出重要结果。源码与文档的 MIT 许可不覆盖整个 APK。流式 Zipformer 的再分发条款仍未核实；模型权重保留各自条款，详见[第三方清单](THIRD_PARTY_NOTICES.zh-CN.md)和[模型来源记录](docs/upgrade/MODELS.md)。
 
 ### 能做什么
 
@@ -138,7 +138,7 @@ flowchart TD
 
 ### 获取版本
 
-[v1.0.4 测试版与 APK](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4) · [所有发布](https://github.com/zy839971925-zyy/tingxiejian-android/releases) · [更新记录](CHANGELOG.md)。旧 `v1.0.3` 标签和 APK 保持原样；当前主分支包含新的识别、数据、通知和 UI 工程。
+[v1.0.4 正式版与 APK](https://github.com/zy839971925-zyy/tingxiejian-android/releases/tag/v1.0.4) · [所有发布](https://github.com/zy839971925-zyy/tingxiejian-android/releases) · [更新记录](CHANGELOG.md)。旧 `v1.0.3` 标签和 APK 保持原样；当前主分支包含新的识别、数据、通知和 UI 工程。
 
 ### 自行构建
 
@@ -152,7 +152,7 @@ bash build.sh                        # 已有模型时生成完整开发签名 A
 # dist/tingxiejian-v1.0.4-arm64-dev.apk
 ```
 
-默认构建不会冒用历史发布签名。正式签名构建需 `--release` 显式传入仓库外的长期签名和密码文件，并核实所含模型的 provenance；缺失时拒绝构建。测试版有未解决的流式模型再分发核实项，不宣称通过正式发布门槛。
+默认构建不会冒用历史发布签名。正式签名构建需 `--release` 显式传入仓库外的长期签名和密码文件，并核实所含模型的 provenance；缺失时拒绝构建。v1.0.4 以开发签名发布，所含流式模型仍有未解决的再分发核实项，发布者不主张已通过长期签名与全部模型再分发核实的门槛。
 
 CI 运行不含实际模型推理的主机检查。当前实际验证包含资源/Java/DEX、签名、zipalign、13 个模型资源、回归行为与小米保护检查；**不等于 HyperOS / ColorOS 实机验收**。简短真机清单见[反馈修复记录](docs/upgrade/feedback/README.md)。
 
