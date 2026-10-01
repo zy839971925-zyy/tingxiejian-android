@@ -30,14 +30,19 @@ final class UiTheme {
         if (android.os.Build.VERSION.SDK_INT >= 30) {
             activity.getWindow().setDecorFitsSystemWindows(false);
             applyBarAppearance(activity);
+            final int left = content.getPaddingLeft(), top = content.getPaddingTop();
+            final int right = content.getPaddingRight(), bottom = content.getPaddingBottom();
             content.setOnApplyWindowInsetsListener((view, insets) -> {
-                int top = insets.getInsets(android.view.WindowInsets.Type.statusBars()).top;
-                int bottom = Math.max(
-                        insets.getInsets(android.view.WindowInsets.Type.navigationBars()).bottom,
-                        insets.getInsets(android.view.WindowInsets.Type.ime()).bottom);
-                // Edge-to-edge content otherwise leaves the chat composer and settings fields
-                // underneath the keyboard on devices that don't resize decor automatically.
-                content.setPadding(content.getPaddingLeft(), top, content.getPaddingRight(), bottom);
+                // The controller can be null before decor attaches in onCreate.
+                applyBarAppearance(activity);
+                android.graphics.Insets safe = insets.getInsets(
+                        android.view.WindowInsets.Type.systemBars()
+                        | android.view.WindowInsets.Type.displayCutout()
+                        | android.view.WindowInsets.Type.ime());
+                // Keep design padding, including side cutouts in landscape. Always use the
+                // initial values so repeated IME/system-bar dispatch never accumulates padding.
+                content.setPadding(left + safe.left, top + safe.top,
+                        right + safe.right, bottom + safe.bottom);
                 return insets;
             });
             content.requestApplyInsets();

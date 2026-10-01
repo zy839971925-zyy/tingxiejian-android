@@ -42,6 +42,7 @@ public class ChatActivity extends Activity {
     private ScrollView chatScroll;
     private EditText input;
     private TextView status, contextLine;
+    private TextView sendButton;
     private String id = "";
     private JSONObject result;
     private final JSONArray messages = new JSONArray();
@@ -78,11 +79,13 @@ public class ChatActivity extends Activity {
             input = need(R.id.chat_input);
             status = need(R.id.chat_status);
             contextLine = need(R.id.context_line);
+            sendButton = need(R.id.chat_send);
 
             need(R.id.back).setOnClickListener(v -> PortalTransition.close(this));
             click(R.id.clear, "清空对话", this::confirmClearMessages);
             click(R.id.chat_send, "发送消息", this::sendFromField);
             buildQuickPrompts();
+            UiControls.apply(findViewById(R.id.portal_content));
             loadMessages();
             renderMessages();
 
@@ -90,6 +93,12 @@ public class ChatActivity extends Activity {
             int turns = countTurns();
             contextLine.setText("基于《" + name + "》的转写文本 · " + (turns > 0 ? turns + " 轮对话" : "开始提问"));
             status.setText(Cloud.configured(this) ? "" : "还没有配置云端 AI：设置 → 云端 AI → 填入 Key。未配置时本页不会联网。");
+            input.addTextChangedListener(new android.text.TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { updateComposer(); }
+                @Override public void afterTextChanged(android.text.Editable s) { }
+            });
+            updateComposer();
             Report.mark("chat.onCreate complete");
             Report.flush(this);
         } catch (Throwable error) {
@@ -143,6 +152,7 @@ public class ChatActivity extends Activity {
             TextView chip = new TextView(this);
             chip.setText(prompt);
             chip.setTextSize(12);
+            chip.setTextColor(getColorCompat(R.color.ink));
             chip.setBackgroundResource(R.drawable.bg_pill);
             chip.setMinHeight((int) Motion.dp(this, 48));
             chip.setGravity(Gravity.CENTER);
@@ -153,9 +163,15 @@ public class ChatActivity extends Activity {
             params.rightMargin = (int) Motion.dp(this, 10);
             quick.addView(chip, params);
             chip.setOnClickListener(v -> {
+                if (busy) return;
+                if (!input.getText().toString().trim().isEmpty()) {
+                    status.setText("输入框中已有草稿，发送或清空后再选择快捷问题。");
+                    return;
+                }
                 input.setText(prompt);
                 sendFromField();
             });
+            UiControls.button(chip);
         }
     }
 
@@ -177,6 +193,7 @@ public class ChatActivity extends Activity {
             return;
         }
         busy = true;
+        updateComposer();
         try {
             messages.put(new JSONObject().put("role", "user").put("content", text));
         } catch (Exception ignored) {
@@ -202,6 +219,7 @@ public class ChatActivity extends Activity {
                         status.setText("保存回复失败：" + e.getMessage());
                     }
                     busy = false;
+                    updateComposer();
                 });
             } catch (Throwable error) {
                 String hint = error instanceof Cloud.ApiException ? ((Cloud.ApiException) error).hint
@@ -210,9 +228,23 @@ public class ChatActivity extends Activity {
                     if (generation != conversationGeneration || isFinishing() || isDestroyed()) return;
                     status.setText("失败 · " + hint);
                     busy = false;
+                    updateComposer();
                 });
             }
         }, "cloud-chat").start();
+    }
+
+    private void updateComposer() {
+        if (sendButton == null) return;
+        sendButton.setEnabled(!busy && !input.getText().toString().trim().isEmpty());
+        sendButton.setAlpha(sendButton.isEnabled() ? 1f : .55f);
+        sendButton.setText(busy ? "等待中" : "发送");
+        LinearLayout quick = need(R.id.quick);
+        for (int i = 0; i < quick.getChildCount(); i++) {
+            View chip = quick.getChildAt(i);
+            chip.setEnabled(!busy);
+            chip.setAlpha(busy ? .55f : 1f);
+        }
     }
 
     /** transcript as system context + full history, capped so the request stays affordable. */
@@ -274,6 +306,7 @@ public class ChatActivity extends Activity {
         bubble.setLineSpacing(2f * getResources().getDisplayMetrics().density, 1f);
         bubble.setTextColor(user ? getColorCompat(R.color.on_accent) : getColorCompat(R.color.ink));
         bubble.setBackgroundResource(user ? R.drawable.bg_bubble_user : R.drawable.bg_bubble_ai);
+        bubble.setTextIsSelectable(true);
         int pad = (int) (12 * getResources().getDisplayMetrics().density);
         bubble.setPadding(pad + 4, pad, pad + 4, pad);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -281,7 +314,10 @@ public class ChatActivity extends Activity {
         params.topMargin = pad / 2;
         params.bottomMargin = pad / 2;
         params.gravity = user ? Gravity.END : Gravity.START;
-        params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.78);
+        // Width is based on this window/container, including split-screen, not the display.
+        params.width = LinearLayout.LayoutParams.MATCH_PARENT;
+        if (user) params.leftMargin = (int) Motion.dp(this, 40);
+        else params.rightMargin = (int) Motion.dp(this, 24);
         bubble.setLayoutParams(params);
         chatList.addView(bubble);
         return bubble;
@@ -356,6 +392,7 @@ public class ChatActivity extends Activity {
     private void clearMessages() {
         conversationGeneration++;
         busy = false;
+        updateComposer();
         while (messages.length() > 0) {
             messages.remove(messages.length() - 1);
         }

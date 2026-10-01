@@ -1,0 +1,1 @@
+package android.widget;public class TextView extends android.view.View{private String value="";public void setText(CharSequence s){value=s.toString();}public CharSequence getText(){return value;}public void announceForAccessibility(CharSequence s){}}

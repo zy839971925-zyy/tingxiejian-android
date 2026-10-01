@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Desensitized ASR benchmark corpus JSONL row",
+  "required": [
+    "id",
+    "audio",
+    "reference",
+    "category"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "audio": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reference": {
+      "type": "string"
+    },
+    "category": {
+      "enum": [
+        "quiet_mandarin",
+        "conversational",
+        "fast",
+        "far_field",
+        "noise",
+        "code_switching",
+        "technical_terms",
+        "names_places",
+        "numbers_dates_money",
+        "long_sentences",
+        "accent_dialect",
+        "continuous_live"
+      ]
+    },
+    "hotwords": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "numbers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "audio_duration_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "consent_note": {
+      "type": "string"
+    }
+  }
+}

@@ -48,6 +48,8 @@ final class PortalTransition {
             return;
         }
         source.animate().cancel();
+        source.setAlpha(1f);
+        source.setTranslationY(0f);
         source.setScaleX(1f);
         source.setScaleY(1f);
         source.setTransitionName(name);
@@ -74,7 +76,7 @@ final class PortalTransition {
             }
         });
         activity.getWindow().setSharedElementReenterTransition(morph(source, false,
-                CLOSE_MS, sourceRadius));
+                Motion.duration(CLOSE_MS), sourceRadius));
         activity.startActivity(intent,
                 ActivityOptions.makeSceneTransitionAnimation(activity, source, name).toBundle());
     }
@@ -99,9 +101,9 @@ final class PortalTransition {
         // An opaque decor background would cover the original button while its surface grows.
         activity.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         activity.getWindow().setSharedElementEnterTransition(morph(surface, true,
-                savedState == null ? OPEN_MS : 0, sourceRadius));
+                savedState == null ? Motion.duration(OPEN_MS) : 0, sourceRadius));
         activity.getWindow().setSharedElementReturnTransition(morph(surface, false,
-                CLOSE_MS, sourceRadius));
+                Motion.duration(CLOSE_MS), sourceRadius));
         activity.getWindow().setEnterTransition(new Fade(Fade.IN).addTarget(content)
                 .setStartDelay(savedState == null ? 135 : 0).setDuration(savedState == null ? 150 : 0));
         // Keep content legible while the shared surface begins to shrink. An 85ms exit made a

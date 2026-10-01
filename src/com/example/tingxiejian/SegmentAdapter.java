@@ -21,6 +21,8 @@ final class SegmentAdapter extends BaseAdapter {
     private final List<JSONObject> items;
     private final OnPick onPick;
     private int active = -1;
+    private java.util.regex.Pattern search;
+    void setSearch(java.util.regex.Pattern pattern) { search = pattern; notifyDataSetChanged(); }
 
     SegmentAdapter(Context context, List<JSONObject> items, OnPick onPick) {
         this.inflater = LayoutInflater.from(context);
@@ -64,7 +66,19 @@ final class SegmentAdapter extends BaseAdapter {
         View card = row.findViewById(R.id.segment_row);
 
         time.setText(Job.clock(segment.optDouble("start", 0)));
-        text.setText(segment.optString("text"));
+        String content = segment.optString("text");
+        android.text.SpannableString highlighted = new android.text.SpannableString(content);
+        if (search != null) {
+            java.util.regex.Matcher matches = search.matcher(content);
+            while (matches.find()) {
+                highlighted.setSpan(new android.text.style.BackgroundColorSpan(row.getContext().getColor(R.color.accent_soft)),
+                        matches.start(), matches.end(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                highlighted.setSpan(new android.text.style.ForegroundColorSpan(row.getContext().getColor(R.color.accent)),
+                        matches.start(), matches.end(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+        text.setText(highlighted);
+        text.setTextIsSelectable(true);
         if (segment.isNull("speaker")) {
             speaker.setVisibility(View.GONE);
         } else {
@@ -75,7 +89,9 @@ final class SegmentAdapter extends BaseAdapter {
         card.setBackgroundResource(isActive ? R.drawable.bg_row_active : R.drawable.bg_row);
         text.setTextColor(row.getContext().getColor(R.color.ink));
         final int index = position;
-        card.setOnClickListener(v -> onPick.onPick(index, items.get(index)));
+        card.setOnClickListener(onPick == null ? null : v -> onPick.onPick(index, items.get(index)));
+        card.setClickable(onPick != null);
+        card.setFocusable(onPick != null);
         return row;
     }
 }

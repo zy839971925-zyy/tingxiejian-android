@@ -1,0 +1,1 @@
+package android.view;public class View{public static final int VISIBLE=0,GONE=8;public interface OnClickListener{void onClick(View v);}public void setOnClickListener(OnClickListener l){}public void setVisibility(int i){}public void setEnabled(boolean b){}public void setScaleX(float x){}public void setScaleY(float x){}}

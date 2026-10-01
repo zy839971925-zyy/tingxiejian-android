@@ -1,0 +1,1 @@
+package com.example.tingxiejian;import android.view.View;class Motion{static void listeningLevel(android.view.View v,float r){}static void press(View v){}static void haptic(View v,int i){}static boolean animatorsEnabled(){return false;}}

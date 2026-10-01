@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 
 /**
  * Foreground service that owns the transcription job.
@@ -54,10 +55,12 @@ public final class LocalService extends Service {
     private static volatile String activeName = "";
     private static volatile String activePath = "";
     private static volatile String activeEngine = "local";
+    private static volatile LocalService owner;
 
     static String activeName() { return activeName; }
     static String activePath() { return activePath; }
     static String activeEngine() { return activeEngine; }
+    static String progressChannel() { return CHANNEL_QUIET; }
 
     /** Set once the platform refuses a foreground service, so the UI stops asking for one. */
     private static volatile boolean foregroundRefused;
@@ -78,8 +81,15 @@ public final class LocalService extends Service {
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     private NotificationManager manager;
-    private Thread worker;
+    private final AndroidLiveUpdatePublisher liveUpdates=new AndroidLiveUpdatePublisher();
+    private volatile Thread worker;
     private volatile boolean cancelled;
+    private volatile boolean destroyed;
+    private volatile boolean shutdownRequested;
+    private volatile SessionState.State forcedTerminal;
+    private volatile String sessionId;
+    private final Object completionLock = new Object();
+    private boolean terminalPosted;
     private boolean islandWanted = true;
     private boolean bootstrapActive;
     private long startedAt;
@@ -100,6 +110,7 @@ public final class LocalService extends Service {
         super.onCreate();
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         createChannel();
+        owner = this;
         running = true;
     }
 
@@ -117,23 +128,34 @@ public final class LocalService extends Service {
             // is also drawing the interface: that is what "it crashes on launch" looked like.
             Log.w(TAG, "service command failed", error);
             Report.problem("服务命令失败", error);
+            finishFailure(SessionState.State.FAILED, "服务命令失败：" + describe(error));
+            shutDown();
             return START_NOT_STICKY;
         }
     }
 
-    private int handleCommand(Intent intent) {
+    private int handleCommand(Intent intent) throws IOException {
+        if (destroyed || shutdownRequested) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         String action = intent == null ? null : intent.getAction();
         if (ACTION_CANCEL.equals(action)) {
-            cancelled = true;
+            cancelRun(SessionState.State.CANCELLED, "已停止");
+            shutDown();
             return START_NOT_STICKY;
         }
         if (ACTION_STOP.equals(action)) {
-            cancelled = true;
-            if (!busy) shutDown();
+            cancelRun(SessionState.State.CANCELLED, "已停止");
+            shutDown();
             return START_NOT_STICKY;
         }
         String path = intent == null ? null : intent.getStringExtra(EXTRA_PATH);
         if (path != null && busy) return START_NOT_STICKY; // Don't reset an active foreground notice.
+        if (path == null) {
+            shutDown(); // START_NOT_STICKY never recreates a job, nor an idle dataSync service.
+            return START_NOT_STICKY;
+        }
         // FGS must start promptly: never query Xiaomi ContentProviders on the service main thread.
         // Manufacturer is only a cheap *channel* hint; real capability is checked on the worker
         // before attaching any private island payload.
@@ -141,6 +163,16 @@ public final class LocalService extends Service {
                 && !"cloud".equals(intent.getStringExtra(EXTRA_ENGINE))
                 && android.os.Build.MANUFACTURER.toLowerCase(java.util.Locale.ROOT).contains("xiaomi");
         ensureForeground(requestIsland);
+        if(requestIsland&&!foregroundRefused){
+            // ID12 is now the legal FGS base. Retire a preceding run's lingering ID11 so the
+            // verified first focus post is a NEW notification even for consecutive tasks.
+            XiaomiIslandPublisher.cancel(this,manager,NOTIFICATION_ID);
+        }
+        if (foregroundRefused) {
+            postError("系统拒绝了前台服务，请保持应用在前台后重试");
+            shutDown();
+            return START_NOT_STICKY;
+        }
         if (path != null && !busy) {
             startRun(new File(path),
                     intent.getStringExtra(EXTRA_NAME),
@@ -226,6 +258,7 @@ public final class LocalService extends Service {
             }
         } catch (Throwable error) {
             Log.w(TAG, "notify failed", error);
+            islandWanted = false; // A failed OEM submission must not retry its private API this run.
         }
     }
 
@@ -239,24 +272,58 @@ public final class LocalService extends Service {
     }
 
     private void shutDown() {
-        busy = false;
-        XiaomiIslandPublisher.cancel(this, manager, NOTIFICATION_ID);
-        if (manager != null) manager.cancel(BOOTSTRAP_ID);
-        stopForeground(true);
-        stopSelf();
+        shutdownRequested = true;
+        liveUpdates.reset();
+        if (owner == this) {
+            busy = false;
+            running = false;
+        }
+        try {
+            XiaomiIslandPublisher.cancel(this, manager, NOTIFICATION_ID);
+            if (manager != null) manager.cancel(BOOTSTRAP_ID);
+            stopForeground(true);
+        } catch (Throwable error) {
+            Log.w(TAG, "service cleanup failed", error);
+        } finally {
+            stopSelf(); // Notification cleanup failure must not prevent the service from stopping.
+        }
     }
 
     @Override
     public void onDestroy() {
-        running = false;
+        destroyed = true;
+        if (forcedTerminal == null) forcedTerminal = SessionState.State.INTERRUPTED;
+        cancelled = true;
+        interruptWorker();
+        ui.removeCallbacksAndMessages(null);
+        if (owner == this) {
+            shutDown();
+            owner = null;
+        }
+        // A native decoder may take time to return. It cannot publish another result, and disk
+        // recovery runs separately so destruction never waits for inference or a file write.
+        persistTerminationAsync(forcedTerminal, forcedTerminal == SessionState.State.CANCELLED
+                ? "已停止" : "转写服务被系统中断，请重新开始");
         super.onDestroy();
+    }
+
+    /** Android 15 dataSync budget expiry: stop immediately, never wait for native inference. */
+    @Override
+    public void onTimeout(int startId, int fgsType) {
+        forcedTerminal = SessionState.State.INTERRUPTED;
+        cancelled = true;
+        interruptWorker();
+        ui.removeCallbacksAndMessages(null);
+        stopSelf(); // Meet the few-second platform deadline before even notification cleanup.
+        shutDown();
+        persistTerminationAsync(SessionState.State.INTERRUPTED, "系统前台服务时限已到，请重新开始转写");
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         // Swiping the app away must not leave a job or a notification behind.
-        cancelled = true;
-        if (!busy) shutDown();
+        cancelRun(SessionState.State.CANCELLED, "已停止");
+        shutDown();
         super.onTaskRemoved(rootIntent);
     }
 
@@ -278,10 +345,27 @@ public final class LocalService extends Service {
         }
     }
 
-    private void startRun(File input, String name, boolean wantSpeakers, int count, boolean island, String engine) {
+    private void startRun(File input, String name, boolean wantSpeakers, int count, boolean island, String engine)
+            throws IOException {
+        // Dictation uses the same monitor when acquiring its single active slot.
+        synchronized (DictationController.class) {
+            if (DictationController.isBusy()) {
+                postError("实时听写尚未结束，请先结束并保存后再转写文件");
+                shutDown();
+                return;
+            }
+            busy = true;
+        }
         activePath = input.getAbsolutePath();
         activeName = name == null ? "录音" : name;
         activeEngine = "cloud".equals(engine) ? "cloud" : "local";
+        sessionId = null;
+        forcedTerminal = null;
+        terminalPosted = false;
+        cancelled = false;
+        liveUpdates.reset();
+        sessionId = SessionRepository.begin(this, "file", activeName);
+        shutdownRequested = false;
         if ("cloud".equals(engine)) {
             startCloudRun(input);
             return;
@@ -306,20 +390,17 @@ public final class LocalService extends Service {
         worker = new Thread(() -> {
             try {
                 new Transcriber(this).transcribe(input, speakers, count, event -> {
-                    if (cancelled) throw new CancelledException();
+                    checkCancellation();
                     handle(event);
                 });
             } catch (CancelledException e) {
-                postError("已停止");
+                finishFailure(failureState(), "已停止");
             } catch (Throwable t) {
                 Log.w(TAG, "transcription failed", t);
-                postError(describe(t));
+                finishFailure(failureState(),
+                        cancelled ? "已停止" : describe(t));
             } finally {
-                busy = false;
-                ui.post(() -> {
-                    ui.removeCallbacks(idleShutdown);
-                    ui.postDelayed(idleShutdown, DONE_LINGER_MS);
-                });
+                workerFinished();
             }
         }, "transcribe");
         worker.start();
@@ -346,125 +427,166 @@ public final class LocalService extends Service {
                 if (!Cloud.hasAsr(this)) {
                     throw new IllegalStateException("还没有设置云端识别模型：设置 → 云端 AI → 识别模型");
                 }
-                CloudChunker chunker = new CloudChunker();
-                PcmDecoder.decode(input, chunker);
-                chunker.finish();
+                checkCancellation();
+                new CloudFileTranscriber(this, sessionId, this::checkCancellation, this::handle).transcribe(input);
             } catch (CancelledException e) {
-                postError("已停止");
+                finishFailure(failureState(), "已停止");
             } catch (Throwable t) {
                 Log.w(TAG, "cloud transcription failed", t);
-                postError(describe(t));
+                finishFailure(failureState(),
+                        cancelled ? "已停止" : describe(t));
             } finally {
-                busy = false;
-                ui.post(() -> {
-                    ui.removeCallbacks(idleShutdown);
-                    ui.postDelayed(idleShutdown, DONE_LINGER_MS);
-                });
+                workerFinished();
             }
         }, "cloud-asr");
         worker.start();
     }
 
-    /** Accumulates decoded audio into uploadable chunks and reports honest audio-time progress. */
-    private final class CloudChunker implements PcmDecoder.Sink {
-        final int sampleRate = 16000;
-        final float[] buffer = new float[sampleRate * 120];
-        int filled;
-        double chunkStart;
-        int completed;
-        double total;
-        long lastEvent;
-        final StringBuilder text = new StringBuilder();
-        final JSONArray segments = new JSONArray();
-
-        @Override
-        public void accept(float[] samples, int length, double seconds, double totalSecondsIn) throws Exception {
-            if (cancelled) throw new CancelledException();
-            if (totalSecondsIn > 0) total = totalSecondsIn;
-            int offset = 0;
-            while (offset < length) {
-                int take = Math.min(length - offset, buffer.length - filled);
-                System.arraycopy(samples, offset, buffer, filled, take);
-                filled += take;
-                offset += take;
-                if (filled == buffer.length) {
-                    uploadChunk();
-                }
-            }
-            long now = System.currentTimeMillis();
-            if (now - lastEvent > 250) {
-                lastEvent = now;
-                postProgress(seconds);
-            }
-        }
-
-        void uploadChunk() throws Exception {
-            if (filled == 0) return;
-            float[] chunk = new float[filled];
-            System.arraycopy(buffer, 0, chunk, 0, filled);
-            double end = chunkStart + (double) filled / sampleRate;
-            byte[] wav = Cloud.toWav(chunk);
-            String chunkText = Cloud.asr(LocalService.this, wav, null);
-            if (chunkText != null && !chunkText.trim().isEmpty()) {
-                String clean = chunkText.trim();
-                text.append(clean);
-                JSONObject segment = new JSONObject();
-                segment.put("start", chunkStart);
-                segment.put("end", end);
-                segment.put("speaker", -1);
-                segment.put("text", clean);
-                segments.put(segment);
-            }
-            completed++;
-            chunkStart = end;
-            filled = 0;
-            postProgress(end);
-        }
-
-        void postProgress(double processed) throws Exception {
-            JSONObject event = new JSONObject();
-            event.put("type", "progress");
-            event.put("processed", processed);
-            event.put("total", total);
-            event.put("completed", completed);
-            event.put("message", "云端识别");
-            handle(event);
-        }
-
-        void finish() throws Exception {
-            uploadChunk();
-            JSONObject result = new JSONObject();
-            result.put("type", "result");
-            result.put("segments", segments);
-            result.put("duration", total);
-            result.put("text", text.toString());
-            result.put("warning", segments.length() == 0
-                    ? "云端识别没有返回文本"
-                    : "云端识别：未区分发言人。");
-            handle(result);
-        }
-    }
-
     /** Cancellation travels back through the transcriber's own event callback. */
-    static final class CancelledException extends IOException {
+    static final class CancelledException extends InterruptedIOException {
         CancelledException() {
             super("cancelled");
         }
     }
 
-    private void handle(JSONObject event) {
+    private void checkCancellation() throws CancelledException {
+        if (cancelled || destroyed || shutdownRequested || Thread.currentThread().isInterrupted())
+            throw new CancelledException();
+    }
+
+    private void interruptWorker() {
+        Thread current = worker;
+        if (current != null) current.interrupt();
+    }
+
+    private SessionState.State failureState() {
+        if (forcedTerminal != null) return forcedTerminal;
+        if (destroyed || shutdownRequested) return SessionState.State.INTERRUPTED;
+        return cancelled ? SessionState.State.CANCELLED : SessionState.State.FAILED;
+    }
+
+    private void cancelRun(SessionState.State state, String message) {
+        synchronized (completionLock) {
+            if (terminalPosted) return; // Completion already won; stopping cannot rewrite DONE.
+            forcedTerminal = state;
+            cancelled = true;
+            interruptWorker();
+            finishFailure(state, message);
+        }
+    }
+
+    private void persistTerminationAsync(SessionState.State state, String message) {
+        if (sessionId == null) return;
+        new Thread(() -> finishFailure(state, message), "session-stop").start();
+    }
+
+    private void finishFailure(SessionState.State state, String message) {
+        synchronized (completionLock) {
+            if (terminalPosted) return;
+            if (sessionId != null) {
+                try {
+                    SessionState prior = SessionRepository.get(this, sessionId);
+                    if (prior != null && prior.isTerminal() && prior.state != state) {
+                        terminalPosted = true;
+                        return;
+                    }
+                    SessionRepository.transition(this, sessionId, state, message);
+                } catch (Exception error) {
+                    Report.problem("保存会话状态失败", error);
+                    message += "（会话状态保存失败）";
+                }
+            }
+            terminalPosted = true;
+            Bus.reset(); // A re-attached screen must not inherit a stale RUNNING progress snapshot.
+            try { postError(message); }
+            catch (Throwable error) { Report.problem("发布会话结束状态失败", error); }
+        }
+    }
+
+    private void workerFinished() {
+        // Returning without a result is a failure, not an eternal RUNNING session.
+        finishFailure(failureState(),
+                cancelled ? "已停止" : "识别结束，但没有返回转写结果");
+        if (worker == Thread.currentThread()) worker = null;
+        if (owner == this) busy = false;
+        if (destroyed || shutdownRequested) return;
+        ui.post(() -> {
+            if (destroyed || shutdownRequested || owner != this) return;
+            ui.removeCallbacks(idleShutdown);
+            ui.postDelayed(idleShutdown, DONE_LINGER_MS);
+        });
+    }
+
+    private void handle(JSONObject event) throws CancelledException {
+        checkCancellation();
         String type = event.optString("type");
         if ("result".equals(type)) {
+            synchronized (completionLock) {
+                checkCancellation();
+                if (terminalPosted) return;
+            }
+            String savedId;
             try {
                 // Persist before broadcasting. If the Activity was stopped or killed during the
                 // job, a completed transcript must still be in History when it returns.
-                event.put("saved_id", History.save(this, savedResult(event)));
+                savedId = History.save(this, savedResult(event));
+                event.put("saved_id", savedId);
             } catch (Exception error) {
                 Report.problem("保存转写结果失败", error);
-                postError("转写完成，但保存结果失败：" + error.getMessage());
+                finishFailure(SessionState.State.FAILED, "转写完成，但保存结果失败：" + error.getMessage());
                 return;
             }
+            synchronized (completionLock) {
+                // History I/O stays outside this lock: timeout must never wait for a large result.
+                if (cancelled || destroyed || shutdownRequested || terminalPosted) {
+                    History.delete(this, savedId);
+                    checkCancellation();
+                    return;
+                }
+                try {
+                    if (!SessionRepository.transition(this, sessionId, SessionState.State.DONE, "转写已保存")) {
+                        History.delete(this, savedId);
+                        return;
+                    }
+                    terminalPosted = true;
+                    event.put("session_id", sessionId);
+                    event.put("session_state", SessionState.State.DONE.name());
+                } catch (Exception error) {
+                    History.delete(this, savedId);
+                    finishFailure(SessionState.State.FAILED, "保存完成状态失败：" + describe(error));
+                    return;
+                }
+                publishEvent(event);
+            }
+            return;
         }
+        synchronized (completionLock) {
+            checkCancellation();
+            if (terminalPosted) return;
+            if ("error".equals(type)) {
+                finishFailure(SessionState.State.FAILED, event.optString("message", "转写失败"));
+                return;
+            }
+            try {
+                if ("phase".equals(type)) {
+                    String state = event.optString("state");
+                    String message = event.optString("message");
+                    SessionState.State target = null;
+                    if ("POLISHING".equals(state)) target = SessionState.State.POLISHING;
+                    else if ("FINALIZING".equals(state)) target = SessionState.State.FINALIZING;
+                    if (target != null) SessionRepository.transition(this, sessionId, target, message);
+                }
+                event.put("session_id", sessionId);
+            } catch (Exception error) {
+                throw new IllegalStateException("保存转写阶段失败", error);
+            }
+            publishEvent(event);
+        }
+    }
+
+    private void publishEvent(JSONObject event) throws CancelledException {
+        checkCancellation();
+        String type = event.optString("type");
         Job job = Job.of(type, event.optString("message"), event.optDouble("processed", 0),
                 event.optDouble("total", 0), event.optInt("completed"), startedAt, System.currentTimeMillis());
         if (job != null) {
@@ -479,7 +601,11 @@ public final class LocalService extends Service {
                 event.put("indeterminate", job.indeterminate);
             } catch (Exception ignored) {
             }
-            updateNotice(job);
+            publishProgress(job);
+        }
+        if (cancelled || destroyed || shutdownRequested) {
+            if (owner == this || owner == null) shutDown(); // Remove an OEM notice that returned late.
+            throw new CancelledException();
         }
         Bus.post(event);
     }
@@ -493,7 +619,10 @@ public final class LocalService extends Service {
             if (segment != null && segment.optInt("speaker", -1) >= 0)
                 speakers.add(segment.optInt("speaker"));
         }
-        JSONObject saved = new JSONObject();
+        // Preserve raw/final/polished segments, model and hotword metadata from the pipeline.
+        JSONObject saved = new JSONObject(event.toString());
+        for (String transport : new String[]{"type", "saved_id", "job", "stage", "detail", "eta", "indeterminate"})
+            saved.remove(transport);
         saved.put("name", activeName);
         saved.put("createdAt", System.currentTimeMillis());
         saved.put("durationSeconds", event.optDouble("duration", 0));
@@ -502,6 +631,7 @@ public final class LocalService extends Service {
         saved.put("warning", event.isNull("warning") ? "" : event.optString("warning", ""));
         saved.put("segments", segments);
         saved.put("text", event.optString("text", ""));
+        saved.put("session_id", sessionId);
         return saved;
     }
 
@@ -510,6 +640,8 @@ public final class LocalService extends Service {
         try {
             event.put("type", "error");
             event.put("message", message);
+            if (sessionId != null) event.put("session_id", sessionId);
+            event.put("session_state", (forcedTerminal == null ? SessionState.State.FAILED : forcedTerminal).name());
         } catch (Exception ignored) {
         }
         updateNotice(null);
@@ -530,6 +662,30 @@ public final class LocalService extends Service {
         lastPercent = job.percent;
         lastStage = job.stage;
         notify(job);
+    }
+
+    /** Keep the verified Xiaomi implementation/timing intact, then use one standard FGS surface. */
+    private void publishProgress(Job job) {
+        if(job==null||cancelled||destroyed||shutdownRequested||manager==null)return;
+        if(islandWanted&&Thread.currentThread()!=Looper.getMainLooper().getThread()){
+            try{
+                if(XiaomiIslandPublisher.isSupported(this)){
+                    updateNotice(job);
+                    if(islandWanted)return;
+                }else islandWanted=false; // Route downward for this run; do not later replace ID11 with a "first" focus update.
+            }catch(RuntimeException|LinkageError error){
+                islandWanted=false;Log.w(TAG,"island capability/publication failed; using standard progress",error);
+            }
+        }
+        try{
+            liveUpdates.publish(this,manager,CHANNEL_QUIET,job,buildNotification(job,false),notification->{
+                if(cancelled||destroyed||shutdownRequested)return;
+                // A Xiaomi first-frame failure may already have moved ID12 to ID11. Never remove
+                // the foreground notification because an alternate presentation was submitted.
+                if(bootstrapActive){startForeground(NOTIFICATION_ID,notification);bootstrapActive=false;manager.cancel(BOOTSTRAP_ID);}
+                else manager.notify(NOTIFICATION_ID,notification);
+            },android.os.SystemClock.elapsedRealtime());
+        }catch(RuntimeException|LinkageError error){Log.w(TAG,"standard progress notification failed",error);}
     }
 
     private Notification buildNotification(Job job) {

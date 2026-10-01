@@ -2,6 +2,8 @@
 
 # 技术架构｜从选文件到保存结果
 
+> 本文保留 v1.0.3 原实现的设计记录；当前开发分支的 ASR、自动文本校正、实时听写、独立触觉与通知增量以 [升级记录](upgrade/IMPLEMENTATION.md) 和 [Live Update记录](upgrade/LIVE-UPDATES.md) 为准。
+
 > [!NOTE]
 > 本文描述 **v1.0.3 源码中的实际路径**，不是架构愿景。应用为 Java + Android Views + 前台 Service，
 > 安装后无需 WebView、Termux、ADB 或常驻本地 HTTP 服务。公开 APK 为 `arm64-v8a`，最低 API 26，目标 API 35。

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Genuine ASR benchmark observation JSONL row",
+  "required": [
+    "id",
+    "text",
+    "model_id",
+    "runtime",
+    "device"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text": {
+      "type": "string"
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "runtime": {
+      "type": "string",
+      "minLength": 1
+    },
+    "device": {
+      "type": "string",
+      "minLength": 1
+    },
+    "config": {
+      "type": "object"
+    },
+    "first_partial_ms": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "finalization_ms": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "decode_seconds": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "audio_duration_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "peak_memory_bytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "model_load_ms": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "rtf": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "warning": {
+      "type": "string"
+    }
+  }
+}

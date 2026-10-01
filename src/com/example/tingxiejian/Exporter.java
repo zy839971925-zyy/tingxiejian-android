@@ -7,6 +7,32 @@ import java.util.Locale;
 
 /** Text export: plain text with timestamps, SRT subtitles, and pretty JSON. */
 final class Exporter {
+    /** Legacy persisted kinds are TXT=1, JSON=2, SRT=3; menu order is TXT/SRT/JSON. */
+    enum Format {
+        TXT(1, ".txt", "text/plain", "TXT（带时间）"),
+        SRT(3, ".srt", "text/plain", "SRT（字幕）"),
+        JSON(2, ".json", "application/json", "JSON（结构化）");
+        final int kind;
+        final String suffix, mime, label;
+        Format(int kind, String suffix, String mime, String label) {
+            this.kind = kind; this.suffix = suffix; this.mime = mime; this.label = label;
+        }
+        String render(JSONObject record) {
+            return this == TXT ? txt(record) : this == SRT ? srt(record) : json(record);
+        }
+    }
+    static Format menuFormat(int position) {
+        if (position < 0 || position >= Format.values().length) throw new IllegalArgumentException("无效的导出选项");
+        return Format.values()[position];
+    }
+    static Format fromKind(int kind) {
+        for (Format format : Format.values()) if (format.kind == kind) return format;
+        throw new IllegalArgumentException("无效的导出格式，请重新选择");
+    }
+    static String[] menuLabels() {
+        return new String[]{Format.TXT.label, Format.SRT.label, Format.JSON.label};
+    }
+
     static String speakerName(int speaker) {
         return speaker >= 0 ? "发言人 " + (char) ('A' + (speaker % 26)) : "说话人";
     }

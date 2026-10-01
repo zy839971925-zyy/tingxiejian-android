@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_row"
-        android:clickable="true"
-        android:focusable="true"
+        android:clickable="false"
+        android:focusable="false"
         android:minHeight="58dp"
         android:orientation="horizontal"
         android:padding="12dp">
@@ -19,7 +19,8 @@
         <TextView
             android:id="@+id/segment_time"
             style="@style/T.Num"
-            android:layout_width="44dp"
+            android:layout_width="wrap_content"
+            android:minWidth="48dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textColor="@color/accent" />

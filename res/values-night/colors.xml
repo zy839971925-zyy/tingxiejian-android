@@ -1,20 +1,22 @@
 <resources>
-  <color name="bg">#121211</color>
-  <color name="surface">#1C1C1A</color>
-  <color name="sunken">#242422</color>
-  <color name="ink">#F2F0EC</color>
-  <color name="muted">#96928B</color>
-  <color name="line">#2E2E2B</color>
-  <color name="primary_fill">#176A50</color>
+  <color name="bg">#111214</color>
+  <color name="surface">#1C1E22</color>
+  <color name="sunken">#272A30</color>
+  <color name="ink">#F5F5F7</color>
+  <color name="muted">#ADB1BB</color>
+  <color name="line">#373B43</color>
+  <color name="primary_fill">#216B55</color>
   <color name="on_accent">#FFFFFF</color>
-  <color name="accent">#3DBE92</color>
-  <color name="accent_soft">#1A332B</color>
-  <color name="warm">#E0A96D</color>
-  <color name="warn">#E0A96D</color>
-  <color name="warn_bg">#2A2320</color>
-  <color name="danger">#E5766F</color>
+  <color name="accent">#74DBB1</color>
+  <color name="accent_soft">#203B32</color>
+  <color name="warm">#EDAF83</color>
+  <color name="warn">#F1BD7A</color>
+  <color name="warn_bg">#332A21</color>
+  <color name="danger">#FF9494</color>
   <color name="white">#FFFFFF</color>
   <color name="dot_ready">#3DBE92</color>
   <color name="dot_waiting">#55524C</color>
   <color name="dot_unsupported">#B4834B</color>
+  <color name="ripple">#2474DBB1</color>
+  <color name="ripple_on_accent">#30FFFFFF</color>
 </resources>

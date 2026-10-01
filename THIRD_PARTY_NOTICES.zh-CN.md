@@ -16,10 +16,11 @@
 | Android SDK Platform 与 `org.json` 桌面测试 JAR | Android SDK [条款](https://developer.android.com/studio/terms)；[JSON-java](https://github.com/stleary/JSON-java) 许可 | 构建／测试输入，并非项目原创；勿提交 SDK 或下载的 JAR。 |
 | MiSans 字体（私有构建中的 `res/font/misans.ttf`） | [小米字体许可](https://hyperos.mi.com/font/en/download/)，**不是 MIT/OFL** | 先前在本机分发的 APK 中出现过；公开源码改用 Android 系统字体，不包含该文件。不得将 TTF 作为开源资源发布或重新授权。 |
 | 中文流式 Zipformer（`2025-06-30`） | [转换模型](https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-zh-int8-2025-06-30)、[需要接受条件的上游模型](https://huggingface.co/yuekai/icefall-asr-multi-zh-hans-zipformer-large) | 转换产物没有明确许可声明，上游要求接受条件。Release APK 为离线使用打包；首次转写要求用户确认第三方条款。**项目不授予模型再分发权**。 |
+| Qwen3-ASR 0.6B int8 | [Qwen 原作者](https://huggingface.co/Qwen/Qwen3-ASR-0.6B/blob/5eb144179a02acc5e5ba31e748d22b0cf3e303b0/README.md)，Apache-2.0；[sherpa 转换](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25.tar.bz2) | © Qwen 团队及各文件上游权利人。1.0.4 测试版内置；来源、转换版本、大小与 SHA-256 见 [模型清单](assets/model-manifest.json)，保留 Apache-2.0 全文与原 tokenizer 元数据。 |
 | Paraformer 中文模型 | [模型页](https://huggingface.co/csukuangfj/sherpa-onnx-paraformer-zh-2023-09-14)，上游声明 Apache-2.0 | 本地 APK 随包提供；保留上游声明。 |
 | CT-Transformer 标点模型 | [sherpa 文档](https://github.com/k2-fsa/sherpa/blob/master/docs/source/onnx/punctuation/pretrained_models.rst)，上游 ModelScope 声明 Apache-2.0 | 保留署名并核实转换产物条款。 |
 | pyannote segmentation 3.0 | [模型页](https://huggingface.co/pyannote/segmentation-3.0)，上游声明 MIT | 可能有受限下载条件；核实账号权限并保留许可文本。 |
-| 声纹嵌入模型 `embed.onnx` | **确切来源和条款未核实** | 仅打包在 Release APK 中以支持离线分人，不在源码仓库；首次使用要求确认条款。本项目不主张其权利。 |
+| 声纹嵌入模型 `embed.onnx` | **确切来源和条款未核实** | 历史 APK 曾打包以支持离线分人；当前 1.0.4 测试版不含此文件。本项目不主张其权利。 |
 
 Shizuku API 的 MIT 许可（© 2021 RikkaW）全文收录在
 [`licenses/Shizuku-API-MIT.txt`](licenses/Shizuku-API-MIT.txt) 并随本地构建的 APK 打包；
@@ -37,13 +38,13 @@ Shizuku API 的 MIT 许可（© 2021 RikkaW）全文收录在
 根目录 MIT 许可只涵盖原创源码与文档；Release **APK 不整体适用 MIT**，
 它包含独立许可的依赖和权重。
 
-APK 预先打包整个流水线所需模型，因而无网络时也能运行离线功能。
+当前 1.0.4 测试版预先打包 core-streaming、Paraformer、标点和 Qwen；不包含分人模型。缺失可选模型时跳过该能力并提示，核心离线识别无需下载。
 应用以 [`Consent.java`](src/com/example/tingxiejian/Consent.java) 和
 [`res/values/strings.xml`](res/values/strings.xml) 的**阅读并确认**对话框约束首次转写：
 列出第三方组件及其条款，用户须主动勾选“个人使用”后才能开始。
 APK 还包含 [`licenses/DISCLAIMER.txt`](licenses/DISCLAIMER.txt)（见 [`DISCLAIMER.md`](DISCLAIMER.md)），声明：
 
-- `Streaming Chinese Zipformer` 和 `embed.onnx` 的**再分发条款未核实**，按原样随包提供供接收者个人使用及技术评估；
+- `Streaming Chinese Zipformer` 和 `embed.onnx` 的**再分发条款未核实**，历史声明按原样提供供个人使用及技术评估；当前不打包 `embed.onnx`；
 - **不授予再分发权**，权利人有异议可请求移除；
 - 不保证应用不崩溃或转写准确等。
 

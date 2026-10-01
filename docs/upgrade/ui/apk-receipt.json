@@ -1,0 +1,20 @@
+{
+  "artifact": "dist/tingxiejian-v1.0.3-arm64-dev.apk",
+  "bytes": 1486294291,
+  "sha256": "c7a1437c9bff2f0ec6c66b8c2f756ca3daefc6b36b4c8c3e9b354a3f41c286d4",
+  "mode": "development",
+  "abi": "arm64-v8a",
+  "minSdk": 26,
+  "targetSdk": 35,
+  "compileSdk": 36,
+  "bundled_packs": [
+    "accurate-finalizer",
+    "core-streaming",
+    "punctuation",
+    "qwen3-asr-0.6b-int8"
+  ],
+  "bundled_model_assets": 13,
+  "source_only_shizuku_advanced_features": false,
+  "device_validation": "pending; no OEM device; software emulator evidence incomplete",
+  "build_log": "/workspace/android-dev/logs/ui-final-apk-build.log"
+}

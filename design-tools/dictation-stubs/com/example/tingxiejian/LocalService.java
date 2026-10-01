@@ -1,0 +1,1 @@
+package com.example.tingxiejian;class LocalService{static boolean isBusy(){return false;}}

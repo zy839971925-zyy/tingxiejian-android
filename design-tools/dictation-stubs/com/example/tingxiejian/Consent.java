@@ -1,0 +1,1 @@
+package com.example.tingxiejian;import android.content.Context;class Consent{static boolean accepted(Context c){return true;}static void show(Context c,Runnable r){r.run();}}

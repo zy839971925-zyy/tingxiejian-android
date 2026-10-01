@@ -1,0 +1,1 @@
+package android.view.animation;public class AccelerateInterpolator implements android.animation.TimeInterpolator{public AccelerateInterpolator(float x){}public float getInterpolation(float x){return x;}}

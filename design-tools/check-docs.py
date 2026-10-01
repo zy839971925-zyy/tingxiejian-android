@@ -14,6 +14,7 @@ PAIRS = (
     ("docs/BUILDING.md", "docs/BUILDING.en.md"),
     ("docs/UI-MOTION.md", "docs/UI-MOTION.en.md"),
     ("docs/RELEASE-1.0.3.md", "docs/RELEASE-1.0.3.en.md"),
+    ("docs/RELEASE-1.0.4.md", "docs/RELEASE-1.0.4.en.md"),
     ("docs/REVIEW-2026-09-28.zh-CN.md", "docs/REVIEW-2026-09-28.md"),
     ("CHANGELOG.md", "CHANGELOG.en.md"),
     ("CONTRIBUTING.zh-CN.md", "CONTRIBUTING.md"),

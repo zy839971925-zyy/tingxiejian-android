@@ -1,0 +1,1 @@
+package com.example.tingxiejian;import android.app.Activity;import android.view.View;import android.os.Bundle;class PortalTransition{static void install(Activity a,View b,View c,Bundle d){}static void close(Activity a){}}

@@ -1,0 +1,1 @@
+package com.example.tingxiejian;class Job{static String clock(double d){return "clock";}}

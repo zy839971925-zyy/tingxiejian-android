@@ -17,10 +17,11 @@ redistribution. The source repository deliberately omits the binaries listed bel
 | Android SDK platform and `org.json` desktop test JAR | Android SDK [terms](https://developer.android.com/studio/terms); [JSON-java](https://github.com/stleary/JSON-java) license | Build/test inputs, not project-authored files; do not commit SDK or downloaded JARs. |
 | MiSans font (`res/font/misans.ttf` in the private build) | [Xiaomi's license](https://hyperos.mi.com/font/en/download/), **not MIT/OFL** | The previously distributed local APK included it. The public source substitutes the Android system font and excludes the font file. Do not publish/relicense this TTF as a source asset. |
 | Streaming Chinese Zipformer (`2025-06-30`) | [converted model](https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-zh-int8-2025-06-30), [upstream gated model](https://huggingface.co/yuekai/icefall-asr-multi-zh-hans-zipformer-large) | The conversion has no clear license statement; upstream requires acceptance of conditions. Bundled in the release APK only so offline users need no download; every user must accept the in-app third-party terms first. Redistribution rights are **not** granted by this project. |
+| Qwen3-ASR 0.6B int8 | [original Qwen model](https://huggingface.co/Qwen/Qwen3-ASR-0.6B/blob/5eb144179a02acc5e5ba31e748d22b0cf3e303b0/README.md), Apache-2.0; [sherpa conversion](https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25.tar.bz2) | © Qwen team and the respective upstream file owners. Bundled in the 1.0.4 preview; source/conversion revisions, sizes and hashes are in the [model manifest](assets/model-manifest.json). Retain the Apache-2.0 text and original tokenizer metadata. |
 | Paraformer Chinese model | [model page](https://huggingface.co/csukuangfj/sherpa-onnx-paraformer-zh-2023-09-14), Apache-2.0 as declared upstream | Bundled model in local APK; follow upstream notices. |
 | CT-Transformer punctuation model | [sherpa documentation](https://github.com/k2-fsa/sherpa/blob/master/docs/source/onnx/punctuation/pretrained_models.rst), upstream ModelScope Apache-2.0 | Preserve model attribution and verify exact conversion terms. |
 | pyannote segmentation 3.0 | [model page](https://huggingface.co/pyannote/segmentation-3.0), MIT as declared upstream | Gated/download conditions may apply; verify permissions for your account and retain notices. |
-| Speaker embedding (`embed.onnx`) | Exact origin/terms **not verified** | Bundled only in the release APK (never in source) so the diarization feature works offline; users accept the in-app terms first. No rights are claimed by this project. |
+| Speaker embedding (`embed.onnx`) | Exact origin/terms **not verified** | Historically bundled for offline diarization; not included in the current 1.0.4 preview. No rights are claimed by this project. |
 
 Shizuku's API is MIT licensed (© 2021 RikkaW). Its full copyright, permission and warranty
 text is included in [`licenses/Shizuku-API-MIT.txt`](licenses/Shizuku-API-MIT.txt) and bundled
@@ -38,8 +39,7 @@ best-effort if the service/process dies. The offline transcription path does not
 The root MIT license covers original source and documentation only. A released **APK is not an
 MIT artifact**: it bundles independently licensed libraries and model weights.
 
-The APK ships **every model the pipeline needs pre-placed**, so users without a suitable network
-still get a working offline app. In exchange, the app gates the first transcription behind a
+The 1.0.4 preview bundles core-streaming, Paraformer, punctuation and Qwen, but no diarization pack. Missing optional models are reported and skipped; core offline recognition needs no download. The app gates the first transcription behind a
 **read-and-confirm** dialog (`Consent.java` + `res/values/strings.xml`) that lists every bundled
 third-party component and its terms; the user must tick an explicit "personal use" checkbox
 before transcription can start. The APK also carries
@@ -47,7 +47,7 @@ before transcription can start. The APK also carries
 
 - states that some bundled weights (`Streaming Chinese Zipformer`, `embed.onnx`) have
   **unverified redistribution terms** and are provided AS IS for the recipient's own use and
-  technical evaluation;
+  technical evaluation; `embed.onnx` is excluded from the current preview;
 - grants **no redistribution rights** and offers removal on a rights holder's request;
 - disclaims warranties, including crash-free operation or correct transcripts.
 

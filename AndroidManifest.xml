@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.tingxiejian" android:versionCode="103" android:versionName="1.0.3">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.tingxiejian" android:versionCode="104" android:versionName="1.0.4">
     <!-- Only for the optional cloud AI / cloud ASR features. Nothing leaves the phone unless
          the user fills in an API key in Settings; all network code lives in Cloud.java. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Android 16 standard Live Update request; non-runtime, independent of Xiaomi/Shizuku. -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS"/>
+    <!-- Requested only by the explicit live-dictation start action; never background recording. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Optional Shizuku Binder bridge: the transcription pipeline never needs it. -->
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23"/>
     <!-- Short haptic ticks on start / finish / error / copy, paired with the motion. -->
@@ -24,6 +28,7 @@
         <activity android:name=".SettingsActivity" android:exported="false" android:screenOrientation="unspecified"/>
         <activity android:name=".TranscriptActivity" android:exported="false" android:screenOrientation="unspecified"/>
         <activity android:name=".ChatActivity" android:exported="false" android:screenOrientation="unspecified"/>
+        <activity android:name=".DictationActivity" android:exported="false" android:screenOrientation="unspecified"/>
         <service android:name=".LocalService" android:exported="false" android:foregroundServiceType="dataSync"/>
         <meta-data android:name="moe.shizuku.client.V3_SUPPORT" android:value="true"/>
         <provider android:name="rikka.shizuku.ShizukuProvider"

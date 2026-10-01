@@ -4,6 +4,15 @@
 
 > Historical versions below. **Post-release documentation commits do not change the v1.0.3 tag or APK.**
 
+## 1.0.4 — Accurate recognition, live dictation, correction and notification surfaces (preview)
+
+- Shared VAD/streaming drafts with Qwen3 / Paraformer segment refinement; complete bundled Qwen, discoverable model selection/preparation and memory fallback.
+- Foreground live dictation; configured API keys enable lightweight correction during transcription, preserving original text and explicitly skipping without a key.
+- Android 16 Live Update → ordinary FGS fallback; preserve Xiaomi/Shizuku/XMSF behavior and use only the standard path on ColorOS 16.
+- Native UI, search, export, player, draft, safe-area and motion fixes; correct onboarding navigation into Settings and stretched oval controls.
+- Key, history, session, model installation and build-signing hardening with host regressions and CI; development-signed pre-release, without OEM device acceptance claims.
+- See [1.0.4 release notes](docs/RELEASE-1.0.4.en.md) for installation and limits.
+
 ## Documentation updates after release (main branch only)
 
 - Added linked Chinese and English guides across the README, architecture, build, licensing and security docs;

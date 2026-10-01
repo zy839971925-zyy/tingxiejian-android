@@ -4,7 +4,7 @@
         <!-- Use the Android system family in the open-source build; MiSans is not MIT-licensed. -->
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:colorAccent">@color/accent</item>
-        <item name="android:windowBackground">@color/surface</item>
+        <item name="android:windowBackground">@color/bg</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -13,12 +13,12 @@
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowContentTransitions">true</item>
     </style>
-    <!-- Typography scale: 24 / 17 / 15 / 13. Numbers are tabular so tickers never jitter. -->
-    <style name="T.Title" parent=""><item name="android:textSize">24sp</item><item name="android:textStyle">bold</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
+    <!-- Typography scale: 28 / 19 / 16 / 13. Numbers are tabular so tickers never jitter. -->
+    <style name="T.Title" parent=""><item name="android:textSize">28sp</item><item name="android:textStyle">bold</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
     <style name="T.Sub" parent=""><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item></style>
-    <style name="T.CardTitle" parent=""><item name="android:textSize">17sp</item><item name="android:textStyle">bold</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
-    <style name="T.Label" parent=""><item name="android:textSize">15sp</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
-    <style name="T.Body" parent=""><item name="android:textSize">15sp</item><item name="android:textColor">@color/ink</item><item name="android:lineSpacingExtra">3dp</item></style>
+    <style name="T.CardTitle" parent=""><item name="android:textSize">19sp</item><item name="android:textStyle">bold</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
+    <style name="T.Label" parent=""><item name="android:textSize">16sp</item><item name="android:textColor">@color/ink</item><item name="android:includeFontPadding">false</item></style>
+    <style name="T.Body" parent=""><item name="android:textSize">16sp</item><item name="android:textColor">@color/ink</item><item name="android:lineSpacingExtra">5dp</item></style>
     <style name="T.Meta" parent=""><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item></style>
     <style name="T.Num" parent=""><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item><item name="android:fontFeatureSettings">tnum</item></style>
     <style name="T.Caption" parent=""><item name="android:textSize">13sp</item><item name="android:textColor">@color/muted</item><item name="android:includeFontPadding">false</item><item name="android:lineSpacingExtra">2dp</item></style>

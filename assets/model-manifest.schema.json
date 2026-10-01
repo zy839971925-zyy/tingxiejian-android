@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "ASR weight lock",
+  "required": [
+    "schema_version",
+    "models"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "filename",
+          "local_path",
+          "family",
+          "pack",
+          "source",
+          "revision",
+          "expected_bytes",
+          "sha256",
+          "license",
+          "redistribution",
+          "bundled"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "filename": {
+            "type": "string",
+            "minLength": 1
+          },
+          "local_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pack": {
+            "type": "string",
+            "minLength": 1
+          },
+          "license": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revision": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expected_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "redistribution": {
+            "enum": [
+              "verified",
+              "unresolved",
+              "restricted"
+            ]
+          },
+          "bundled": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

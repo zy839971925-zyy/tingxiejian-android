@@ -151,19 +151,19 @@
                         android:includeFontPadding="false" android:lineSpacingExtra="4dp" />
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:layout_marginTop="20dp" style="@style/T.Body"
-                        android:text="想用超级岛，可以去设置里了解并选择 Shizuku 兼容方式；不用也不会影响识别。" />
+                        android:id="@+id/guide_realtime_description" android:text="任务进度始终保留系统通知。可选展示能力由设备与系统版本决定。" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:layout_marginTop="28dp" android:background="@drawable/bg_card"
                         android:orientation="vertical" android:padding="20dp">
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                            style="@style/T.CardTitle" android:text="超级岛 · 可选" />
+                            android:id="@+id/guide_realtime_title" style="@style/T.CardTitle" android:text="实时进度 · 可选" />
                         <TextView android:id="@+id/shizuku_settings"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:minHeight="48dp" android:layout_marginTop="12dp"
                             android:background="@drawable/bg_row" android:gravity="center"
                             android:paddingLeft="18dp" android:paddingRight="18dp"
                             android:textColor="@color/ink" style="@style/T.Label"
-                            android:text="前往超级岛设置" />
+                            android:text="配置实时进度" />
                     </LinearLayout>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:layout_marginTop="12dp" android:background="@drawable/bg_card"

@@ -2,6 +2,8 @@
 
 # Technical architecture | From file picker to saved result
 
+> This retains the v1.0.3 design record. Current ASR, automatic correction, live dictation, independent haptics and notification changes are documented in the [upgrade record](upgrade/IMPLEMENTATION.md) and [Live Update record](upgrade/LIVE-UPDATES.md) (Chinese).
+
 > [!NOTE]
 > This describes the **actual v1.0.3 source**, not a proposed architecture. The app uses Java, Android Views
 > and a foreground Service. It needs no WebView, Termux, ADB or local HTTP server at runtime. The published APK

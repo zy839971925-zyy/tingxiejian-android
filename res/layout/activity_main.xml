@@ -84,7 +84,7 @@
                     android:id="@+id/hero"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="392dp"
+                    android:minHeight="340dp"
                     android:background="@drawable/bg_hero"
                     android:padding="24dp">
 
@@ -98,8 +98,8 @@
                         android:orientation="vertical">
 
                         <FrameLayout
-                            android:layout_width="96dp"
-                            android:layout_height="96dp"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
                             android:background="@drawable/bg_circle_soft">
 
                             <ImageView
@@ -115,7 +115,7 @@
                             style="@style/T.CardTitle"
                             android:gravity="center"
                             android:layout_marginTop="20dp"
-                            android:text="选择一段录音"/>
+                            android:text="让声音，留成文字"/>
 
                         <TextView android:id="@+id/recognition_summary"
                             android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Body"
@@ -126,16 +126,22 @@
                         <TextView
                             android:id="@+id/drop"
                             android:layout_width="wrap_content"
-                            android:layout_height="52dp"
+                            android:layout_height="wrap_content" android:minHeight="52dp" android:paddingTop="12dp" android:paddingBottom="12dp"
                             android:layout_marginTop="22dp"
                             android:background="@drawable/bg_primary"
                             android:gravity="center"
                             android:paddingStart="26dp"
                             android:paddingEnd="26dp"
-                            android:text="选择录音文件"
+                            android:text="导入录音"
                             android:textColor="@color/on_accent"
                             android:textSize="16sp"
                             android:textStyle="bold" />
+
+                        <TextView android:id="@+id/live_dictation"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="52dp" android:paddingTop="12dp" android:paddingBottom="12dp" android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_circle_soft" android:gravity="center"
+                            android:paddingStart="26dp" android:paddingEnd="26dp" android:text="实时听写"
+                            android:textColor="@color/accent" android:textSize="16sp" android:textStyle="bold"/>
 
                         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/file_meta"
                             style="@style/T.Num"
@@ -345,7 +351,7 @@
                             <ImageView
                                 android:id="@+id/play"
                                 android:layout_width="52dp"
-                                android:layout_height="52dp"
+                                android:layout_height="wrap_content" android:minHeight="52dp" android:paddingTop="12dp" android:paddingBottom="12dp"
                                 android:background="@drawable/bg_primary"
                                 android:padding="15dp"
                                 android:src="@drawable/ic_play"
@@ -468,8 +474,8 @@
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
                     android:layout_marginTop="22dp"
                     android:layout_marginStart="4dp"
-                    android:letterSpacing="0.08"
-                    android:text="最近"
+                    android:letterSpacing="0.02"
+                    android:text="最近的转写"
                     android:textColor="@color/muted"/>
 
                 <LinearLayout
@@ -509,7 +515,7 @@
             <TextView
                 android:id="@+id/run"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content" android:minHeight="56dp" android:paddingTop="14dp" android:paddingBottom="14dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_primary"
                 android:gravity="center"

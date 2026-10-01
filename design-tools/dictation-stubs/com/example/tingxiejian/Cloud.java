@@ -1,0 +1,1 @@
+package com.example.tingxiejian;import android.content.Context;class Cloud{static boolean configured(Context c){return false;}}

@@ -1,0 +1,1 @@
+package android.os;public class Bundle{public String getString(String s,String f){return f;}public void putString(String k,String v){}}

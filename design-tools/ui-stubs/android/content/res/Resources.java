@@ -1,0 +1,1 @@
+package android.content.res;public class Resources{public Configuration config=new Configuration();public Configuration getConfiguration(){return config;}public android.util.DisplayMetrics getDisplayMetrics(){return new android.util.DisplayMetrics();}}

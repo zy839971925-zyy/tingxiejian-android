@@ -36,8 +36,8 @@ for module in api provider aidl shared; do
   get "dev/rikka/shizuku/$module/13.1.5/$module-13.1.5.aar" "shizuku-$module-13.1.5.aar"
   extract_classes "shizuku-$module-13.1.5.aar" "shizuku-$module.jar"
 done
-if test -n "${ANDROID_HOME:-}" && test -s "$ANDROID_HOME/platforms/android-35/android.jar"; then
-  cp "$ANDROID_HOME/platforms/android-35/android.jar" vendor/android.jar
+if test -n "${ANDROID_HOME:-}" && test -s "$ANDROID_HOME/platforms/android-36/android.jar"; then
+  cp "$ANDROID_HOME/platforms/android-36/android.jar" vendor/android.jar
 fi
 if test -s vendor/sherpa-onnx-1.13.8.aar; then
   extract_classes sherpa-onnx-1.13.8.aar classes.jar

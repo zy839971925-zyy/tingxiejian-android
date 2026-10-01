@@ -32,6 +32,7 @@
 
         <ImageView
             android:id="@+id/back"
+            android:background="@drawable/bg_icon_circle"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:padding="12dp"
@@ -206,6 +207,28 @@
                     android:contentDescription="减少动效" />
             </LinearLayout>
 
+            <TextView android:id="@+id/motion_rhythm" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:minHeight="48dp" android:padding="12dp"
+                android:layout_marginTop="8dp" android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_row" style="@style/T.Label"/>
+            <Switch android:id="@+id/haptic_feedback" android:layout_width="match_parent" android:layout_height="52dp"
+                android:text="触觉反馈" android:contentDescription="触觉反馈，与减少动效独立"/>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="20dp" style="@style/T.CardTitle" android:id="@+id/realtime_title" android:text="实时进度与系统状态"/>
+            <Switch android:id="@+id/live_updates" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="52dp" android:text="标准 Android 实时进度" android:contentDescription="标准 Android 实时进度，与小米超级岛开关独立"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                android:text="Android 16+ 可请求实时活动，由系统决定是否呈现。ColorOS 16 可采用标准展示；旧系统保留普通通知。小米与 Shizuku 的开关仅控制原超级岛链路。"/>
+            <TextView android:id="@+id/realtime_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:textIsSelectable="true" style="@style/T.Caption"/>
+            <TextView android:id="@+id/promotion_settings" android:layout_width="match_parent" android:layout_height="52dp"
+                android:gravity="center_vertical" android:background="@drawable/bg_row" android:padding="14dp"
+                style="@style/T.Label" android:text="系统实时活动与通知设置"/>
+
+            <!-- Xiaomi-only controls: never expose Shizuku as a global requirement. -->
+            <LinearLayout android:id="@+id/xiaomi_island_section"
+                android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
             <!-- 超级岛 -->
             <TextView
                 android:layout_width="match_parent"
@@ -313,6 +336,8 @@
                 android:text="检查系统通知与焦点权限"
                 android:textColor="@color/accent" />
 
+            </LinearLayout>
+
             <!-- 模型 -->
             <TextView
                 android:layout_width="match_parent"
@@ -371,7 +396,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 style="@style/T.Caption"
-                android:text="不填 Key 就不会联网。只有你点“AI 整理 / 云端识别 / 提问”时，对应内容才会发到你配置的接口。" />
+                android:text="保存 API Key 后，转写过程中会自动把文字分段发送到你配置的接口轻度校正；忠实稿保留。不开云端识别不会发送音频。无 Key 则跳过校正并提示。" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -527,6 +552,27 @@
                     style="@style/T.Caption"
                     android:text="" />
             </LinearLayout>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
+                style="@style/T.CardTitle" android:text="本地高精度识别"/>
+            <TextView android:id="@+id/local_model_choice" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
+                style="@style/T.Body" android:background="@drawable/bg_row" android:padding="14dp"
+                android:drawableEnd="@drawable/ic_chevron" android:drawableTint="@color/accent"
+                android:drawablePadding="12dp" android:text="选择本地复核模型"/>
+            <TextView android:id="@+id/qwen_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" style="@style/T.Caption" android:textIsSelectable="true"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/T.Caption"
+                android:text="先显示即时稿，再逐段高精度复核。Qwen3 约 941 MiB，加载需要至少 3 GiB 可用系统内存；不足时自动回退标准复核。"/>
+            <TextView android:id="@+id/prepare_qwen" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="52dp" android:layout_marginTop="12dp" android:padding="14dp"
+                style="@style/T.Label" android:text="准备内置 Qwen3 模型" android:gravity="center"
+                android:textColor="@color/on_accent" android:background="@drawable/bg_primary"/>
+            <TextView android:id="@+id/import_qwen" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="52dp" android:layout_marginTop="8dp" android:padding="14dp"
+                style="@style/T.Label" android:text="从目录导入模型（可选）" android:gravity="center" android:background="@drawable/bg_row"/>
+            <EditText android:id="@+id/user_hotwords" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:minHeight="80dp" android:inputType="textMultiLine" android:maxLength="8192" android:hint="热词：每行一个，例如人名、专业词"
+                android:textSize="16sp" android:textColor="@color/ink" android:background="@drawable/bg_input" android:padding="12dp"/>
 
             <!-- 关于 -->
             <TextView

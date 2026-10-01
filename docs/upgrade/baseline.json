@@ -1,0 +1,15 @@
+{
+  "head": "69085db345c6e317e0de6e9d28e9720e6b4190ed",
+  "baseline_checks": "pass",
+  "full_apk": "unavailable: weights absent",
+  "agents_md": "No applicable AGENTS.md found in accessible repository/ancestor paths",
+  "protected_files": {
+    "ShizukuIslandBridge.java": "efe5dcc75e867c742f819fe3677a984c5130b0eeca35dc3fae1f05de89baca8e",
+    "XiaomiIslandPublisher.java": "68e2422561693e982256aa722f734f2b265263643279c8c7452660dd29d163b0",
+    "XiaomiIslandCapability.java": "c34dfd3c3ecc37c03d4b383604f671c37dc30d288c4e017aabc57ab0d41ed677",
+    "XiaomiIslandPayloadBuilder.java": "baf56101c78df0f2e442ac5a291a43c79cf1d39188fb1035f1d763c03b463eff",
+    "XiaomiXmsfValidationGate.java": "b064d2a4fd34b4133a76f03191b04967e266f35daffd8c59a485faa5a9941505",
+    "IslandNotification.java": "52a82a6af250f364ac4c105f8fd72f997c08ee2e4110ab73d5295c3bcf544c80"
+  },
+  "local_service_baseline_sha256": "3b93991d04c62f5ad704e1c5079a7767ee6bab7828f6e674ca3cffd973075e68"
+}

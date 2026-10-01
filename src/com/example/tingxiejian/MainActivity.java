@@ -103,6 +103,8 @@ public class MainActivity extends Activity {
     private boolean playerReady;
     private boolean scrubbing;
     private boolean historyEntered;
+    private String renderedAppearance;
+    private final Runnable playbackTicker = () -> guard("播放进度", this::trackPlayhead).run();
 
     // prefs
     private boolean diarizeWanted = true;
@@ -140,6 +142,7 @@ public class MainActivity extends Activity {
                 return;
             }
             setContentView(R.layout.activity_main);
+            renderedAppearance = UiTheme.mode(this);
             Report.mark("setContentView(activity_main)");
             bindViews();
             Report.mark("views bound");
@@ -147,6 +150,7 @@ public class MainActivity extends Activity {
             Report.mark("window insets applied");
             loadPreferences();
             wireActions();
+            UiControls.apply(root);
             showState(STATE_IDLE, false);
             if (savedInstanceState != null) {
                 exportKind = savedInstanceState.getInt(STATE_EXPORT_KIND, -1);
@@ -285,13 +289,13 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 30) {
             getWindow().setDecorFitsSystemWindows(false);
             UiTheme.applyBarAppearance(this);
+            final int left = column.getPaddingLeft(), right = column.getPaddingRight();
             root.setOnApplyWindowInsetsListener((view, insets) -> {
-                int top = insets.getInsets(WindowInsets.Type.statusBars()).top;
-                int bottom = Math.max(insets.getInsets(WindowInsets.Type.navigationBars()).bottom,
-                        insets.getInsets(WindowInsets.Type.ime()).bottom);
-                statusInset = top;
-                column.setPadding(column.getPaddingLeft(), top,
-                        column.getPaddingRight(), bottom);
+                UiTheme.applyBarAppearance(this);
+                android.graphics.Insets safe = insets.getInsets(WindowInsets.Type.systemBars()
+                        | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime());
+                statusInset = safe.top;
+                column.setPadding(left + safe.left, safe.top, right + safe.right, safe.bottom);
                 return insets;
             });
             root.requestApplyInsets();
@@ -473,6 +477,10 @@ public class MainActivity extends Activity {
         Motion.press(run);
         Motion.press(settingsButton);
         click(drop, "选择录音", this::pickAudio);
+        View liveEntry = need(R.id.live_dictation);
+        Motion.press(liveEntry);
+        click(liveEntry, "实时听写", () -> PortalTransition.open(this, liveEntry,
+                new Intent(this, DictationActivity.class), "dictation_portal"));
         click(run, "主操作", this::primaryAction);
         click(settingsButton, "打开设置", () -> PortalTransition.open(this, settingsButton,
                 new Intent(this, SettingsActivity.class), "settings_portal"));
@@ -485,9 +493,6 @@ public class MainActivity extends Activity {
         });
         click(share, "分享转写", this::shareResult);
         click(save, "导出", this::askExportFormat);
-        click(need(R.id.hero), "选择录音", () -> {
-            if (state == STATE_IDLE) pickAudio();
-        });
         click(openFull, "查看全文", () -> {
             if (!resultId.isEmpty()) {
                 TranscriptActivity.open(this, resultId, need(R.id.open_full_icon));
@@ -546,7 +551,7 @@ public class MainActivity extends Activity {
     // ---------------------------------------------------------------- import
 
     private void pickAudio() {
-        if (running || LocalService.isBusy()) {
+        if (running || LocalService.isBusy() || DictationController.isBusy()) {
             fileError.setText("已有转写任务，请等待完成或先取消。");
             return;
         }
@@ -743,12 +748,14 @@ public class MainActivity extends Activity {
 
     private void updateRecognitionCopy() {
         boolean cloud = cloudRecognitionActive();
+        boolean polish = Cloud.configured(this);
         ((TextView) need(R.id.recognition_mode)).setText(cloud
                 ? "云端识别已启用 · 录音将发送至已配置的服务"
-                : "默认离线 · 云端功能可选");
+                : polish ? "本地识别 · 文本自动发送至已配置接口校正" : "默认离线 · 未配置 API Key，跳过文字校正");
         ((TextView) need(R.id.recognition_summary)).setText(cloud
-                ? "已启用云端识别；开始转写后音频将发送至已配置的服务"
-                : "中文转写 · 自动分人 · 自动标点\n默认在这台手机上完成");
+                ? "开始转写后上传音频分段，并自动轻度校正文本；忠实稿保留"
+                : polish ? "音频留在本机；转写中自动校正每段文字，忠实稿保留"
+                : "文件导入与实时听写共用本机识别；未配置 API Key，跳过 AI 文字校正");
     }
 
     private void sendService(String action, JSONObject extras) {
@@ -907,21 +914,40 @@ public class MainActivity extends Activity {
         }
         try {
             player = new MediaPlayer();
-            player.setDataSource(input.getAbsolutePath());
-            player.prepare();
-            playerReady = true;
-            seek.setMax(Math.max(1, player.getDuration()));
-            playerTime.setText("00:00 / " + Job.clock(player.getDuration() / 1000.0));
+            final MediaPlayer preparing = player;
+            preparing.setDataSource(input.getAbsolutePath());
+            play.setEnabled(false);
+            preparing.setOnPreparedListener(mp -> {
+                if (player != mp || isDestroyed()) return;
+                playerReady = true;
+                play.setEnabled(true);
+                seek.setMax(Math.max(1, mp.getDuration()));
+                playerTime.setText("00:00 / " + Job.clock(mp.getDuration() / 1000.0));
+            });
+            preparing.setOnErrorListener((mp, what, extra) -> {
+                if (player == mp) {
+                    releasePlayer();
+                    fileError.setText("录音无法播放，可继续查看和导出文字。");
+                }
+                return true;
+            });
             player.setOnCompletionListener(mp -> {
+                if (player != mp) return;
+                ui.removeCallbacks(playbackTicker);
                 Motion.iconSwap(play, R.drawable.ic_play);
+                play.setContentDescription("播放录音");
                 if (player != null) {
                     player.seekTo(0);
+                    seek.setProgress(0);
+                    playerTime.setText("00:00 / " + Job.clock(player.getDuration() / 1000.0));
                 }
             });
             play.setImageResource(R.drawable.ic_play);
+            play.setContentDescription("播放录音");
+            preparing.prepareAsync();
         } catch (Exception e) {
             Report.problem("播放器准备失败", e);
-            playerReady = false;
+            releasePlayer();
         }
     }
 
@@ -931,16 +957,20 @@ public class MainActivity extends Activity {
         }
         if (player.isPlaying()) {
             player.pause();
+            ui.removeCallbacks(playbackTicker);
             Motion.iconSwap(play, R.drawable.ic_play);
+            play.setContentDescription("播放录音");
         } else {
             player.start();
             Motion.iconSwap(play, R.drawable.ic_pause);
+            play.setContentDescription("暂停录音");
+            ui.removeCallbacks(playbackTicker);
             trackPlayhead();
         }
     }
 
     private void trackPlayhead() {
-        if (player == null || !playerReady) {
+        if (player == null || !playerReady || !player.isPlaying()) {
             return;
         }
         if (player.isPlaying() && !scrubbing) {
@@ -948,10 +978,11 @@ public class MainActivity extends Activity {
             seek.setProgress(position);
             playerTime.setText(Job.clock(position / 1000.0) + " / " + Job.clock(player.getDuration() / 1000.0));
         }
-        ui.postDelayed(guard("播放进度", this::trackPlayhead), 400);
+        ui.postDelayed(playbackTicker, 400);
     }
 
     private void releasePlayer() {
+        ui.removeCallbacks(playbackTicker);
         if (player != null) {
             try {
                 player.release();
@@ -960,6 +991,7 @@ public class MainActivity extends Activity {
         }
         player = null;
         playerReady = false;
+        if (play != null) play.setEnabled(false);
     }
 
     // ---------------------------------------------------------------- export
@@ -968,10 +1000,10 @@ public class MainActivity extends Activity {
         if (resultJson == null) {
             return;
         }
-        String[] formats = {"TXT（带时间）", "SRT（字幕）", "JSON（结构化）"};
+        String[] formats = Exporter.menuLabels();
         new android.app.AlertDialog.Builder(this)
                 .setTitle("导出格式")
-                .setItems(formats, (dialog, which) -> beginExport(which + 1))
+                .setItems(formats, (dialog, which) -> beginExport(Exporter.menuFormat(which).kind))
                 .show();
     }
 
@@ -981,10 +1013,11 @@ public class MainActivity extends Activity {
         }
         exportKind = kind;
         exportResultId = resultId;
-        String name = safeName(kind == 1 ? ".txt" : kind == 2 ? ".json" : ".srt");
+        Exporter.Format format = Exporter.fromKind(kind);
+        String name = safeName(format.suffix);
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType(kind == 2 ? "application/json" : "text/plain");
+        intent.setType(format.mime);
         intent.putExtra(Intent.EXTRA_TITLE, name);
         startActivityForResult(intent, REQ_SAVE);
     }
@@ -1012,8 +1045,7 @@ public class MainActivity extends Activity {
                     throw new IllegalStateException("导出状态已丢失，请重新选择导出格式");
                 JSONObject record = History.load(this, recordId);
                 String name = record.optString("name", "transcript");
-                String body = kind == 1 ? Exporter.txt(record)
-                        : kind == 2 ? Exporter.json(record) : Exporter.srt(record);
+                String body = Exporter.fromKind(kind).render(record);
                 try (OutputStream out = getContentResolver().openOutputStream(uri)) {
                     if (out == null) throw new java.io.IOException("文档提供方未返回输出流");
                     out.write(body.getBytes(StandardCharsets.UTF_8));
@@ -1070,7 +1102,8 @@ public class MainActivity extends Activity {
                     historyRowCache.put(id, row);
                 }
                 row.setText(entry.name + "  ·  " + Job.clock(entry.durationSeconds)
-                        + "  ·  " + (entry.speakers > 0 ? entry.speakers + " 人" : "未分人"));
+                        + "\n" + (entry.speakers > 0 ? entry.speakers + " 位发言人" : "未区分发言人"));
+                UiControls.button(row);
                 int current = historyList.indexOfChild(row);
                 if (current != index) {
                     if (current >= 0) historyList.removeView(row);
@@ -1101,6 +1134,10 @@ public class MainActivity extends Activity {
     protected void onStart() {
         super.onStart();
         if (historyList == null) return; // First launch handed over to the optional guide.
+        if (!UiTheme.mode(this).equals(renderedAppearance)) {
+            recreate();
+            return;
+        }
         loadPreferences(); // Apply settings changed while this Activity was stopped.
         updateRecognitionCopy();
         syncBottomBar();
@@ -1111,6 +1148,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         Bus.unregister(busListener);
+        ui.removeCallbacks(playbackTicker);
+        if (player != null && playerReady && player.isPlaying()) {
+            player.pause();
+            Motion.iconSwap(play, R.drawable.ic_play);
+            play.setContentDescription("播放录音");
+        }
         super.onStop();
     }
 

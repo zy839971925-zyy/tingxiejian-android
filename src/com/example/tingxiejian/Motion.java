@@ -15,13 +15,29 @@ final class Motion {
     private static final String PREFS = "motion";
     private static final String REDUCED = "reduced";
     private static volatile boolean reduced;
+    private static volatile boolean haptics = true;
+    private static volatile boolean quick;
 
     static void init(Context context) {
         reduced = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 .getBoolean(REDUCED, false);
+        haptics = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("haptics", true);
+        quick = "quick".equals(context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("rhythm", "natural"));
     }
 
     static boolean reduced() { return reduced; }
+    static boolean haptics() { return haptics; }
+    static String rhythm() { return quick ? "quick" : "natural"; }
+    static void setRhythm(Context context, String value) {
+        quick = "quick".equals(value);
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putString("rhythm", rhythm()).apply();
+    }
+    static long duration(long milliseconds) { return quick ? Math.round(milliseconds * .8) : milliseconds; }
+    static void setHaptics(Context context, boolean value) {
+        haptics=value;
+        context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("haptics",value).apply();
+    }
 
     static void setReduced(Context context, boolean value) {
         reduced = value;
@@ -31,8 +47,8 @@ final class Motion {
 
     static final long PRESS_MS = 240;
     static final long GENTLE_MS = 500;
-    static final long BOUNCE_MS = 420;
-    static final long ENTER_MS = 460;
+    static final long BOUNCE_MS = 320;
+    static final long ENTER_MS = 360;
 
     static final TimeInterpolator FAST_OUT = new android.view.animation.AccelerateInterpolator(1.6f);
     static final TimeInterpolator PRESS = curve(new SpringCurve(1f, 22f, PRESS_MS / 1000f));
@@ -58,9 +74,17 @@ final class Motion {
     /** Scale-on-press driven by the critically damped curve. Returns false so clicks still fire. */
     static void press(final View view) {
         view.setOnTouchListener((v, event) -> {
+            if (!v.isEnabled() || !animatorsEnabled()) {
+                v.animate().cancel();
+                v.setScaleX(1f);
+                v.setScaleY(1f);
+                return false;
+            }
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     v.animate().cancel();
+                    v.setAlpha(1f);
+                    v.setTranslationY(0f);
                     v.setScaleX(0.982f);  // 0ms: touch must feel received immediately
                     v.setScaleY(0.982f);
                     break;
@@ -81,7 +105,7 @@ final class Motion {
             view.setScaleY(value);
             return;
         }
-        view.animate().scaleX(value).scaleY(value).setDuration(duration).setInterpolator(interpolator).start();
+        view.animate().setStartDelay(0).scaleX(value).scaleY(value).setDuration(duration(duration)).setInterpolator(interpolator).start();
     }
 
     /** One-shot icon rotation on the rare model-preparation state; no idle animation loop. */
@@ -89,7 +113,7 @@ final class Motion {
         if (!animatorsEnabled()) return;
         icon.animate().cancel();
         icon.setRotation(-45f);
-        icon.animate().rotation(0f).setDuration(260).setInterpolator(ENTER).start();
+        icon.animate().setStartDelay(0).rotation(0f).setDuration(duration(260)).setInterpolator(ENTER).start();
     }
 
     /** One entrance per container: rise a little, fade in, settle. */
@@ -98,6 +122,7 @@ final class Motion {
     }
 
     static void enter(View view, long delayMs) {
+        view.animate().cancel();
         if (!animatorsEnabled()) {
             view.setAlpha(1f);
             view.setTranslationY(0f);
@@ -106,7 +131,7 @@ final class Motion {
         view.setAlpha(0f);
         view.setTranslationY(dp(view.getContext(), 10));
         view.animate().alpha(1f).translationY(0f).setStartDelay(delayMs)
-                .setDuration(ENTER_MS).setInterpolator(ENTER).start();
+                .setDuration(duration(ENTER_MS)).setInterpolator(ENTER).start();
     }
 
     /** A small, one-shot entrance for a newly delivered message; never replay old messages. */
@@ -115,7 +140,7 @@ final class Motion {
         bubble.animate().cancel();
         bubble.setAlpha(0f);
         bubble.setTranslationY(dp(bubble.getContext(), 6));
-        bubble.animate().alpha(1f).translationY(0f).setDuration(195)
+        bubble.animate().setStartDelay(0).alpha(1f).translationY(0f).setDuration(duration(195))
                 .setInterpolator(ENTER).start();
     }
 
@@ -125,7 +150,7 @@ final class Motion {
         icon.setImageResource(drawableId);
         if (!animatorsEnabled()) { icon.setAlpha(1f); return; }
         icon.setAlpha(0.48f);
-        icon.animate().alpha(1f).setDuration(140).setInterpolator(ENTER).start();
+        icon.animate().setStartDelay(0).alpha(1f).setDuration(duration(140)).setInterpolator(ENTER).start();
     }
 
     /** Fast feedback for an explicitly selected settings choice. */
@@ -134,8 +159,18 @@ final class Motion {
         chip.animate().cancel();
         chip.setScaleX(0.96f);
         chip.setScaleY(0.96f);
-        chip.animate().scaleX(1f).scaleY(1f).setDuration(165)
+        chip.animate().setStartDelay(0).scaleX(1f).scaleY(1f).setDuration(duration(165))
                 .setInterpolator(PRESS).start();
+    }
+
+    /** Retarget the real microphone level from the current presentation, no idle pulse. */
+    static void listeningLevel(View view, float rms) {
+        float next = 1f + Math.min(.06f, Math.max(0f, rms) * .25f);
+        if (!animatorsEnabled()) {
+            view.animate().cancel(); view.setScaleX(1f); view.setScaleY(1f); return;
+        }
+        view.animate().setStartDelay(0).scaleX(next).scaleY(next)
+                .setDuration(duration(120)).setInterpolator(PRESS).start();
     }
 
     /** A short confirmation pop, used when a control changes state. */
@@ -144,7 +179,7 @@ final class Motion {
         view.animate().cancel();
         view.setScaleX(0.9f);
         view.setScaleY(0.9f);
-        view.animate().scaleX(1f).scaleY(1f).setDuration(BOUNCE_MS).setInterpolator(BOUNCE).start();
+        view.animate().setStartDelay(0).scaleX(1f).scaleY(1f).setDuration(duration(BOUNCE_MS)).setInterpolator(BOUNCE).start();
     }
 
     /** Exits are faster than entrances (the motion spec): fade out, then call back. */
@@ -155,8 +190,8 @@ final class Motion {
             return;
         }
         view.animate().cancel();
-        view.animate().alpha(0f).translationY(dp(view.getContext(), -6))
-                .setDuration(110).setInterpolator(FAST_OUT)
+        view.animate().setStartDelay(0).alpha(0f).translationY(dp(view.getContext(), -6))
+                .setDuration(duration(110)).setInterpolator(FAST_OUT)
                 .withEndAction(() -> {
                     view.setAlpha(1f);
                     view.setTranslationY(0f);
@@ -192,7 +227,7 @@ final class Motion {
     }
 
     static void haptic(View view, int milliseconds) {
-        if (!animatorsEnabled()) return;
+        if (!haptics) return;
         vibrate(view.getContext(), milliseconds);
     }
 
@@ -207,7 +242,7 @@ final class Motion {
     }
 
     static void hapticPattern(View view, long[] pattern) {
-        if (!animatorsEnabled()) return;
+        if (!haptics) return;
         try {
             Vibrator vibrator = (Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator == null || !vibrator.hasVibrator()) return;

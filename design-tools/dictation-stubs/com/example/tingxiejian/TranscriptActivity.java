@@ -1,0 +1,1 @@
+package com.example.tingxiejian;import android.app.Activity;import android.view.View;class TranscriptActivity{static void open(Activity a,String s,View v){}}

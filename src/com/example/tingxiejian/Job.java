@@ -70,6 +70,10 @@ public final class Job {
         }
         if ("phase".equals(type)) {
             if (phase == null) return null;
+            if (phase.indexOf("文字轻度校正") >= 0) return new Job(96, "校正文字", phase,
+                    "忠实稿保留 · 正在等待接口", true);
+            if (phase.indexOf("复核") >= 0) return new Job(90, "高精度复核", phase,
+                    "计算中 · 此阶段无法估算剩余时间", true);
             if (phase.indexOf("校正") >= 0) {
                 int done = (int) processed, all = Math.max(1, (int) total);
                 return new Job(90 + Math.min(6, Math.round(6f * done / all)), "正在校正",

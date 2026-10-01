@@ -2,6 +2,8 @@
 
 # UI and motion decisions (source review, not device acceptance)
 
+> This retains the v1.0.3 design record. Current ASR, automatic correction, live dictation, independent haptics and notification changes are documented in the [upgrade record](upgrade/IMPLEMENTATION.md) and [Live Update record](upgrade/LIVE-UPDATES.md) (Chinese).
+
 ## Intent and boundaries
 
 Motion should communicate **origin, direction, state and feedback**, not perform a spectacle on

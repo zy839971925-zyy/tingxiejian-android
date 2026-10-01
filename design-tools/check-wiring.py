@@ -107,7 +107,7 @@ def check_links():
         "style": set(re.findall(r'<style name="([\w.]+)"',
                                 (RES / "values" / "styles.xml").read_text(encoding="utf-8"))),
         "font": {p.stem for p in (RES / "font").glob("*")},
-        "color": set(re.findall(r'<color name="(\w+)"',
+        "color": {p.stem for p in (RES / "color").glob("*.xml")} | set(re.findall(r'<color name="(\w+)"',
                                 (RES / "values" / "colors.xml").read_text(encoding="utf-8")))
                 | set(re.findall(r'<color name="(\w+)"',
                                 (RES / "values-night" / "colors.xml").read_text(encoding="utf-8"))),

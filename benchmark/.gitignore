@@ -1,0 +1,4 @@
+# User recordings, ground truth transcripts and device observations stay private.
+/corpus/
+/results/
+/reports/

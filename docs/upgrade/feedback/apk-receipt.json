@@ -1,0 +1,18 @@
+{
+  "artifact": "dist/tingxiejian-v1.0.4-arm64-dev.apk",
+  "version": "1.0.4-dev",
+  "bytes": 1486302483,
+  "sha256": "a0b75988a4f385b7818e36265a4c8c994cca5d4928863e05d3ddf25af2dfa60c",
+  "qwen_bundled_files": {
+    "assets/model/qwen3-asr-0.6b-int8/conv_frontend.onnx": 44148281,
+    "assets/model/qwen3-asr-0.6b-int8/encoder.int8.onnx": 182491662,
+    "assets/model/qwen3-asr-0.6b-int8/decoder.int8.onnx": 755914231,
+    "assets/model/qwen3-asr-0.6b-int8/tokenizer/vocab.json": 2776833,
+    "assets/model/qwen3-asr-0.6b-int8/tokenizer/merges.txt": 1671853,
+    "assets/model/qwen3-asr-0.6b-int8/tokenizer/tokenizer_config.json": 12487
+  },
+  "same_signer_as_v103": true,
+  "device_validation": "pending HyperOS / ColorOS",
+  "build_log": "/workspace/android-dev/logs/v104-publication-build.log",
+  "md5": "b2119ee8dd482118913ca31ab2f55623"
+}

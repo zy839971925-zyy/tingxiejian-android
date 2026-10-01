@@ -47,9 +47,18 @@ public class SettingsActivity extends Activity {
             };
     private EditText cloudKey, cloudUrl, cloudModel, cloudAsrModel;
 
+    private static final int REQ_QWEN_IMPORT = 106;
+    private EditText userHotwords;
+    private TextView realtimeStatus;
+    private TextView localModelChoice, qwenStatus, prepareQwen;
+    private boolean qwenBusy;
+    private RealtimeDeviceProfile deviceProfile;
     private int speakerCount;
     private String provider;
     private boolean testing;
+    private boolean cloudKeyDirty;
+    private boolean cloudFieldsReady;
+    private final Runnable saveCloudMetadata = () -> persistCloud(false);
     private volatile boolean islandTesting;
 
     @Override
@@ -75,8 +84,14 @@ public class SettingsActivity extends Activity {
                 version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch (android.content.pm.PackageManager.NameNotFoundException ignored) { }
             versionLine.setText("版本 " + version
-                    + " · 本地模型约 503 MB · 云端 AI 默认关闭；Shizuku 仅用于可选超级岛");
-            try { rikka.shizuku.Shizuku.addRequestPermissionResultListener(shizukuPermissionListener); }
+                    + " · 本地识别优先；保存 Key 后自动校正文字，Shizuku 仅用于可选超级岛");
+            deviceProfile = RealtimeDeviceProfile.of(android.os.Build.BRAND, android.os.Build.MANUFACTURER, android.os.Build.VERSION.SDK_INT);
+            need(R.id.xiaomi_island_section).setVisibility(deviceProfile.xiaomi ? View.VISIBLE : View.GONE);
+            setupRecognitionOptions();
+            setupRealtimeStatus();
+            setupMotionRhythm();
+            UiControls.apply(findViewById(R.id.portal_content));
+            try { if (deviceProfile.xiaomi) rikka.shizuku.Shizuku.addRequestPermissionResultListener(shizukuPermissionListener); }
             catch (Throwable error) { Report.problem("Shizuku 授权回调不可用", error); }
             Report.mark("settings.onCreate complete");
             Report.flush(this);
@@ -92,8 +107,19 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        if (cloudFieldsReady) {
+            ui.removeCallbacks(saveCloudMetadata);
+            persistCloud(true);
+        }
+        if (userHotwords != null) prefs().edit().putString("hotwords", userHotwords.getText().toString()).apply();
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
-        try { rikka.shizuku.Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener); }
+        ui.removeCallbacks(saveCloudMetadata);
+        try { if (deviceProfile != null && deviceProfile.xiaomi) rikka.shizuku.Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener); }
         catch (Throwable ignored) { }
         super.onDestroy();
     }
@@ -102,6 +128,8 @@ public class SettingsActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (islandDetail != null && !islandTesting) step("刷新超级岛状态", this::refreshIslandStatus);
+        if (realtimeStatus != null) refreshRealtimeStatus();
+        if (qwenStatus != null && !qwenBusy) refreshQwenStatus();
     }
 
     /** Each step fails on its own: a broken island probe must not blank the settings screen. */
@@ -159,6 +187,9 @@ public class SettingsActivity extends Activity {
         shizukuIslandSwitch.setChecked(prefs.getBoolean("island_shizuku", false));
         cloudAsrSwitch.setChecked(prefs.getBoolean("cloudAsr", false));
         provider = Cloud.provider(this);
+        // Passwords must not enter the Activity instance-state Bundle or autofill snapshots.
+        cloudKey.setSaveEnabled(false);
+        cloudKey.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
         cloudKey.setText(Cloud.apiKey(this));
         cloudUrl.setText(Cloud.baseUrl(this));
         cloudModel.setText(Cloud.chatModel(this));
@@ -180,7 +211,7 @@ public class SettingsActivity extends Activity {
             prefs().edit().putBoolean("cloudAsr", checked).apply();
             cloudStatus.setText(checked
                     ? "转写时会把音频分段发到云端识别（本地识别仍可用，可随时关掉）。"
-                    : "转写只用本地模型。");
+                    : "音频只在本地识别；已保存 API Key 时仍会自动发送文本做轻度校正。");
         });
         islandSwitch.setOnCheckedChangeListener((button, checked) -> {
             prefs().edit().putBoolean("island", checked).apply();
@@ -220,34 +251,48 @@ public class SettingsActivity extends Activity {
                     .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName());
             startActivity(settings);
         }));
-        TextWatcher remember = new TextWatcher() {
+        TextWatcher rememberMetadata = new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
-
             public void onTextChanged(CharSequence s, int a, int b, int c) { }
-
             public void afterTextChanged(Editable s) {
-                Cloud.save(SettingsActivity.this, provider,
-                        cloudUrl.getText().toString().trim(),
-                        cloudKey.getText().toString().trim(),
-                        cloudModel.getText().toString().trim(),
-                        cloudAsrModel.getText().toString().trim());
-                cloudStatus.setText(configSummary());
+                ui.removeCallbacks(saveCloudMetadata);
+                ui.postDelayed(saveCloudMetadata, 500L);
             }
         };
-        cloudKey.addTextChangedListener(remember);
-        cloudUrl.addTextChangedListener(remember);
-        cloudModel.addTextChangedListener(remember);
-        cloudAsrModel.addTextChangedListener(remember);
+        cloudKey.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int a, int b, int c) { }
+            public void onTextChanged(CharSequence s, int a, int b, int c) { }
+            public void afterTextChanged(Editable s) {
+                cloudKeyDirty = true;
+                cloudStatus.setText("API Key 尚未保存；离开输入框或点击保存并测试后生效。保存后转写文本会自动分段发送以轻度校正。");
+            }
+        });
+        cloudKey.setOnFocusChangeListener((view, focused) -> {
+            if (!focused && cloudKeyDirty) persistCloud(true);
+        });
+        cloudUrl.addTextChangedListener(rememberMetadata);
+        cloudModel.addTextChangedListener(rememberMetadata);
+        cloudAsrModel.addTextChangedListener(rememberMetadata);
+        cloudFieldsReady = true;
         cloudStatus.setText(configSummary());
 
-        click(need(R.id.cloud_test), "测试云端连接", this::testCloud);
+        ((TextView) need(R.id.cloud_test)).setText("保存并测试连接");
+        click(need(R.id.cloud_test), "保存并测试云端连接", this::testCloud);
         click(need(R.id.cloud_clear), "清空云端配置", () -> {
-            Cloud.save(this, provider, "", "", Cloud.preset(provider).chatModel, Cloud.preset(provider).asrModel);
+            ui.removeCallbacks(saveCloudMetadata);
+            if (!Cloud.clear(this)) {
+                cloudStatus.setText(Cloud.secretStatus(this));
+                return;
+            }
             cloudKey.setText("");
+            cloudKeyDirty = false;
             cloudUrl.setText("");
             cloudModel.setText(Cloud.preset(provider).chatModel);
             cloudAsrModel.setText(Cloud.preset(provider).asrModel);
-            cloudStatus.setText("配置已清空，本应用不会联网。");
+            Cloud.saveMetadata(this, provider, "", Cloud.preset(provider).chatModel, Cloud.preset(provider).asrModel);
+            prefs().edit().putBoolean("cloudAsr", false).apply();
+            cloudAsrSwitch.setChecked(false);
+            cloudStatus.setText("配置已清空；自动文本校正已跳过，本应用不会联网。");
         });
         click(modelButton, "准备模型", this::prepareModels);
         click(need(R.id.diagnostics_view), "查看本机诊断", this::showDiagnostics);
@@ -326,6 +371,39 @@ public class SettingsActivity extends Activity {
 
     // ---------------------------------------------------------------- chips
 
+    private void setupRealtimeStatus() {
+        ((TextView) need(R.id.realtime_title)).setText("实时进度 · " + deviceProfile.title());
+        Switch enabled=need(R.id.live_updates);
+        enabled.setText(deviceProfile.standardLabel());
+        enabled.setEnabled(deviceProfile.standardLiveUpdate);
+        realtimeStatus=need(R.id.realtime_status);
+        enabled.setChecked(prefs().getBoolean(AndroidLiveUpdateCapability.PREF,true));
+        enabled.setOnCheckedChangeListener((button,checked)->{
+            prefs().edit().putBoolean(AndroidLiveUpdateCapability.PREF,checked).apply();refreshRealtimeStatus();
+        });
+        need(R.id.promotion_settings).setOnClickListener(v->{
+            Intent destination=new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,getPackageName());
+            if(android.os.Build.VERSION.SDK_INT>=36){
+                // Official standard intent; the constant is absent from the base API36 stub jar.
+                Intent promotion=new Intent("android.settings.APP_NOTIFICATION_PROMOTION_SETTINGS")
+                        .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,getPackageName());
+                if(promotion.resolveActivity(getPackageManager())!=null)destination=promotion;
+            }
+            try{startActivity(destination);}catch(android.content.ActivityNotFoundException|SecurityException error){
+                realtimeStatus.setText("系统未提供此设置入口，请在系统应用通知页检查实时活动权限。");
+            }
+        });
+        refreshRealtimeStatus();
+    }
+
+    private void refreshRealtimeStatus() {
+        NotificationManager nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        realtimeStatus.setText(AndroidLiveUpdateCapability.inspect(this,nm,LocalService.progressChannel()).summary()
+                +"\n最近提交："+AndroidLiveUpdatePublisher.lastStatus()
+                +"\n"+deviceProfile.description());
+    }
+
     private void buildSpeakerChips() {
         speakerSeg.removeAllViews();
         String[] labels = {"自动", "2", "3", "4", "5", "6", "8"};
@@ -353,12 +431,28 @@ public class SettingsActivity extends Activity {
         paintSpeakerChips();
     }
 
+    private void setupMotionRhythm() {
+        TextView rhythm = need(R.id.motion_rhythm);
+        Runnable refresh = () -> rhythm.setText("动效节奏 · " + ("quick".equals(Motion.rhythm()) ? "轻快" : "自然"));
+        refresh.run();
+        rhythm.setOnClickListener(v -> new android.app.AlertDialog.Builder(this)
+                .setTitle("动效节奏")
+                .setSingleChoiceItems(new String[]{"自然：舒缓过渡与克制回弹", "轻快：更短的转场与反馈"},
+                        "quick".equals(Motion.rhythm()) ? 1 : 0,
+                        (dialog, choice) -> {
+                            Motion.setRhythm(this, choice == 1 ? "quick" : "natural");
+                            refresh.run(); dialog.dismiss(); Motion.selected(rhythm);
+                        }).setNegativeButton("关闭", null).show());
+    }
+
     private void paintSpeakerChips() {
         for (int i = 0; i < speakerSeg.getChildCount(); i++) {
             View child = speakerSeg.getChildAt(i);
             boolean selected = ((TextView) child).getText().toString()
                     .equals(speakerCount == 0 ? "自动" : String.valueOf(speakerCount));
             child.setBackgroundResource(selected ? R.drawable.bg_seg_on : R.drawable.bg_seg_off);
+            child.setSelected(selected);
+            UiControls.button(child);
             ((TextView) child).setTextColor(selected ? getColorCompat(R.color.on_accent) : getColorCompat(R.color.ink));
         }
     }
@@ -388,6 +482,8 @@ public class SettingsActivity extends Activity {
             });
             boolean selected = value.equals(UiTheme.mode(this));
             chip.setBackgroundResource(selected ? R.drawable.bg_seg_on : R.drawable.bg_seg_off);
+            chip.setSelected(selected);
+            UiControls.button(chip);
             chip.setTextColor(selected ? getColorCompat(R.color.on_accent) : getColorCompat(R.color.ink));
         }
     }
@@ -419,10 +515,7 @@ public class SettingsActivity extends Activity {
                 if (!target.asrModel.isEmpty()) {
                     cloudAsrModel.setText(target.asrModel);
                 }
-                Cloud.save(this, provider, cloudUrl.getText().toString().trim(),
-                        cloudKey.getText().toString().trim(),
-                        cloudModel.getText().toString().trim(),
-                        cloudAsrModel.getText().toString().trim());
+                persistCloud(true);
                 cloudModel.setHint(Cloud.modelHint(provider));
                 cloudAsrModel.setHint(Cloud.asrHint(provider));
                 paintProviderChips();
@@ -438,26 +531,49 @@ public class SettingsActivity extends Activity {
             View child = providerSeg.getChildAt(i);
             boolean selected = ((TextView) child).getText().toString().equals(Cloud.preset(provider).name);
             child.setBackgroundResource(selected ? R.drawable.bg_seg_on : R.drawable.bg_seg_off);
+            child.setSelected(selected);
+            UiControls.button(child);
             ((TextView) child).setTextColor(selected ? getColorCompat(R.color.on_accent) : getColorCompat(R.color.ink));
         }
     }
 
     // ---------------------------------------------------------------- status
 
-    private String configSummary() {
-        if (!Cloud.configured(this)) {
-            return "未配置 · 本应用当前不会联网。";
+    private boolean persistCloud(boolean saveKey) {
+        if (!cloudFieldsReady) return true;
+        boolean saved = true;
+        if (saveKey && cloudKeyDirty) {
+            saved = Cloud.save(this, provider, cloudUrl.getText().toString().trim(),
+                    cloudKey.getText().toString().trim(), cloudModel.getText().toString().trim(),
+                    cloudAsrModel.getText().toString().trim());
+            if (saved) cloudKeyDirty = false;
+        } else {
+            Cloud.saveMetadata(this, provider, cloudUrl.getText().toString().trim(),
+                    cloudModel.getText().toString().trim(), cloudAsrModel.getText().toString().trim());
         }
-        String asr = Cloud.hasAsr(this) ? "，云端识别可用" : "，识别仍只用本地模型";
-        return "已配置 " + Cloud.preset(Cloud.provider(this)).name + "：" + Cloud.chatModel(this) + asr + "。";
+        cloudStatus.setText(saved ? configSummary() : Cloud.secretStatus(this));
+        return saved;
+    }
+
+    private String configSummary() {
+        boolean configured = Cloud.configured(this);
+        String problem = Cloud.secretStatus(this);
+        if (!problem.isEmpty()) return problem;
+        if (!configured) return "未配置 API Key · 自动文本校正已跳过，本应用当前不会联网。";
+        return "已配置 " + Cloud.preset(Cloud.provider(this)).name + "：" + Cloud.chatModel(this)
+                + "。转写过程中会自动把文本分段发送到此接口轻度校正；忠实稿仍会保留。"
+                + (prefs().getBoolean("cloudAsr", false) && Cloud.hasAsr(this)
+                ? "云端识别已开启，也会发送音频。" : "云端识别未开启，不会发送音频。")
+                + "清空配置可停止后续发送。";
     }
 
     private void testCloud() {
         if (testing) {
             return;
         }
+        if (!persistCloud(true)) return;
         if (!Cloud.configured(this)) {
-            cloudStatus.setText("先填 API Key 再测试。");
+            cloudStatus.setText("先填 API Key 再保存并测试；无 Key 时自动文本校正已跳过。");
             return;
         }
         testing = true;
@@ -591,6 +707,8 @@ public class SettingsActivity extends Activity {
     }
 
     private void refreshIslandStatus() {
+        RealtimeDeviceProfile device = RealtimeDeviceProfile.of(android.os.Build.BRAND, android.os.Build.MANUFACTURER, android.os.Build.VERSION.SDK_INT);
+        if (!device.xiaomi) return;
         new Thread(() -> {
             XiaomiIslandCapability.invalidateCache();
             IslandNotification.Capability capability = IslandNotification.capability(this);
@@ -615,6 +733,85 @@ public class SettingsActivity extends Activity {
 
     private int getColorCompat(int color) {
         return getResources().getColor(color, getTheme());
+    }
+
+    private void setupRecognitionOptions() {
+        Switch haptic = need(R.id.haptic_feedback);
+        haptic.setChecked(Motion.haptics());
+        haptic.setOnCheckedChangeListener((view, checked) -> Motion.setHaptics(this, checked));
+        userHotwords = need(R.id.user_hotwords);
+        userHotwords.setText(prefs().getString("hotwords", ""));
+        userHotwords.setOnFocusChangeListener((view, focused) -> {
+            if (!focused) prefs().edit().putString("hotwords", userHotwords.getText().toString()).apply();
+        });
+        localModelChoice = need(R.id.local_model_choice);
+        qwenStatus = need(R.id.qwen_status);
+        prepareQwen = need(R.id.prepare_qwen);
+        localModelChoice.setOnClickListener(v -> new android.app.AlertDialog.Builder(this)
+                .setTitle("选择本地复核模型")
+                .setSingleChoiceItems(new String[]{"Qwen3-ASR 0.6B int8 · 高精度，内存需求较高",
+                        "Paraformer · 标准复核，较轻量"},
+                        "qwen3".equals(prefs().getString("local_finalizer", "qwen3")) ? 0 : 1,
+                        (dialog, which) -> {
+                            prefs().edit().putString("local_finalizer", which == 0 ? "qwen3" : "paraformer").apply();
+                            refreshQwenStatus(); dialog.dismiss();
+                        }).setNegativeButton("取消", null).show());
+        prepareQwen.setOnClickListener(v -> installQwen(null));
+        need(R.id.import_qwen).setOnClickListener(v -> startActivityForResult(
+                new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION), REQ_QWEN_IMPORT));
+        refreshQwenStatus();
+    }
+
+    private void refreshQwenStatus() {
+        boolean selected = "qwen3".equals(prefs().getString("local_finalizer", "qwen3"));
+        localModelChoice.setText("当前模型 · " + (selected ? "Qwen3-ASR 0.6B" : "Paraformer") + "\n点击切换复核模型");
+        boolean ready = ModelManager.readyQwen(this), bundled = ModelManager.bundledQwen(this);
+        qwenStatus.setText(ready ? "Qwen3 模型文件已准备，转写时按需加载；无需导入。"
+                : bundled ? "Qwen3 已完整内置，无需下载或导入。可点下方准备，也会在首次复核时自动准备。"
+                : "此安装包未内置完整 Qwen3。可导入匹配模型目录；未准备时使用标准复核。");
+        prepareQwen.setText(ready ? "内置 / 已导入模型已准备" : "准备内置 Qwen3 模型（无需下载）");
+        prepareQwen.setEnabled(!qwenBusy && bundled && !ready);
+        need(R.id.import_qwen).setEnabled(!qwenBusy);
+    }
+
+    /** Shared progress and cleanup for bundled setup and optional SAF import. No UI-thread hashing. */
+    private void installQwen(android.net.Uri tree) {
+        if (qwenBusy) return;
+        qwenBusy = true;
+        prepareQwen.setEnabled(false);
+        need(R.id.import_qwen).setEnabled(false);
+        qwenStatus.setText("正在校验并准备 Qwen3 模型…");
+        Context app = getApplicationContext();
+        new Thread(() -> {
+            final long[] lastUpdate = {0};
+            ModelPrep.Progress progress = (done, total, file) -> {
+                long now = android.os.SystemClock.uptimeMillis();
+                if (done < total && now - lastUpdate[0] < 250L) return;
+                lastUpdate[0] = now;
+                int percent = total > 0 ? (int) (done * 100 / total) : 0;
+                ui.post(() -> {
+                    if (!isFinishing() && !isDestroyed()) qwenStatus.setText("准备 Qwen3 · " + percent + "%（完成后校验）");
+                });
+            };
+            String failure = null;
+            try {
+                if (tree == null) ModelManager.prepare(app, ModelManager.Pack.QWEN3, progress);
+                else ModelManager.importQwen(app, name -> SafModelImporter.open(app, tree, name), progress);
+            } catch (Exception error) { failure = error.getMessage(); }
+            final String problem = failure;
+            ui.post(() -> {
+                qwenBusy = false;
+                if (isFinishing() || isDestroyed()) return;
+                refreshQwenStatus();
+                if (problem != null) qwenStatus.setText("准备失败，原模型保留：" + problem);
+            });
+        }, "qwen-setup").start();
+    }
+
+    @Override protected void onActivityResult(int request, int result, Intent data) {
+        super.onActivityResult(request, result, data);
+        if (request == REQ_QWEN_IMPORT && result == RESULT_OK && data != null && data.getData() != null)
+            installQwen(data.getData());
     }
 
     private SharedPreferences prefs() {

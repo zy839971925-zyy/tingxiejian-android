@@ -10,12 +10,15 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The ONLY class in this app that touches the network.
@@ -35,6 +38,10 @@ import java.nio.charset.StandardCharsets;
  */
 final class Cloud {
     static final String PREFS = "cloud";
+    private static final ScheduledThreadPoolExecutor REQUEST_WATCHDOG=new ScheduledThreadPoolExecutor(2,r->{
+        Thread t=new Thread(r,"cloud-request-deadline");t.setDaemon(true);return t;
+    });
+    static {REQUEST_WATCHDOG.setRemoveOnCancelPolicy(true);}
 
     static final class Provider {
         final String id, name, baseUrl, chatModel, asrModel;
@@ -84,7 +91,7 @@ final class Cloud {
     }
 
     static String apiKey(Context context) {
-        return prefs(context).getString("apiKey", "");
+        return SecureSecretStore.read(context);
     }
 
     static String chatModel(Context context) {
@@ -95,15 +102,30 @@ final class Cloud {
         return prefs(context).getString("asrModel", preset(provider(context)).asrModel);
     }
 
-    static void save(Context context, String provider, String baseUrl, String apiKey,
-                     String chatModel, String asrModel) {
+    /** Save a key explicitly; encryption failure leaves the previous credential intact. */
+    static synchronized boolean save(Context context, String provider, String baseUrl, String apiKey,
+                        String chatModel, String asrModel) {
+        if (!SecureSecretStore.save(context, apiKey)) return false;
+        saveMetadata(context, provider, baseUrl, chatModel, asrModel);
+        return true;
+    }
+
+    static synchronized void saveMetadata(Context context, String provider, String baseUrl,
+                             String chatModel, String asrModel) {
         prefs(context).edit()
                 .putString("provider", provider)
                 .putString("baseUrl", baseUrl)
-                .putString("apiKey", apiKey)
                 .putString("model", chatModel)
                 .putString("asrModel", asrModel)
                 .apply();
+    }
+
+    static synchronized boolean clear(Context context) {
+        return SecureSecretStore.save(context, "");
+    }
+
+    static String secretStatus(Context context) {
+        return SecureSecretStore.status();
     }
 
     static Provider preset(String id) {
@@ -165,7 +187,7 @@ final class Cloud {
     }
 
     static String chat(Context context, JSONArray messages, int readTimeoutMs) throws ApiException {
-        String baseUrl = requireBaseUrl(context);
+        ConnectionConfig config = requireBaseUrl(context);
         String model = chatModel(context);
         if (model.trim().isEmpty()) {
             throw new ApiException("还没有填模型名（设置 → 云端 AI → 模型）");
@@ -175,7 +197,7 @@ final class Cloud {
                     .put("model", model.trim())
                     .put("messages", messages)
                     .put("temperature", 0.3);
-            JSONObject response = post(context, baseUrl, "", body, readTimeoutMs);
+            JSONObject response = post(context, config, "", body, readTimeoutMs);
             JSONArray choices = response.optJSONArray("choices");
             JSONObject first = choices != null && choices.length() > 0 ? choices.optJSONObject(0) : null;
             JSONObject message = first != null ? first.optJSONObject("message") : null;
@@ -196,7 +218,7 @@ final class Cloud {
      * The wav payload must stay under ~7 MB raw (10 MB base64), so callers chunk long audio.
      */
     static String asr(Context context, byte[] wav, String language) throws ApiException {
-        String baseUrl = requireBaseUrl(context);
+        ConnectionConfig config = requireBaseUrl(context);
         String model = asrModel(context);
         if (model.trim().isEmpty()) {
             throw new ApiException("还没有填语音识别模型名（设置 → 云端 AI → 识别模型）");
@@ -214,7 +236,7 @@ final class Cloud {
             if (language != null && !language.isEmpty()) {
                 body.put("asr_options", new JSONObject().put("language", language));
             }
-            JSONObject response = post(context, baseUrl, "", body, 300_000);
+            JSONObject response = post(context, config, "", body, 300_000);
             JSONArray choices = response.optJSONArray("choices");
             JSONObject first = choices != null && choices.length() > 0 ? choices.optJSONObject(0) : null;
             JSONObject message = first != null ? first.optJSONObject("message") : null;
@@ -261,13 +283,25 @@ final class Cloud {
 
     // ---------------------------------------------------------------- http
 
-    private static String requireBaseUrl(Context context) throws ApiException {
+    private static final class ConnectionConfig {
+        final String baseUrl, apiKey;
+        ConnectionConfig(String baseUrl, String apiKey) { this.baseUrl = baseUrl; this.apiKey = apiKey; }
+    }
+
+    /** Keep a provider's endpoint and bearer token in one immutable request snapshot. */
+    private static synchronized ConnectionConfig requireBaseUrl(Context context) throws ApiException {
         String baseUrl = baseUrl(context).trim();
+        String apiKey = apiKey(context).trim();
         if (baseUrl.isEmpty()) {
             throw new ApiException("还没有填接口地址（设置 → 云端 AI → 接口地址）");
         }
-        if (apiKey(context).trim().isEmpty()) {
-            throw new ApiException("还没有填 API Key（设置 → 云端 AI）");
+        if (apiKey.isEmpty()) {
+            throw new ApiException(secretStatus(context).isEmpty()
+                    ? "还没有填 API Key（设置 → 云端 AI）；自动文本校正已跳过。" : secretStatus(context));
+        }
+        for(int i=0;i<apiKey.length();i++){
+            char value=apiKey.charAt(i);
+            if(value<32||value==127)throw new ApiException("API Key 含换行或控制字符，请重新粘贴完整密钥。");
         }
         try {
             URL parsed = new URL(baseUrl);
@@ -282,27 +316,38 @@ final class Cloud {
         } catch (MalformedURLException error) {
             throw new ApiException("接口地址不是有效的 URL", error);
         }
-        return baseUrl;
+        return new ConnectionConfig(baseUrl, apiKey);
     }
 
-    private static JSONObject post(Context context, String baseUrl, String path, JSONObject body,
+    private static JSONObject post(Context context, ConnectionConfig config, String path, JSONObject body,
                                    int readTimeout) throws ApiException, IOException {
-        URL url = new URL(join(baseUrl, path));
+        URL url = new URL(join(config.baseUrl, path));
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        Thread requester=Thread.currentThread();
+        long deadline=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(Math.max(1,readTimeout));
+        AtomicBoolean disconnected=new AtomicBoolean();
+        ScheduledFuture<?> cancellation=REQUEST_WATCHDOG.scheduleAtFixedRate(()->{
+            if((requester.isInterrupted()||System.nanoTime()>=deadline)&&disconnected.compareAndSet(false,true))connection.disconnect();
+        },100,100,TimeUnit.MILLISECONDS);
         try {
-            connection.setConnectTimeout(10_000);
-            connection.setReadTimeout(readTimeout);
+            checkRequest(deadline);
+            connection.setConnectTimeout(Math.min(10_000,Math.max(1,readTimeout)));
+            connection.setReadTimeout(Math.max(1,readTimeout));
             // Do not forward a bearer token to an untrusted redirect destination.
             connection.setInstanceFollowRedirects(false);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Authorization", "Bearer " + apiKey(context).trim());
+            connection.setRequestProperty("Authorization", "Bearer " + config.apiKey);
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
             try (OutputStream out = connection.getOutputStream()) {
                 out.write(body.toString().getBytes(StandardCharsets.UTF_8));
             }
             int code = connection.getResponseCode();
-            String response = readAll(code >= 400 ? connection.getErrorStream() : connection.getInputStream());
+            String response = readAll(code >= 400 ? connection.getErrorStream() : connection.getInputStream(),deadline);
+            checkRequest(deadline);
+            // Untrusted providers can echo Authorization in an error body. It must never
+            // reach diagnostics/UI or downstream transcript fields as an exposed secret.
+            response = response.replace(config.apiKey, "[已隐藏密钥]");
             if (code < 200 || code >= 300) {
                 throw new ApiException(friendlyHttp(code, response));
             }
@@ -312,6 +357,7 @@ final class Cloud {
                 throw new ApiException("服务返回的不是 JSON，可能不是 OpenAI 兼容接口：" + trim(response, 120));
             }
         } finally {
+            cancellation.cancel(false);
             connection.disconnect();
         }
     }
@@ -347,6 +393,8 @@ final class Cloud {
     }
 
     private static ApiException translate(Exception e) {
+        if (e instanceof InterruptedIOException && Thread.currentThread().isInterrupted())
+            return new ApiException("已取消请求", e);
         if (e instanceof SocketTimeoutException) {
             return new ApiException("网络超时，检查网络后重试", e);
         }
@@ -369,7 +417,12 @@ final class Cloud {
         return path == null || path.isEmpty() ? url : url + "/" + path;
     }
 
-    private static String readAll(InputStream in) throws IOException {
+    private static void checkRequest(long deadline)throws IOException {
+        if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("request cancelled");
+        if(System.nanoTime()>=deadline)throw new SocketTimeoutException("request total deadline reached");
+    }
+
+    private static String readAll(InputStream in,long deadline) throws IOException {
         if (in == null) {
             return "";
         }
@@ -377,6 +430,7 @@ final class Cloud {
         byte[] buffer = new byte[8192];
         int n;
         while ((n = in.read(buffer)) != -1) {
+            checkRequest(deadline);
             if (out.size() + n > 2 * 1024 * 1024)
                 throw new IOException("云端返回内容超过 2 MB，已停止读取");
             out.write(buffer, 0, n);

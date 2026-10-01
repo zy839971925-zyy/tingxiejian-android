@@ -1,0 +1,28 @@
+name: Fast host checks
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  host-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch pinned desktop JSON dependency
+        shell: bash
+        run: |
+          mkdir -p vendor
+          curl -fL --retry 3 https://maven-central.storage-download.googleapis.com/maven2/org/json/json/20240303/json-20240303.jar -o vendor/json-desktop.jar
+          awk '$2 == "vendor/json-desktop.jar"' scripts/maven-sha256.txt | sha256sum -c -
+      - name: Run baseline and upgrade behavioral checks without models
+        run: bash design-tools/check-all.sh

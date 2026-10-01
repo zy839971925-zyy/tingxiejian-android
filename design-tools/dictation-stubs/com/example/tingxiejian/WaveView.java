@@ -1,0 +1,1 @@
+package com.example.tingxiejian;class WaveView extends android.view.View{void setEnvelope(float[] f,float v){}}

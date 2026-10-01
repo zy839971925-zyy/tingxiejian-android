@@ -19,6 +19,12 @@ public final class TingxiejianApp extends Application {
         super.onCreate();
         Motion.init(this);
         Report.mark("application.onCreate");
+        try {
+            int interrupted = SessionRepository.recoverInterrupted(this);
+            if (interrupted > 0) Report.mark("sessions.interrupted=" + interrupted);
+        } catch (Exception error) {
+            Report.problem("恢复会话状态失败", error);
+        }
         // If a process died during the short XMSF window, attempt recovery immediately and again
         // whenever Shizuku reconnects. Never block application startup or the transcription UI.
         if (ShizukuIslandBridge.recoveryPending(this)) {

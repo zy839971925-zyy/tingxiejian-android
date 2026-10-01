@@ -1,0 +1,256 @@
+ AndroidManifest.xml                                |   5 +
+ README.en.md                                       |  60 ++--
+ README.md                                          |  65 ++--
+ build.sh                                           | 207 ++++++-----
+ design-tools/check-all.sh                          |  23 ++
+ design-tools/check-first-run.py                    |   6 +-
+ design-tools/check-wiring.py                       |   2 +-
+ docs/ARCHITECTURE.en.md                            |   2 +
+ docs/ARCHITECTURE.md                               |   2 +
+ docs/BUILDING.en.md                                |  70 +++-
+ docs/BUILDING.md                                   |  61 +++-
+ docs/UI-MOTION.en.md                               |   2 +
+ docs/UI-MOTION.md                                  |   2 +
+ res/drawable/bg_icon_circle.xml                    |   7 +-
+ res/drawable/bg_pill.xml                           |   7 +-
+ res/drawable/bg_pill_on.xml                        |   4 +-
+ res/drawable/bg_primary.xml                        |   7 +-
+ res/drawable/bg_round_primary.xml                  |   2 +-
+ res/drawable/bg_row.xml                            |   7 +-
+ res/drawable/bg_row_active.xml                     |   7 +-
+ res/drawable/bg_seg_off.xml                        |   7 +-
+ res/drawable/bg_seg_on.xml                         |   7 +-
+ res/layout/activity_chat.xml                       |   5 +-
+ res/layout/activity_main.xml                       |  26 +-
+ res/layout/activity_settings.xml                   |  34 +-
+ res/layout/activity_transcript.xml                 |  74 +++-
+ res/layout/row_segment.xml                         |   7 +-
+ res/values-night/colors.xml                        |  28 +-
+ res/values/colors.xml                              |  24 +-
+ res/values/styles.xml                              |  12 +-
+ scripts/prepare-libraries.sh                       |   4 +-
+ src/com/example/tingxiejian/ChatActivity.java      |  39 ++-
+ src/com/example/tingxiejian/Cloud.java             |  92 ++++-
+ src/com/example/tingxiejian/Exporter.java          |  26 ++
+ src/com/example/tingxiejian/History.java           | 145 ++++++--
+ src/com/example/tingxiejian/Job.java               |   4 +
+ src/com/example/tingxiejian/LocalService.java      | 384 +++++++++++++++------
+ src/com/example/tingxiejian/MainActivity.java      |  99 ++++--
+ src/com/example/tingxiejian/ModelPrep.java         | 117 +------
+ src/com/example/tingxiejian/Motion.java            |  61 +++-
+ src/com/example/tingxiejian/PortalTransition.java  |   8 +-
+ src/com/example/tingxiejian/SegmentAdapter.java    |  20 +-
+ src/com/example/tingxiejian/SettingsActivity.java  | 201 +++++++++--
+ src/com/example/tingxiejian/TingxiejianApp.java    |   6 +
+ src/com/example/tingxiejian/Transcriber.java       | 234 +------------
+ .../example/tingxiejian/TranscriptActivity.java    | 185 ++++++++--
+ src/com/example/tingxiejian/UiTheme.java           |  19 +-
+ src/com/example/tingxiejian/WaveView.java          |   6 +-
+ src/com/example/tingxiejian/WelcomeActivity.java   |   1 +
+ 49 files changed, 1603 insertions(+), 820 deletions(-)
+
+New untracked files (preserved unstaged):
+.github/workflows/fast-ci.yml (28 lines)
+assets/model-manifest.json (279 lines)
+assets/model-manifest.schema.json (98 lines)
+benchmark/.gitignore (4 lines)
+benchmark/README.md (24 lines)
+benchmark/corpus.schema.json (63 lines)
+benchmark/metrics.py (91 lines)
+benchmark/result.schema.json (90 lines)
+benchmark/score.py (38 lines)
+benchmark/test_metrics.py (45 lines)
+design-tools/AudioQueueCheck.java (12 lines)
+design-tools/CloudTranscriptCheck.java (61 lines)
+design-tools/DictationUiCheck.java (102 lines)
+design-tools/ExportMenuCheck.java (20 lines)
+design-tools/LiveUpdateCheck.java (68 lines)
+design-tools/MicrophoneCheck.java (260 lines)
+design-tools/PipelineLogicCheck.java (136 lines)
+design-tools/PolishCheck.java (179 lines)
+design-tools/PolishQueueCheck.java (28 lines)
+design-tools/SessionLedgerCheck.java (97 lines)
+design-tools/SessionRepositoryCheck.java (73 lines)
+design-tools/SessionStateCheck.java (39 lines)
+design-tools/TranscriptSearchCheck.java (11 lines)
+design-tools/UiMotionCheck.java (21 lines)
+design-tools/check-live-update.py (39 lines)
+design-tools/dictation-stubs/android/Manifest.java (1 lines)
+design-tools/dictation-stubs/android/app/Activity.java (1 lines)
+design-tools/dictation-stubs/android/content/Context.java (1 lines)
+design-tools/dictation-stubs/android/content/pm/PackageManager.java (1 lines)
+design-tools/dictation-stubs/android/os/Bundle.java (1 lines)
+design-tools/dictation-stubs/android/os/Handler.java (1 lines)
+design-tools/dictation-stubs/android/os/Looper.java (1 lines)
+design-tools/dictation-stubs/android/text/SpannableStringBuilder.java (1 lines)
+design-tools/dictation-stubs/android/text/Spanned.java (1 lines)
+design-tools/dictation-stubs/android/text/style/ForegroundColorSpan.java (1 lines)
+design-tools/dictation-stubs/android/view/View.java (1 lines)
+design-tools/dictation-stubs/android/widget/TextView.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/Cloud.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/Consent.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/DictationController.java (16 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/Job.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/LocalService.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/Motion.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/MotionSpec.java (2 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/PortalTransition.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/R.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/TranscriptActivity.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/UiControls.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/UiTheme.java (1 lines)
+design-tools/dictation-stubs/com/example/tingxiejian/WaveView.java (1 lines)
+design-tools/dictation-ui-check.sh (11 lines)
+design-tools/fixtures/island-characterization/IslandBridgeBehaviorCheck.java (276 lines)
+design-tools/fixtures/island-characterization/baseline/AndroidManifest.xml.txt (40 lines)
+design-tools/fixtures/island-characterization/baseline/IslandNotification.java.txt (76 lines)
+design-tools/fixtures/island-characterization/baseline/LocalService.java.txt (583 lines)
+design-tools/fixtures/island-characterization/baseline/ShizukuIslandBridge.java.txt (237 lines)
+design-tools/fixtures/island-characterization/baseline/XiaomiIslandCapability.java.txt (183 lines)
+design-tools/fixtures/island-characterization/baseline/XiaomiIslandPayloadBuilder.java.txt (227 lines)
+design-tools/fixtures/island-characterization/baseline/XiaomiIslandPublisher.java.txt (235 lines)
+design-tools/fixtures/island-characterization/baseline/XiaomiXmsfValidationGate.java.txt (53 lines)
+design-tools/fixtures/island-characterization/contract.json (137 lines)
+design-tools/fixtures/island-characterization/stubs/android/content/Context.java (11 lines)
+design-tools/fixtures/island-characterization/stubs/android/content/SharedPreferences.java (13 lines)
+design-tools/fixtures/island-characterization/stubs/android/content/pm/PackageManager.java (8 lines)
+design-tools/fixtures/island-characterization/stubs/android/net/IConnectivityManager.java (16 lines)
+design-tools/fixtures/island-characterization/stubs/android/os/IBinder.java (2 lines)
+design-tools/fixtures/island-characterization/stubs/android/os/Process.java (5 lines)
+design-tools/fixtures/island-characterization/stubs/android/util/Log.java (5 lines)
+design-tools/fixtures/island-characterization/stubs/com/example/tingxiejian/SettingsActivity.java (2 lines)
+design-tools/fixtures/island-characterization/stubs/org/lsposed/hiddenapibypass/HiddenApiBypass.java (21 lines)
+design-tools/fixtures/island-characterization/stubs/rikka/shizuku/Shizuku.java (11 lines)
+design-tools/fixtures/island-characterization/stubs/rikka/shizuku/ShizukuBinderWrapper.java (5 lines)
+design-tools/fixtures/island-characterization/stubs/rikka/shizuku/SystemServiceHelper.java (10 lines)
+design-tools/island-characterization.py (177 lines)
+design-tools/live-update-check.sh (10 lines)
+design-tools/live-update-stubs/android/app/Notification.java (37 lines)
+design-tools/live-update-stubs/android/app/NotificationChannel.java (5 lines)
+design-tools/live-update-stubs/android/app/NotificationManager.java (13 lines)
+design-tools/live-update-stubs/android/content/Context.java (6 lines)
+design-tools/live-update-stubs/android/os/Build.java (2 lines)
+design-tools/live-update-stubs/android/os/Bundle.java (6 lines)
+design-tools/live-update-stubs/com/example/tingxiejian/SettingsActivity.java (2 lines)
+design-tools/microphone-check.sh (85 lines)
+design-tools/microphone-stubs/android/media/AudioFormat.java (7 lines)
+design-tools/microphone-stubs/android/media/AudioRecord.java (98 lines)
+design-tools/microphone-stubs/android/media/MediaRecorder.java (9 lines)
+design-tools/microphone-stubs/com/example/tingxiejian/PcmDecoder.java (6 lines)
+design-tools/model-logic-check.sh (16 lines)
+design-tools/models/ModelInstallerCheck.java (84 lines)
+design-tools/models/ModelManagerCheck.java (58 lines)
+design-tools/models/stubs/android/content/Context.java (11 lines)
+design-tools/models/stubs/android/content/res/AssetFileDescriptor.java (7 lines)
+design-tools/models/stubs/android/content/res/AssetManager.java (12 lines)
+design-tools/pipeline-logic-check.sh (11 lines)
+design-tools/polish-check.sh (17 lines)
+design-tools/polish-stubs/android/content/Context.java (7 lines)
+design-tools/polish-stubs/android/util/AtomicFile.java (27 lines)
+design-tools/polish-stubs/com/example/tingxiejian/Cloud.java (10 lines)
+design-tools/session-check.sh (20 lines)
+design-tools/test_model_manifest.py (57 lines)
+design-tools/ui-motion-check.sh (11 lines)
+design-tools/ui-stubs/android/animation/Animator.java (1 lines)
+design-tools/ui-stubs/android/animation/AnimatorListenerAdapter.java (1 lines)
+design-tools/ui-stubs/android/animation/TimeInterpolator.java (1 lines)
+design-tools/ui-stubs/android/animation/ValueAnimator.java (1 lines)
+design-tools/ui-stubs/android/app/Activity.java (1 lines)
+design-tools/ui-stubs/android/content/Context.java (1 lines)
+design-tools/ui-stubs/android/content/SharedPreferences.java (1 lines)
+design-tools/ui-stubs/android/content/res/Configuration.java (1 lines)
+design-tools/ui-stubs/android/content/res/Resources.java (1 lines)
+design-tools/ui-stubs/android/graphics/Insets.java (1 lines)
+design-tools/ui-stubs/android/os/Build.java (1 lines)
+design-tools/ui-stubs/android/os/VibrationEffect.java (1 lines)
+design-tools/ui-stubs/android/os/Vibrator.java (1 lines)
+design-tools/ui-stubs/android/util/DisplayMetrics.java (1 lines)
+design-tools/ui-stubs/android/util/TypedValue.java (1 lines)
+design-tools/ui-stubs/android/view/MotionEvent.java (1 lines)
+design-tools/ui-stubs/android/view/View.java (1 lines)
+design-tools/ui-stubs/android/view/ViewGroup.java (1 lines)
+design-tools/ui-stubs/android/view/ViewPropertyAnimator.java (1 lines)
+design-tools/ui-stubs/android/view/Window.java (1 lines)
+design-tools/ui-stubs/android/view/WindowInsets.java (1 lines)
+design-tools/ui-stubs/android/view/WindowInsetsController.java (1 lines)
+design-tools/ui-stubs/android/view/animation/AccelerateInterpolator.java (1 lines)
+design-tools/ui-stubs/android/widget/ImageView.java (1 lines)
+docs/upgrade/IMPLEMENTATION.md (47 lines)
+docs/upgrade/ISLAND.md (51 lines)
+docs/upgrade/LIVE-UPDATES.md (51 lines)
+docs/upgrade/MODELS.md (83 lines)
+docs/upgrade/PLAN.md (49 lines)
+docs/upgrade/POLISH.md (37 lines)
+docs/upgrade/SECURITY.md (72 lines)
+docs/upgrade/SESSIONS.md (72 lines)
+docs/upgrade/baseline.json (15 lines)
+docs/upgrade/diffstat.txt (198 lines)
+docs/upgrade/task-profile.json (40 lines)
+docs/upgrade/task/CODEX_TASK.md (60 lines)
+docs/upgrade/task/README.md (14 lines)
+docs/upgrade/task/spec/01-protected-island.md (31 lines)
+docs/upgrade/task/spec/02-critical-engineering.md (44 lines)
+docs/upgrade/task/spec/03-asr-pipeline.md (28 lines)
+docs/upgrade/task/spec/04-live-dictation.md (46 lines)
+docs/upgrade/task/spec/05-ai-polish.md (31 lines)
+docs/upgrade/task/spec/06-ui-motion.md (47 lines)
+docs/upgrade/task/spec/07-models-benchmark.md (43 lines)
+docs/upgrade/task/spec/08-data-architecture.md (46 lines)
+docs/upgrade/task/spec/09-testing-ci.md (30 lines)
+docs/upgrade/task/spec/10-acceptance.md (58 lines)
+docs/upgrade/task/task-manifest.json (26 lines)
+docs/upgrade/ui/PLAN.md (11 lines)
+docs/upgrade/ui/README.md (44 lines)
+docs/upgrade/ui/apk-receipt.json (20 lines)
+docs/upgrade/ui/task-profile.json (41 lines)
+docs/upgrade/ui/workflow-route.json (62 lines)
+docs/upgrade/workflow-route.json (61 lines)
+res/color/action_text.xml (5 lines)
+res/layout/activity_dictation.xml (51 lines)
+scripts/package-apk.py (121 lines)
+scripts/sign-apk.sh (16 lines)
+scripts/signing-policy.py (68 lines)
+scripts/validate-model-provenance.py (78 lines)
+src/com/example/tingxiejian/AndroidLiveUpdateCapability.java (35 lines)
+src/com/example/tingxiejian/AndroidLiveUpdatePublisher.java (61 lines)
+src/com/example/tingxiejian/AudioSource.java (3 lines)
+src/com/example/tingxiejian/BoundedAudioQueue.java (20 lines)
+src/com/example/tingxiejian/CloudFileTranscriber.java (105 lines)
+src/com/example/tingxiejian/CloudTranscript.java (91 lines)
+src/com/example/tingxiejian/DictationActivity.java (115 lines)
+src/com/example/tingxiejian/DictationController.java (50 lines)
+src/com/example/tingxiejian/FileAudioSource.java (6 lines)
+src/com/example/tingxiejian/HotwordRepository.java (14 lines)
+src/com/example/tingxiejian/MicrophoneAudioSource.java (55 lines)
+src/com/example/tingxiejian/ModelInstaller.java (157 lines)
+src/com/example/tingxiejian/ModelManager.java (187 lines)
+src/com/example/tingxiejian/MotionSpec.java (39 lines)
+src/com/example/tingxiejian/NotificationUpdateGate.java (20 lines)
+src/com/example/tingxiejian/PolishValidator.java (295 lines)
+src/com/example/tingxiejian/RecognitionPipeline.java (136 lines)
+src/com/example/tingxiejian/SafModelImporter.java (23 lines)
+src/com/example/tingxiejian/SecretMigration.java (63 lines)
+src/com/example/tingxiejian/SecureSecretStore.java (113 lines)
+src/com/example/tingxiejian/SegmentPolishQueue.java (33 lines)
+src/com/example/tingxiejian/SessionLedger.java (133 lines)
+src/com/example/tingxiejian/SessionRepository.java (77 lines)
+src/com/example/tingxiejian/SessionState.java (40 lines)
+src/com/example/tingxiejian/SpeechPipeline.java (187 lines)
+src/com/example/tingxiejian/StableTextTracker.java (32 lines)
+src/com/example/tingxiejian/TextNormalizer.java (16 lines)
+src/com/example/tingxiejian/TranscriptPolisher.java (42 lines)
+src/com/example/tingxiejian/TranscriptSearch.java (15 lines)
+src/com/example/tingxiejian/UiControls.java (42 lines)
+src/com/example/tingxiejian/VadEngine.java (43 lines)
+tests/security/CloudSnapshotCheck.java (80 lines)
+tests/security/SecretMigrationCheck.java (75 lines)
+tests/security/apk_signing_check.py (33 lines)
+tests/security/build_cli_check.py (38 lines)
+tests/security/cloud-check.sh (9 lines)
+tests/security/cloud-stubs/android/content/Context.java (6 lines)
+tests/security/cloud-stubs/android/content/SharedPreferences.java (14 lines)
+tests/security/cloud-stubs/android/util/Base64.java (5 lines)
+tests/security/cloud-stubs/com/example/tingxiejian/SecureSecretStore.java (8 lines)
+tests/security/package_check.py (36 lines)
+tests/security/secret-check.sh (7 lines)
+tests/security/signing_check.py (64 lines)

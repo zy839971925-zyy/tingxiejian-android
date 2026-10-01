@@ -102,8 +102,10 @@ require(ids.get('@+id/segments') is not None and ids['@+id/segments'].get(A+'lay
 # Release-specific UI contract: accurate cloud disclosure, scalable chrome and same-version APK.
 manifest_root = ET.parse(ROOT / 'AndroidManifest.xml').getroot()
 version = manifest_root.get(A+'versionName')
-require(version and ('OUT=dist/tingxiejian-v' + version + '-arm64-release.apk')
-        in (ROOT / 'build.sh').read_text(), 'APK filename must match installable version')
+build = (ROOT / 'build.sh').read_text()
+require(version and 'VERSION=$(python3' in build and 'versionName' in build
+        and 'OUT="dist/tingxiejian-v${VERSION}-arm64-release.apk"' in build,
+        'APK filename must derive from the installable manifest version')
 main_layout = ET.parse(ROOT / 'res/layout/activity_main.xml').getroot()
 main_ids = {node.get(A+'id'): node for node in main_layout.iter() if node.get(A+'id')}
 bar = main_ids.get('@+id/appbar')

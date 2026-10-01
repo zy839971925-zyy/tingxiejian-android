@@ -1,0 +1,137 @@
+{
+  "head": "69085db345c6e317e0de6e9d28e9720e6b4190ed",
+  "service": {
+    "methods": {
+      "ensureForeground(boolean useIslandChannel)": "9988e9bb4a1ed9f6ab984aeaa2083a85fa8bcff12f6371da9e43e70daf915b1d",
+      "notify(Job job)": "950101bd2f89e6fa465ee9f83980866f2e33c2d23b20aa0da8e983b71154841b",
+      "stopActionUri()": "de1136b390f68903bb61b461636c98014258495e917bba1d5fa578f37df757c1",
+      "createChannel()": "d716f9e3309823d296fc2a1719ffb891ef0c1592333533a3fc59a40b08e07863",
+      "updateNotice(Job job)": "e56ff84e58737a1cf63df2ed96e55efaecd81ca4c6bb2c8a9e058736480aedde",
+      "buildNotification(Job job)": "21a2d038e9486d88dd22a02f834b659fdd6e75ac47806721ae2cffc664ac15bd",
+      "buildNotification(Job job, boolean useIsland)": "6c8082aff6178b766d16c3a5ac6e92b44130c523c4d3dc07245ef9646a3a4080"
+    },
+    "fields": {
+      "CHANNEL_QUIET": "363a476b575cb21bdcc346f58a6aba66b654a39422587dafece8a28819e0b67c",
+      "CHANNEL_ISLAND": "0cb6bc26fc1f200a627ca83f221059a6f878e9e164a499fe5021351be1d71545",
+      "NOTIFICATION_ID": "2990c49e1137a1edc6024b6b33b62408ffdcd3764dd5187e340a003f3352303a",
+      "BOOTSTRAP_ID": "403a52e913de6265ed753ad677937c58c5f28d096daf6882077a05c9977a0dbb",
+      "DONE_LINGER_MS": "272308156d13fcf6c3cf06e12de6d5ce462961399925ddcc7fa6450f13905d9a",
+      "NOTIFY_WHEN": "9bcf7a105b62750295455a995bee68ef440ec9c5443edcff2c08597fa115fa4e",
+      "islandWanted": "f854873a3cb47f30caadaa8cf930051447a2f6d04f9ee9b4b7182c022a613221",
+      "bootstrapActive": "8d3119566841e443c87f6179bbaa44b70f677638424acaaa5711083f94d97eb6",
+      "islandFirstFrame": "94b10ff37253b6b43856feba8c9bcf5e8dbbccbbdfc54115d2de0d02aecd0056",
+      "lastNotifyAt": "2a1bff20d50c8716dc6c9d529cd3650cb5c540ced51eb473efcc4960996bcd60",
+      "firstNotify": "735f604050c057e96fa176a9e9642675df25cc062c11ddb9819bf733b0adea98"
+    }
+  },
+  "manifest_sha256": "c044fab8fd8f8998031bec63996d9b69d46c425b8b81f1257b15df1835b215bb",
+  "manifest": {
+    "package": "com.example.tingxiejian",
+    "provider": {
+      "tag": "provider",
+      "attributes": {
+        "{http://schemas.android.com/apk/res/android}authorities": "com.example.tingxiejian.shizuku",
+        "{http://schemas.android.com/apk/res/android}enabled": "true",
+        "{http://schemas.android.com/apk/res/android}exported": "true",
+        "{http://schemas.android.com/apk/res/android}multiprocess": "false",
+        "{http://schemas.android.com/apk/res/android}name": "rikka.shizuku.ShizukuProvider",
+        "{http://schemas.android.com/apk/res/android}permission": "android.permission.INTERACT_ACROSS_USERS_FULL"
+      },
+      "text": "",
+      "children": []
+    },
+    "queries": {
+      "tag": "queries",
+      "attributes": {},
+      "text": "",
+      "children": [
+        {
+          "tag": "package",
+          "attributes": {
+            "{http://schemas.android.com/apk/res/android}name": "com.xiaomi.xmsf"
+          },
+          "text": "",
+          "children": []
+        },
+        {
+          "tag": "package",
+          "attributes": {
+            "{http://schemas.android.com/apk/res/android}name": "moe.shizuku.privileged.api"
+          },
+          "text": "",
+          "children": []
+        }
+      ]
+    },
+    "permissions": {
+      "android.permission.INTERNET": {
+        "tag": "uses-permission",
+        "attributes": {
+          "{http://schemas.android.com/apk/res/android}name": "android.permission.INTERNET"
+        },
+        "text": "",
+        "children": []
+      },
+      "android.permission.FOREGROUND_SERVICE": {
+        "tag": "uses-permission",
+        "attributes": {
+          "{http://schemas.android.com/apk/res/android}name": "android.permission.FOREGROUND_SERVICE"
+        },
+        "text": "",
+        "children": []
+      },
+      "android.permission.FOREGROUND_SERVICE_DATA_SYNC": {
+        "tag": "uses-permission",
+        "attributes": {
+          "{http://schemas.android.com/apk/res/android}name": "android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        },
+        "text": "",
+        "children": []
+      },
+      "android.permission.POST_NOTIFICATIONS": {
+        "tag": "uses-permission",
+        "attributes": {
+          "{http://schemas.android.com/apk/res/android}name": "android.permission.POST_NOTIFICATIONS"
+        },
+        "text": "",
+        "children": []
+      },
+      "moe.shizuku.manager.permission.API_V23": {
+        "tag": "uses-permission",
+        "attributes": {
+          "{http://schemas.android.com/apk/res/android}name": "moe.shizuku.manager.permission.API_V23"
+        },
+        "text": "",
+        "children": []
+      },
+      "android.permission.VIBRATE": {
+        "tag": "uses-permission",
+        "attributes": {
+          "{http://schemas.android.com/apk/res/android}name": "android.permission.VIBRATE"
+        },
+        "text": "",
+        "children": []
+      }
+    },
+    "metadata": {
+      "moe.shizuku.client.V3_SUPPORT": {
+        "tag": "meta-data",
+        "attributes": {
+          "{http://schemas.android.com/apk/res/android}name": "moe.shizuku.client.V3_SUPPORT",
+          "{http://schemas.android.com/apk/res/android}value": "true"
+        },
+        "text": "",
+        "children": []
+      },
+      "com.xiaomi.xms.BUILD_TYPE_DEBUG": {
+        "tag": "meta-data",
+        "attributes": {
+          "{http://schemas.android.com/apk/res/android}name": "com.xiaomi.xms.BUILD_TYPE_DEBUG",
+          "{http://schemas.android.com/apk/res/android}value": "true"
+        },
+        "text": "",
+        "children": []
+      }
+    }
+  }
+}

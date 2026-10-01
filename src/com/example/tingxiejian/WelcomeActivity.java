@@ -44,6 +44,7 @@ public class WelcomeActivity extends Activity {
     private int page;
     private View[] pages;
     private TextView notificationAction;
+    private RealtimeSetupDialog realtimeSetup;
     private OnBackInvokedCallback backCallback;
 
     /** Established installations do not get interrupted by onboarding after an update. */
@@ -88,10 +89,14 @@ public class WelcomeActivity extends Activity {
             View mark = need(R.id.guide_mark);
             mark.setOnClickListener(v -> Motion.pop(mark));
             Motion.press(mark);
+            RealtimeDeviceProfile device = RealtimeDeviceProfile.of(Build.BRAND, Build.MANUFACTURER, Build.VERSION.SDK_INT);
+            ((TextView) need(R.id.guide_realtime_title)).setText(device.title());
+            ((TextView) need(R.id.guide_realtime_description)).setText(device.description());
             View island = need(R.id.shizuku_settings);
             island.setOnClickListener(v -> {
-                try { PortalTransition.open(this, island, new Intent(this, SettingsActivity.class), "guide_island_settings"); }
-                catch (Throwable error) { Report.problem("打开超级岛设置失败", error); }
+                if (realtimeSetup != null) realtimeSetup.dismiss();
+                realtimeSetup = new RealtimeSetupDialog(this, this::requestNotification);
+                realtimeSetup.show();
             });
             need(R.id.terms_review).setOnClickListener(v -> Consent.show(this, null));
             View next = need(R.id.guide_start);
@@ -113,6 +118,7 @@ public class WelcomeActivity extends Activity {
                 getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
                         OnBackInvokedDispatcher.PRIORITY_DEFAULT, backCallback);
             }
+            UiControls.apply(need(R.id.guide_root));
             Report.mark("first-run paged guide ready");
             Report.flush(this);
         } catch (Throwable error) {
@@ -168,6 +174,7 @@ public class WelcomeActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        if (realtimeSetup != null) realtimeSetup.dismiss();
         if (Build.VERSION.SDK_INT >= 33 && backCallback != null) {
             getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(backCallback);
         }
@@ -177,6 +184,7 @@ public class WelcomeActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         if (notificationAction != null) refreshPermission();
+        if (realtimeSetup != null) realtimeSetup.refresh();
     }
 
     private <T extends View> T need(int id) {
@@ -279,7 +287,10 @@ public class WelcomeActivity extends Activity {
 
     @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(requestCode, permissions, results);
-        if (requestCode == NOTIFICATION_REQUEST && notificationAction != null) refreshPermission();
+        if (requestCode == NOTIFICATION_REQUEST && notificationAction != null) {
+            refreshPermission();
+            if (realtimeSetup != null) realtimeSetup.refresh();
+        }
     }
 
     private void openNotificationSettings() {

@@ -22,12 +22,12 @@ public final class WaveView extends View {
 
     public WaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        bars.setColor(0xFF246957);
+        bars.setColor(context.getColor(R.color.accent));
         bars.setStrokeCap(Paint.Cap.ROUND);
         bars.setStrokeWidth(Motion.dp(context, 2.2f));
-        baseline.setColor(0xFFDCE5DE);
+        baseline.setColor(context.getColor(R.color.line));
         baseline.setStrokeWidth(Motion.dp(context, 1f));
-        head.setColor(0xFF14211D);
+        head.setColor(context.getColor(R.color.ink));
         head.setStrokeWidth(Motion.dp(context, 1.6f));
     }
 

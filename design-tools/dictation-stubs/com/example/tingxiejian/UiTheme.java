@@ -1,0 +1,1 @@
+package com.example.tingxiejian;import android.content.Context;import android.view.View;class UiTheme{static Context wrap(Context c){return c;}static void padForSystemBars(Context c,View v){}}

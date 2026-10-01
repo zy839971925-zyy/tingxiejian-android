@@ -31,6 +31,7 @@
 
             <ImageView
                 android:id="@+id/back"
+            android:background="@drawable/bg_icon_circle"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:padding="12dp"
@@ -54,6 +55,19 @@
             android:layout_height="1dp"
             android:background="@color/line" />
 
+        <EditText android:id="@+id/transcript_search" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp" android:layout_marginTop="12dp" android:padding="12dp"
+            android:background="@drawable/bg_input" android:inputType="text|textNoSuggestions"
+            android:singleLine="true" android:imeOptions="actionDone" android:maxLength="256"
+            style="@style/T.Body" android:hint="搜索当前稿中的关键词" android:contentDescription="搜索当前稿"/>
+        <TextView android:id="@+id/search_status" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:paddingTop="8dp" android:visibility="gone" style="@style/T.Caption"
+            android:accessibilityLiveRegion="polite"/>
+
+        <LinearLayout android:id="@+id/transcript_header" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="vertical">
         <TextView
             android:id="@+id/meta"
             android:layout_width="match_parent"
@@ -74,13 +88,63 @@
             style="@style/T.Caption"
             android:text="" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="16dp">
+
+            <TextView
+                android:id="@+id/layer_faithful"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginRight="12dp"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:background="@drawable/bg_primary"
+                android:clickable="true"
+                android:focusable="true"
+                style="@style/T.Label"
+                android:textColor="@color/on_accent"
+                android:text="忠实稿" />
+
+            <TextView
+                android:id="@+id/layer_polished"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:background="@drawable/bg_row"
+                android:clickable="true"
+                android:focusable="true"
+                style="@style/T.Label"
+                android:text="整理稿" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/layer_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="8dp"
+            android:accessibilityLiveRegion="polite"
+            style="@style/T.Caption"
+            android:text="忠实稿永久保留；复制、分享、导出使用当前忠实稿。" />
+
         <!-- Each icon and label is one centered group, never a drawable pinned to the edge. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingLeft="20dp"
-            android:paddingTop="20dp"
+            android:paddingTop="16dp"
             android:paddingRight="20dp"
             android:paddingBottom="8dp">
 
@@ -140,6 +204,7 @@
                         android:tint="@color/ink"
                         android:importantForAccessibility="no" />
                     <TextView
+                        android:id="@+id/copy_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -176,6 +241,7 @@
                         android:tint="@color/ink"
                         android:importantForAccessibility="no" />
                     <TextView
+                        android:id="@+id/share_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -205,6 +271,7 @@
                         android:tint="@color/ink"
                         android:importantForAccessibility="no" />
                     <TextView
+                        android:id="@+id/save_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
@@ -215,6 +282,11 @@
                         android:text="导出" />
                 </LinearLayout>
             </LinearLayout>
+        </LinearLayout>
+
+        <TextView android:id="@+id/transcript_empty" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:padding="24dp" style="@style/T.Body"
+            android:text="这段录音还没有可显示的转写文字。" android:visibility="gone"/>
         </LinearLayout>
 
         <ListView

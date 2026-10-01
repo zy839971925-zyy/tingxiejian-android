@@ -1,0 +1,26 @@
+{
+  "task": "Tingxiejian Android comprehensive upgrade",
+  "entrypoint": "CODEX_TASK.md",
+  "priority_order": [
+    "protect-existing-functionality",
+    "critical-engineering-safety",
+    "asr-quality",
+    "live-dictation",
+    "ai-polish",
+    "ui-motion",
+    "architecture-cleanup"
+  ],
+  "protected_subsystems": [
+    "xiaomi-hyperos-super-island",
+    "shizuku-xmsf-gate",
+    "package-identity",
+    "history-export-compatibility"
+  ],
+  "non_goals": [
+    "compose-rewrite",
+    "kotlin-migration",
+    "package-id-change",
+    "unnecessary-build-system-rewrite",
+    "automatic-push-merge-release"
+  ]
+}

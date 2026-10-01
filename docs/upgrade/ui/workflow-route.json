@@ -1,0 +1,62 @@
+{
+  "passed": true,
+  "task_profile": {
+    "profile_version": 1,
+    "lane": "action",
+    "depth_class": "ultra",
+    "autonomy_class": "B",
+    "reasoning_breadth": "max",
+    "evidence_depth": "deep",
+    "challenge_depth": "max",
+    "verification_depth": "max",
+    "governance_depth": "standard",
+    "frame_uncertainty": "moderate",
+    "freshness": "time_sensitive",
+    "causal_or_systemic_complexity": "high",
+    "task_coupling": "moderate",
+    "persistence": "durable",
+    "external_side_effects": "reversible",
+    "routing_confidence": "high",
+    "task_modes": [
+      "research",
+      "action",
+      "audit"
+    ],
+    "explicit_deep_research": true,
+    "high_consequence": false,
+    "orientation_needed": false,
+    "problem_model_required": true,
+    "active_gap_tags": [
+      "ui-design",
+      "accessibility",
+      "motion",
+      "bounded-device-evidence",
+      "apk-delivery",
+      "protected-state",
+      "closure"
+    ],
+    "recheck_triggers": [
+      "hidden_complexity",
+      "source_conflict",
+      "closure_material_uncertainty"
+    ]
+  },
+  "route": {
+    "profile_version": 1,
+    "profile_fingerprint": "sha256:b34ade9ee0b8cc97716aab7c5a8a21ee51a3160fa34ef26877622b00bf90c422",
+    "index_fingerprint": "sha256:1553b999a83adcea97439454a48da0f243f12c2b831cf5cbe9c244fbfb6727b4",
+    "required_families": [
+      "core-reasoning",
+      "deep-research",
+      "execution-control",
+      "audit-verification"
+    ],
+    "optional_families": [],
+    "verification_mode": "dual_orthogonal",
+    "runtime_level": "durable",
+    "swarm_admission": "allowed",
+    "reference_phase_limit": 3,
+    "progressive_loading": true,
+    "route_status": "current"
+  }
+}
